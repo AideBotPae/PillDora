@@ -9,7 +9,7 @@ logger = logging.getLogger('AideBot')
 
 TOKEN_AIDEBOT='902984072:AAFd0KLLAinZIrGhQvVePQwBt3WJ1QQQDGs'
 TOKEN_PROVE= '877926240:AAEuBzlNaqYM_kXbOMxs9lzhFsR7UpoqKWQ'
-LOGIN, NEW_USER, CHOOSING, TYPING_CHOICE = range(4)
+LOGIN, NEW_USER, CHOOSING, INTR_MEDICINE = range(4)
 
 reply_keyboard = [['Introduce Medicine', 'Calendar'],
                   ['History', 'Delete reminder'],
@@ -104,10 +104,9 @@ def start(update, context):
 def intr_medicine(update, context):
    logger.info('User introducing new medicine')
 
+   update.message.reply_text('Please Introduce New Medicine as Follows:')
 
-   update.message.reply_text(' Can I help you more?',
-                             reply_markup=markup)
-   return CHOOSING
+   return INTR_MEDICINE
 
 def see_calendar(update, context):
    logger.info('User seeing calendar')
@@ -147,7 +146,7 @@ def create_journey(update, context):
 def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
-    updater = Updater(token=TOKEN_AIDEBOT, use_context=True)
+    updater = Updater(token=TOKEN_PROVE, use_context=True)
     dp = updater.dispatcher
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
@@ -166,6 +165,7 @@ def main():
                        MessageHandler(Filters.regex('^Journey'),
                                       create_journey),
                        ],
+            INTR_MEDICINE: [MessageHandler(Filters.text, new_user)],
         },
         fallbacks=[MessageHandler(Filters.regex('^Done$'), done)]
 
