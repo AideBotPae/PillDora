@@ -1,4 +1,5 @@
 # from pycparser.ply.lex import TOKEN
+from functools import partial
 from telegram.ext import Updater, InlineQueryHandler, CommandHandler, MessageHandler, Filters, ConversationHandler, \
     CallbackQueryHandler
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
@@ -114,9 +115,9 @@ def start(update, context):
     return NEW_USER
 
 
-def intr_medicine(update, context, medicine):
+def intr_medicine(update, context):
     logger.info('User introducing new medicine')
-    print(medicine)
+    print(update)
     update.message.reply_text(
         'Please Introduce New Medicine using next format:\nCodeCN-Quantity-Frequency-EndDate-Expiration Date')
 
@@ -216,7 +217,7 @@ def main():
                        ],
             INTR_MEDICINE: [MessageHandler(Filters.text, send_new_medicine)],
             CHECK_MED: [MessageHandler(Filters.regex('^YES$'), choose_function),
-                    MessageHandler(Filters.regex('^NO$'), intr_medicine(True, medicine))
+                    MessageHandler(Filters.regex('^NO$'), partial(intr_medicine, medicine=medicine))
                     ],
             CHECK_REM: [MessageHandler(Filters.regex('^YES$'), choose_function),
                     MessageHandler(Filters.regex('^NO$'), delete_reminder)

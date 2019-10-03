@@ -1,6 +1,6 @@
 import socket
 serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-serv.bind('localhost', 8080)
+serv.bind(('localhost', 8080))
 serv.listen(5)
 while True:
     conn, addr = serv.accept()
