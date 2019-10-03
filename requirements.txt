@@ -1,4 +1,6 @@
-calendar
 datetime
 pycparser
+pymysql
+requests
 telegram
+
