@@ -67,6 +67,7 @@ class ClientChecker:
             db.execute(
                 "INSERT INTO aidebot.users (id, password) VALUES ({id},'{pwd}')".format(id=self.user_id,
                                                                                         pwd=password))
+            print('User added\n')
 
     def check_password(self, password):
 
