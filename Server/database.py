@@ -2,7 +2,7 @@ import pymysql
 
 
 class DatabaseConnector:
-    @property
+    
     def connect(self):
         # Open database connection
         return pymysql.connect("localhost", "paesav", "12345678", "aidebot")
