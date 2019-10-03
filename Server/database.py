@@ -2,21 +2,27 @@ import pymysql
 
 
 class DatabaseConnector:
+    # Open database connection
+    database = pymysql.connect("localhost", "paesav", "12345678", "aidebot")
+
     @property
-    def connect(self):
-        # Open database connection
-        return pymysql.connect("localhost", "paesav", "12345678", "aidebot")
+    def database(self):
+        return self.database
+
+    @property
+    def cursor(self):
+        return self.database.cursor()
 
 
 class ClientChecker:
 
-    def __init__(self, user_id, database):
+    def __init__(self, user_id, databaseconnector):
         self.user_id = user_id
         self.password = ''
         self.user_exists = True
-        self.db = database
+        self.db = databaseconnector.database
         # prepare a cursor object using cursor() method
-        self.cursor = database.cursor()
+        self.cursor = databaseconnector.cursor
 
     def check_user(self):
         self.cursor.execute("SELECT id, password FROM aidebot.users where id={id}".format(id=self.user_id))
@@ -53,19 +59,16 @@ class ClientChecker:
 
 
 if __name__ == "__main__":
-    database = DatabaseConnector.connect
-    checker = ClientChecker(user_id=1, database=database)
+    checker = ClientChecker(user_id=1, databaseconnector=DatabaseConnector)
     exists = checker.check_user()
     if exists:
         checker.check_password('hola')
         checker.check_password('prueba')
     else:
         print("Va como el culo, no detecta el unico id :(")
-    checker_2 = ClientChecker(user_id=2, database=database)
+    checker_2 = ClientChecker(user_id=2, databaseconnector=DatabaseConnector)
     exists_2 = checker_2.check_user()
     if exists_2:
         print("Maaaaal, no existe :(((")
     else:
         checker_2.add_user('prueba_checker_method')
-
-
