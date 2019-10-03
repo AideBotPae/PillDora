@@ -1,7 +1,7 @@
 import pymysql
 
 
-    class DatabaseConnector:
+class DatabaseConnector:
     @property
     def connect(self):
         # Open database connection
