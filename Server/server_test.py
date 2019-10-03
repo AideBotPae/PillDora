@@ -4,12 +4,12 @@ serv.bind(('localhost', 8080))
 serv.listen(5)
 while True:
     conn, addr = serv.accept()
-    from_client = ''
+    from_client = b''
     while True:
         data = conn.recv(4096)
         if not data: break
-        from_client += data.decode()
+        from_client += data
         print(from_client)
-        conn.send("I am SERVER\n")
+        conn.send(b"I am SERVER\n")
     conn.close()
-    print ('client disconnected')
+    print('client disconnected')
