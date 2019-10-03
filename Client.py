@@ -1,20 +1,30 @@
-from telegram.ext import Updater, InlineQueryHandler, CommandHandler, MessageHandler, Filters, ConversationHandler
-from telegram import ReplyKeyboardMarkup
+from pycparser.ply.lex import TOKEN
+from telegram.ext import Updater, InlineQueryHandler, CommandHandler, MessageHandler, Filters, ConversationHandler, \
+    CallbackQueryHandler
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 import requests
+import telegram
+import telegramcalendar
 import re
 import logging
+
+from PillDora.Client import TOKEN_PROVE
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger('AideBot')
 
-TOKEN_AIDEBOT='902984072:AAFd0KLLAinZIrGhQvVePQwBt3WJ1QQQDGs'
-TOKEN_PROVE= '877926240:AAEuBzlNaqYM_kXbOMxs9lzhFsR7UpoqKWQ'
-LOGIN, NEW_USER, CHOOSING, INTR_MEDICINE = range(4)
+TOKEN_AIDEBOT = '902984072:AAFd0KLLAinZIrGhQvVePQwBt3WJ1QQQDGs'
+TOKEN_PROVE = '877926240:AAEuBzlNaqYM_kXbOMxs9lzhFsR7UpoqKWQ'
+LOGIN, NEW_USER, CHOOSING, INTR_MEDICINE, CHECK_MED, CHECK_REM , CALENDAR_CHOOSE, CALENDAR_TASKS, GET_CN = range(9)
 
 reply_keyboard = [['Introduce Medicine', 'Calendar'],
                   ['History', 'Delete reminder'],
-                  ['Journey' ,'Done']]
+                  ['Journey', 'Done']]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
+
+yes_no_reply_keyboard = [['YES', 'NO']]
+yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=True)
+
 
 # Resolve message data to a readable name
 def get_name(user):
@@ -47,7 +57,8 @@ def intr_pwd(update, context):
     if (pwd_verification(password) == False):
         update.message.reply_text("Wrong Password. Enter correct password again:")
         return LOGIN
-    update.message.reply_text('Welcome ' + get_name(update.message.from_user) + '. How can I help you?', reply_markup=markup)
+    update.message.reply_text('Welcome ' + get_name(update.message.from_user) + '. How can I help you?',
+                              reply_markup=markup)
     return CHOOSING
 
 
@@ -67,9 +78,9 @@ def new_user(update, context):
     if re.search("[$#@]", password):
         i = i + 1
     if re.search("\s", password):
-        i=0
+        i = 0
     if (len(password) < 6 or len(password) > 12):
-        i=0
+        i = 0
 
     if (i > 2):
         update.message.reply_text("Valid Password")
@@ -79,12 +90,14 @@ def new_user(update, context):
         x = False
         return CHOOSING
 
-    update.message.reply_text("Not a Valid Password. Enter Password with 6 to 12 characters and minimum 3 of these types of characters: uppercase, lowercase, number and $, # or @")
+    update.message.reply_text(
+        "Not a Valid Password. Enter Password with 6 to 12 characters and minimum 3 of these types of characters: uppercase, lowercase, number and $, # or @")
     return NEW_USER
 
-def choose_function(update, context):
-     return True
 
+def choose_function(update, context):
+    logger.info('User in the menu')
+    update.message.reply_text("Is there any other way I can help you?", reply_markup=markup)
 
 def start(update, context):
     logger.info('User has connected to AideBot: /start')
@@ -102,45 +115,75 @@ def start(update, context):
 
 
 def intr_medicine(update, context):
-   logger.info('User introducing new medicine')
+    logger.info('User introducing new medicine')
+    update.message.reply_text(
+        'Please Introduce New Medicine using next format:\nCodeCN-Quantity-Frequency-EndDate-Expiration Date')
+    return INTR_MEDICINE
 
-   update.message.reply_text('Please Introduce New Medicine as Follows:')
 
-   return INTR_MEDICINE
+def send_new_medicine(update, context):
+    medicine = update.message.text.split('-')
+    logger.info(
+        'New medicine.\n\tCN : ' + medicine[0] + '\n\tQuantity : ' + medicine[1] + '\n\tFrequency : ' +
+        medicine[2] + '\n\tEndDate : ' + medicine[3] + '\n\tExpiration Date : ' + medicine[4])
+    update.message.reply_text(
+        'Medicine correctly introduced!\n\tCN : ' + medicine[0] + '\n\tQuantity : ' + medicine[1] + '\n\tFrequency : ' +
+        medicine[2] + '\n\tEndDate : ' + medicine[3] + '\n\tExpiration Date : ' + medicine[4])
+    update.message.reply_text('Is the medicine correctly introduced? ', reply_markup=yes_no_markup)
+    return CHECK_MED
+
 
 def see_calendar(update, context):
-   logger.info('User seeing calendar')
+    logger.info('User seeing calendar')
+    update.message.reply_text("Please select a date: ",
+                              reply_markup=telegramcalendar.create_calendar())
+
+def inline_handler(update, context):
+    selected, date = telegramcalendar.process_calendar_selection(context.bot, update)
+    if selected:
+        context.bot.send_message(chat_id=update.callback_query.from_user.id,
+                         text="You selected %s" % (date.strftime("%d/%m/%Y")),
+                         reply_markup=ReplyKeyboardRemove())
+        get_calendar_tasks(update, context, date.strftime("%d/%m/%Y"))
+    return CHOOSING
 
 
-   update.message.reply_text(' Can I help you more?',
+def get_calendar_tasks(update, context, date):
+    logger.info('Tasks for the user on the date '+ date)
+    #connects to DataBase with Date and UserId asking for all the tasks of this date
+    context.bot.send_message(chat_id=update.callback_query.from_user.id, text="Is there any other way I can help you?",
                              reply_markup=markup)
-   return CHOOSING
+
 
 def see_history(update, context):
-   logger.info('User seeing history')
+    logger.info('User seeing history')
+    #connects to DataBase with UserId asking for all the meds currently taking
+    user_id = update.message.from_user.id
+    return choose_function(update, context)
 
-   update.message.reply_text(' Can I help you more?',
-                             reply_markup=markup)
-   return CHOOSING
 
 def delete_reminder(update, context):
+    logger.info('User deleting reminder')
+    update.message.reply_text('Please Introduce CN of the Medicine you want to delete the reminder:')
+    return GET_CN
 
-   update.message.reply_text(' Can I help you more?',
-                             reply_markup=markup)
-   logger.info('User deleting reminder')
-   return CHOOSING
+def get_medicine_CN(update, context):
+    medicine_CN = update.message.text
+    #connects to DataBase with UserId and get the current reminder for this medicine_CN.
+    update.message.reply_text('Reminder asked to be removed:\n\tMedicine: \n\tTaken from:\n\tEnd date:\n\tFrequency: ')
+    update.message.reply_text('Is this the reminder you want to remove? ', reply_markup=yes_no_markup)
+    return CHECK_REM
 
 def done(update, context):
-   update.message.reply_text("See you next time")
-   logger.info('User finish with AideBot')
-   return ConversationHandler.END
+    update.message.reply_text("See you next time")
+    logger.info('User finish with AideBot')
+    return ConversationHandler.END
 
 
 def create_journey(update, context):
-   update.message.reply_text(' Can I help you more?',
-                             reply_markup=markup)
-   logger.info('User creating journey')
-   return CHOOSING
+
+    logger.info('User creating journey')
+    return choose_function(update, context)
 
 
 def main():
@@ -165,13 +208,23 @@ def main():
                        MessageHandler(Filters.regex('^Journey'),
                                       create_journey),
                        ],
-            INTR_MEDICINE: [MessageHandler(Filters.text, new_user)],
+            INTR_MEDICINE: [MessageHandler(Filters.text, send_new_medicine)],
+            CHECK_MED: [MessageHandler(Filters.regex('^YES$'), choose_function),
+                    MessageHandler(Filters.regex('^NO$'), intr_medicine)
+                    ],
+            CHECK_REM: [MessageHandler(Filters.regex('^YES$'), choose_function),
+                    MessageHandler(Filters.regex('^NO$'), delete_reminder)
+                    ],
+            CALENDAR_CHOOSE: [MessageHandler(Filters.text, inline_handler)],
+            GET_CN: [MessageHandler(Filters.text, get_medicine_CN)]
+
         },
         fallbacks=[MessageHandler(Filters.regex('^Done$'), done)]
 
     )
 
     dp.add_handler(conv_handler)
+    dp.add_handler(CallbackQueryHandler(inline_handler))
     updater.start_polling()
     updater.idle()
 
