@@ -63,14 +63,14 @@ class ClientChecker:
                 return True
 
     def add_user(self, password):
-        with Database as db:
+        with Database() as db:
             db.execute(
                 "INSERT INTO aidebot.users (id, password) VALUES ({id},{pwd})".format(id=self.user_id,
                                                                                       pwd=password))
 
     def check_password(self, password):
 
-        with Database as db:
+        with Database() as db:
             # execute SQL query using execute() method.
             data = db.query("SELECT id, password FROM aidebot.users where id={id}".format(id=self.user_id))
 
