@@ -43,7 +43,6 @@ markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
 yes_no_reply_keyboard = [['YES', 'NO']]
 yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=True)
 
-intr_medicine_counter = 0
 INTR_MEDICINE_MSSGS = ["What is the medicine's name?", "How many pills are in the packaging?", "How often do you take your pill (in hours)?",
 "Which day does treatment end?", "When does the medicine expire?"]
 # Resolve message data to a readable name
@@ -130,6 +129,7 @@ def start(update, context):
     logger.info('User has connected to AideBot: /start')
     user_id = update.message.from_user.id
     name = get_name(update.message.from_user)
+
     context.bot.send_message(chat_id=update.message.chat_id, text=("Welcome " + name + " ! My name is AideBot"))
     logger.info('Name of user is: ' + name + " and its ID is " + str(user_id))
     if (user_verification(update, context)):
@@ -232,6 +232,8 @@ def main():
     dp = updater.dispatcher
     MEDICINE_TAGS = ['NAME','QUANTITY','FREQUENCY','END_DATE','EXP_DATE']
     medicine = {tag: '' for tag in MEDICINE_TAGS}
+    def new_counter (counter):
+        return counter
 
     conv_handler = ConversationHandler(
         allow_reentry=True,
