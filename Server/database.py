@@ -52,7 +52,7 @@ class ClientChecker:
         self.user_id = user_id
 
     def check_user(self):
-        with Database as db:
+        with Database() as db:
             data = db.query("SELECT id, password FROM aidebot.users where id={id}".format(id=self.user_id))
 
             if not data:
