@@ -8,72 +8,92 @@ class DatabaseConnectionCredentials:
         return {'ip': 'localhost', 'user': 'paesav', 'password': '12345678', 'database': 'aidebot'}
 
 
+class Database(DatabaseConnectionCredentials):
+    def __init__(self):
+        self._conn = pymysql.connect(self.credentials['ip'], self.credentials['user'], self.credentials['password'],
+                                     self.credentials['database'])
+        self._cursor = self._conn.cursor()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.commit()
+        self.connection.close()
+
+    @property
+    def connection(self):
+        return self._conn
+
+    @property
+    def cursor(self):
+        return self._cursor
+
+    def commit(self):
+        self.connection.commit()
+
+    def execute(self, sql_query):
+        self.cursor.execute(sql_query)
+
+    def fetchall(self):
+        return self.cursor.fetchall()
+
+    def fetchone(self):
+        return self.cursor.fetchone()
+
+    def query(self, sql_query):
+        self.cursor.execute(sql_query)
+        return self.fetchall()
+
+
 class ClientChecker:
 
-    def __init__(self, user_id, credentials):
+    def __init__(self, user_id):
         self.user_id = user_id
-        self.credentials = credentials
-        self.user_exists = True
-        self.database = pymysql.connect(self.credentials['ip'], self.credentials['user'], self.credentials['password'],
-                                        self.credentials['database'])
 
     def check_user(self):
-        
-        cursor = self.database.cursor()
+        with Database as db:
+            data = db.query("SELECT id, password FROM aidebot.users where id={id}".format(id=self.user_id))
 
-        cursor.execute("SELECT id, password FROM aidebot.users where id={id}".format(id=self.user_id))
-        data = cursor.fetchall()
-        
-        if not data:
-            print("User isn't registered\n")
-            self.user_exists = False
-            return False
-        else:
-            print("User registered\n")
-            return True
+            if not data:
+                print("User isn't registered\n")
+                return False
+            else:
+                print("User registered\n")
+                return True
 
     def add_user(self, password):
-        
-        cursor = self.database.cursor()
-        if not self.user_exists:
-            cursor.execute(
-                "INSERT INTO aidebot.users (id, password) VALUES ({id},{pwd})".format(id=self.user_id, pwd=password))
+        with Database as db:
+            db.execute(
+                "INSERT INTO aidebot.users (id, password) VALUES ({id},{pwd})".format(id=self.user_id,
+                                                                                      pwd=password))
 
     def check_password(self, password):
-        
-        cursor = self.database.cursor()
 
-        # execute SQL query using execute() method.
-        cursor.execute("SELECT id, password FROM aidebot.users where id={id}".format(id=self.user_id))
+        with Database as db:
+            # execute SQL query using execute() method.
+            data = db.query("SELECT id, password FROM aidebot.users where id={id}".format(id=self.user_id))
 
-        # Fetch all rows using fetchone() method.
-        data = cursor.fetchall()
-
-        if password != data[0][1]:
-            print('Wrong password')
-            return False
-        else:
-            print('Correct password')
-            return True
-
-    def close(self):
-        self.database.close()
+            if password != data[0][1]:
+                print('Wrong password')
+                return False
+            else:
+                print('Correct password')
+                return True
 
 
 if __name__ == "__main__":
-    checker = ClientChecker(user_id=1, credentials=DatabaseConnectionCredentials.credentials)
+    checker = ClientChecker(user_id=1)
     exists = checker.check_user()
     if exists:
         checker.check_password('hola')
         checker.check_password('prueba')
     else:
         print("Va como el culo, no detecta el unico id :(")
-    checker_2 = ClientChecker(user_id=2, credentials=DatabaseConnectionCredentials.credentials)
+    checker_2 = ClientChecker(user_id=2)
     exists_2 = checker_2.check_user()
     if exists_2:
         print("Maaaaal, no existe :(((")
     else:
         checker_2.add_user('prueba_checker_method')
 
-    checker.close()
-    checker_2.close()
