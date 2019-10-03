@@ -17,7 +17,7 @@ logger = logging.getLogger('AideBot')
 TOKEN_AIDEBOT = '902984072:AAFd0KLLAinZIrGhQvVePQwBt3WJ1QQQDGs'
 TOKEN_PROVE = '938652990:AAETGF-Xh2_njSdCLn2KibcprZXH1hhqsiI'
 LOGIN, NEW_USER, CHOOSING, INTR_MEDICINE, CHECK_MED, CHECK_REM , CALENDAR_CHOOSE, CALENDAR_TASKS, GET_CN = range(9)
-intr_medicine_counter = 0
+
 reply_keyboard = [['Introduce Medicine', 'Calendar'],
                   ['History', 'Delete reminder'],
                   ['Journey', 'Done']]
@@ -26,7 +26,9 @@ markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
 yes_no_reply_keyboard = [['YES', 'NO']]
 yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=True)
 
-
+intr_medicine_counter = 0
+INTR_MEDICINE_MSSGS = ["What is the medicine's name?", "How many pills are in the packaging?", "How often do you take your pill (in hours)?",
+"Which day does treatment end?", "When does the medicine expire?"]
 # Resolve message data to a readable name
 def get_name(user):
     try:
@@ -117,24 +119,32 @@ def start(update, context):
 
 def intr_medicine(update, context):
     logger.info('User introducing new medicine')
-    print(update)
-    update.message.reply_text(
-        'Please Introduce New Medicine using next format:\nCodeCN-Quantity-Frequency-EndDate-Expiration Date')
+    update.message.reply_text(INTR_MEDICINE_MSSGS[intr_medicine_counter])
 
     return INTR_MEDICINE
 
 
-def send_new_medicine(update, context):
-    medicine = update.message.text.split('-')
-    logger.info(
-        'New medicine.\n\tCN : ' + medicine[0] + '\n\tQuantity : ' + medicine[1] + '\n\tFrequency : ' +
-        medicine[2] + '\n\tEndDate : ' + medicine[3] + '\n\tExpiration Date : ' + medicine[4])
-    update.message.reply_text(
-        'Medicine correctly introduced!\n\tCN : ' + medicine[0] + '\n\tQuantity : ' + medicine[1] + '\n\tFrequency : ' +
-        medicine[2] + '\n\tEndDate : ' + medicine[3] + '\n\tExpiration Date : ' + medicine[4])
-    update.message.reply_text('Is the medicine correctly introduced? ', reply_markup=yes_no_markup)
-    return CHECK_MED
+def send_new_medicine(update, context, medicine, tags):
+    global intr_medicine_counter
 
+    medicine[tags[intr_medicine_counter]] = update.message.text
+    intr_medicine_counter += 1
+    logger.info(medicine)
+    if intr_medicine_counter != len(INTR_MEDICINE_MSSGS):
+        update.message.reply_text(INTR_MEDICINE_MSSGS[intr_medicine_counter])
+        return INTR_MEDICINE
+
+    else:
+        intr_medicine_counter = 0
+        update.message.reply_text('Is the medicine correctly introduced? ', reply_markup=yes_no_markup)
+        update.message.reply_text(show_medicine(medicine, tags))
+        return CHECK_MED
+
+def show_medicine(medicine, tags):
+    medicine_string = f"Hello {medicine[tags[0]]}"
+    #for tag in tags:
+     #   medicine_string += f'{tag}: {medicine[tag]}\n'
+    return medicine_string
 
 def see_calendar(update, context):
     logger.info('User seeing calendar')
@@ -215,9 +225,9 @@ def main():
                        MessageHandler(Filters.regex('^Journey$'),
                                       create_journey),
                        ],
-            INTR_MEDICINE: [MessageHandler(Filters.text, send_new_medicine)],
+            INTR_MEDICINE: [MessageHandler(Filters.text, partial(send_new_medicine, medicine=medicine, tags=MEDICINE_TAGS))],
             CHECK_MED: [MessageHandler(Filters.regex('^YES$'), choose_function),
-                    MessageHandler(Filters.regex('^NO$'), partial(intr_medicine, medicine=medicine))
+                    MessageHandler(Filters.regex('^NO$'), intr_medicine)
                     ],
             CHECK_REM: [MessageHandler(Filters.regex('^YES$'), choose_function),
                     MessageHandler(Filters.regex('^NO$'), delete_reminder)
