@@ -1,3 +1,4 @@
+
 #!/usr/bin/env
 # -*- coding: utf-8 -*-
 #
@@ -9,9 +10,6 @@ Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 
 """
-# from pycparser.ply.lex import TOKEN
-from functools import partial
-
 from telegram.ext import Updater, InlineQueryHandler, CommandHandler, MessageHandler, Filters, ConversationHandler, \
     CallbackQueryHandler
 from telegram.ext.dispatcher import run_async
@@ -23,17 +21,16 @@ import telegramcalendar
 import re
 import logging
 
-# from PillDora.Client import TOKEN_PROVE
+from PillDora.Client import TOKEN_PROVE
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger('AideBot')
 
 TOKEN_AIDEBOT = '902984072:AAFd0KLLAinZIrGhQvVePQwBt3WJ1QQQDGs'
+TOKEN_PROVE = '877926240:AAEuBzlNaqYM_kXbOMxs9lzhFsR7UpoqKWQ'
+LOGIN, NEW_USER, CHOOSING, INTR_MEDICINE, CHECK_MED, CHECK_REM,  CALENDAR_TASKS, GET_CN, JOURNEY, JOURNEY_2= range(10)
 
-TOKEN_PROVE = '938652990:AAETGF-Xh2_njSdCLn2KibcprZXH1hhqsiI'
-LOGIN, NEW_USER, CHOOSING, INTR_MEDICINE, CHECK_MED, CHECK_REM , CALENDAR_CHOOSE, CALENDAR_TASKS, GET_CN = range(9)
-
-states = [LOGIN, LOGIN]
+states=[LOGIN, LOGIN]
 
 reply_keyboard = [['Introduce Medicine', 'Calendar'],
                   ['History', 'Delete reminder'],
@@ -43,8 +40,7 @@ markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
 yes_no_reply_keyboard = [['YES', 'NO']]
 yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=True)
 
-INTR_MEDICINE_MSSGS = ["What is the medicine's name?", "How many pills are in the packaging?", "How often do you take your pill (in hours)?",
-"Which day does treatment end?", "When does the medicine expire?"]
+
 # Resolve message data to a readable name
 def get_name(user):
     try:
@@ -66,6 +62,7 @@ def pwd_verification(password):
 # Verificates is UserID has account or it is first visit in AideBot
 def user_verification(update, context):
     user_id = update.message.from_user.id
+    #return (send_hamza("{state=user;user_id="+user_id+"}")
     return True
 
 def set_state(state):
@@ -129,7 +126,6 @@ def start(update, context):
     logger.info('User has connected to AideBot: /start')
     user_id = update.message.from_user.id
     name = get_name(update.message.from_user)
-
     context.bot.send_message(chat_id=update.message.chat_id, text=("Welcome " + name + " ! My name is AideBot"))
     logger.info('Name of user is: ' + name + " and its ID is " + str(user_id))
     if (user_verification(update, context)):
@@ -142,35 +138,29 @@ def start(update, context):
 
 @run_async
 def intr_medicine(update, context):
-    logger.info('User introducing new medicine')
-    update.message.reply_text(INTR_MEDICINE_MSSGS[intr_medicine_counter])
+    logger.info('User ' +get_name(update.message.from_user)+ ' introducing new medicine')
+    update.message.reply_text(
+        'Please Introduce New Medicine using next format:\nCodeCN-Quantity-Frequency-EndDate-Expiration Date')
+    return set_state(INTR_MEDICINE)
 
-    return INTR_MEDICINE
 
-
-def send_new_medicine(update, context, medicine, tags):
-    global intr_medicine_counter
-
-    medicine[tags[intr_medicine_counter]] = update.message.text
-    intr_medicine_counter += 1
-    logger.info(medicine)
-    if intr_medicine_counter != len(INTR_MEDICINE_MSSGS):
-        update.message.reply_text(INTR_MEDICINE_MSSGS[intr_medicine_counter])
-        return INTR_MEDICINE
-
+def send_new_medicine(update, context):
+    medicine = update.message.text.split('-')
+    if (len(medicine)!=5):
+        logger.info('Error: user ' + get_name(update.message.from_user) + ' did not introduce all fields of new medicine')
+        update.message.reply_text("Warning: complete all the fields as mentioned before.")
+        return intr_medicine(update, context)
     else:
-        intr_medicine_counter = 0
+        logger.info(
+            'New medicine for user  ' +get_name(update.message.from_user)+ ' .\n\tCN : ' + medicine[0] + '\n\tQuantity : ' + medicine[1] + '\n\tFrequency : ' +
+            medicine[2] + '\n\tEndDate : ' + medicine[3] + '\n\tExpiration Date : ' + medicine[4])
+        update.message.reply_text(
+            'Medicine correctly introduced!\n\tCN : ' + medicine[0] + '\n\tQuantity : ' + medicine[1] + '\n\tFrequency : ' +
+            medicine[2] + '\n\tEndDate : ' + medicine[3] + '\n\tExpiration Date : ' + medicine[4])
         update.message.reply_text('Is the medicine correctly introduced? ', reply_markup=yes_no_markup)
-        update.message.reply_text(show_medicine(medicine, tags))
-        return CHECK_MED
+        return set_state(CHECK_MED)
 
-def show_medicine(medicine, tags):
-    medicine_string = ''
-    for tag in tags:
-        medicine_string += tag+': '+medicine[tag]+'\n'
-    return medicine_string
-
-
+@run_async
 def see_calendar(update, context):
     logger.info('User ' +get_name(update.message.from_user)+ '  seeing calendar')
     update.message.reply_text("Please select a date: ",
@@ -179,11 +169,21 @@ def see_calendar(update, context):
 def inline_handler(update, context):
     selected, date = telegramcalendar.process_calendar_selection(context.bot, update)
     if selected:
-        context.bot.send_message(chat_id=update.callback_query.from_user.id,
+        if (states[0] == CHOOSING):
+            context.bot.send_message(chat_id=update.callback_query.from_user.id,
                          text="You selected %s" % (date.strftime("%d/%m/%Y")),
                          reply_markup=ReplyKeyboardRemove())
+
+    logger.info("Estado 1: "+ str(states[0])+ " Estado 2: " + str(states[1]))  #HHHEEEEEEEEY LOCO
+    if(states[0]==CHOOSING):
         get_calendar_tasks(update, context, date.strftime("%d/%m/%Y"))
-    return set_state(CHOOSING)
+        return set_state(CHOOSING)
+    elif(states[0]==JOURNEY):
+        set_journey(update, context, date.strftime("%d/%m/%Y"), "none")
+        set_state(JOURNEY_2)
+    else:
+        set_journey(update, context, "none", date.strftime("%d/%m/%Y"))
+        set_state(CHOOSING)
 
 
 @run_async
@@ -213,16 +213,36 @@ def get_medicine_CN(update, context):
     update.message.reply_text('Is this the reminder you want to remove? ', reply_markup=yes_no_markup)
     return set_state(CHECK_REM)
 
+
+@run_async
+def create_journey(update, context):
+    logger.info('User ' + get_name(update.message.from_user) + ' creating journey')
+    set_state(JOURNEY)
+    update.message.reply_text("So you are going on a trip...\nWhen are you leaving?",
+                          reply_markup=telegramcalendar.create_calendar())
+
+
+def set_journey(update, context, departure_date, arrival_date):
+    if (states[0] == JOURNEY):
+        logger.info("Department date "+ departure_date)
+        context.bot.send_message(chat_id=update.callback_query.from_user.id,
+                                 text="So you leave on "+departure_date+"\nAlright. When will you come back?",
+                              reply_markup=telegramcalendar.create_calendar())
+
+    if (states[0] == JOURNEY_2):
+        logger.info("Arrival date "+ arrival_date)
+        context.bot.send_message(chat_id=update.callback_query.from_user.id,
+                                 text="The arrival Date is on "+ arrival_date+"\nIs this information correct?",
+                                  reply_markup=yes_no_markup)
+        set_state(JOURNEY_2)
+
+
 def exit(update, context):
     update.message.reply_text("See you next time")
     logger.info('User ' +get_name(update.message.from_user)+ ' finish with AideBot')
     return ConversationHandler.END
 
-@run_async
-def create_journey(update, context):
 
-    logger.info('User ' +get_name(update.message.from_user)+ ' creating journey')
-    return choose_function(update, context)
 
 
 def main():
@@ -230,11 +250,6 @@ def main():
     # Make sure to set use_context=True to use the new context based callbacks
     updater = Updater(token=TOKEN_PROVE, use_context=True, workers=50)
     dp = updater.dispatcher
-    MEDICINE_TAGS = ['NAME','QUANTITY','FREQUENCY','END_DATE','EXP_DATE']
-    medicine = {tag: '' for tag in MEDICINE_TAGS}
-    def new_counter (counter):
-        return counter
-
     conv_handler = ConversationHandler(
         allow_reentry=True,
         entry_points=[CommandHandler('start', start)],
@@ -242,26 +257,28 @@ def main():
         states={
             LOGIN: [MessageHandler(Filters.text, intr_pwd)],
             NEW_USER: [MessageHandler(Filters.text, new_user)],
-            CHOOSING: [MessageHandler(Filters.regex('^Introduce Medicine$'),
+            CHOOSING: [MessageHandler(Filters.regex('^(Introduce Medicine)$'),
                                       intr_medicine),
                        MessageHandler(Filters.regex('^Calendar$'),
                                       see_calendar),
-                       MessageHandler(Filters.regex('^History$'),
+                       MessageHandler(Filters.regex('^History'),
                                       see_history),
-                       MessageHandler(Filters.regex('^Delete reminder$'),
+                       MessageHandler(Filters.regex('^Delete reminder'),
                                       delete_reminder),
-                       MessageHandler(Filters.regex('^Journey$'),
+                       MessageHandler(Filters.regex('^Journey'),
                                       create_journey),
                        ],
-            INTR_MEDICINE: [MessageHandler(Filters.text, partial(send_new_medicine, medicine=medicine, tags=MEDICINE_TAGS))],
+            INTR_MEDICINE: [MessageHandler(Filters.text, send_new_medicine)],
             CHECK_MED: [MessageHandler(Filters.regex('^YES$'), choose_function),
                     MessageHandler(Filters.regex('^NO$'), intr_medicine)
                     ],
             CHECK_REM: [MessageHandler(Filters.regex('^YES$'), choose_function),
                     MessageHandler(Filters.regex('^NO$'), delete_reminder)
                     ],
-            GET_CN: [MessageHandler(Filters.text, get_medicine_CN)]
-
+            GET_CN: [MessageHandler(Filters.text, get_medicine_CN)],
+            JOURNEY_2: [MessageHandler(Filters.regex('^YES$'), choose_function),
+                    MessageHandler(Filters.regex('^NO$'), create_journey)
+                    ]
         },
         fallbacks=[MessageHandler(Filters.regex('^Exit$'), exit)]
 
