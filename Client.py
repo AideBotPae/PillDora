@@ -1,4 +1,4 @@
-from pycparser.ply.lex import TOKEN
+# from pycparser.ply.lex import TOKEN
 from telegram.ext import Updater, InlineQueryHandler, CommandHandler, MessageHandler, Filters, ConversationHandler, \
     CallbackQueryHandler
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
@@ -8,15 +8,15 @@ import telegramcalendar
 import re
 import logging
 
-from PillDora.Client import TOKEN_PROVE
+# from PillDora.Client import TOKEN_PROVE
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger('AideBot')
 
 TOKEN_AIDEBOT = '902984072:AAFd0KLLAinZIrGhQvVePQwBt3WJ1QQQDGs'
-TOKEN_PROVE = '877926240:AAEuBzlNaqYM_kXbOMxs9lzhFsR7UpoqKWQ'
+TOKEN_PROVE = '938652990:AAETGF-Xh2_njSdCLn2KibcprZXH1hhqsiI'
 LOGIN, NEW_USER, CHOOSING, INTR_MEDICINE, CHECK_MED, CHECK_REM , CALENDAR_CHOOSE, CALENDAR_TASKS, GET_CN = range(9)
-
+intr_medicine_counter = 0
 reply_keyboard = [['Introduce Medicine', 'Calendar'],
                   ['History', 'Delete reminder'],
                   ['Journey', 'Done']]
@@ -114,10 +114,12 @@ def start(update, context):
     return NEW_USER
 
 
-def intr_medicine(update, context):
+def intr_medicine(update, context, medicine):
     logger.info('User introducing new medicine')
+    print(medicine)
     update.message.reply_text(
         'Please Introduce New Medicine using next format:\nCodeCN-Quantity-Frequency-EndDate-Expiration Date')
+
     return INTR_MEDICINE
 
 
@@ -145,6 +147,7 @@ def inline_handler(update, context):
                          text="You selected %s" % (date.strftime("%d/%m/%Y")),
                          reply_markup=ReplyKeyboardRemove())
         get_calendar_tasks(update, context, date.strftime("%d/%m/%Y"))
+
     return CHOOSING
 
 
@@ -191,26 +194,29 @@ def main():
     # Make sure to set use_context=True to use the new context based callbacks
     updater = Updater(token=TOKEN_PROVE, use_context=True)
     dp = updater.dispatcher
+    MEDICINE_TAGS = ['NAME','QUANTITY','FREQUENCY','END_DATE','EXP_DATE']
+    medicine = {tag: '' for tag in MEDICINE_TAGS}
+
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
 
         states={
             LOGIN: [MessageHandler(Filters.text, intr_pwd)],
             NEW_USER: [MessageHandler(Filters.text, new_user)],
-            CHOOSING: [MessageHandler(Filters.regex('^(Introduce Medicine)$'),
+            CHOOSING: [MessageHandler(Filters.regex('^Introduce Medicine$'),
                                       intr_medicine),
                        MessageHandler(Filters.regex('^Calendar$'),
                                       see_calendar),
-                       MessageHandler(Filters.regex('^History'),
+                       MessageHandler(Filters.regex('^History$'),
                                       see_history),
-                       MessageHandler(Filters.regex('^Delete reminder'),
+                       MessageHandler(Filters.regex('^Delete reminder$'),
                                       delete_reminder),
-                       MessageHandler(Filters.regex('^Journey'),
+                       MessageHandler(Filters.regex('^Journey$'),
                                       create_journey),
                        ],
             INTR_MEDICINE: [MessageHandler(Filters.text, send_new_medicine)],
             CHECK_MED: [MessageHandler(Filters.regex('^YES$'), choose_function),
-                    MessageHandler(Filters.regex('^NO$'), intr_medicine)
+                    MessageHandler(Filters.regex('^NO$'), intr_medicine(True, medicine))
                     ],
             CHECK_REM: [MessageHandler(Filters.regex('^YES$'), choose_function),
                     MessageHandler(Filters.regex('^NO$'), delete_reminder)
