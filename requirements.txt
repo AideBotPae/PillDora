@@ -2,4 +2,3 @@ calendar
 datetime
 pycparser
 telegram
-telegram.ext
