@@ -2,7 +2,7 @@ import pymysql
 
 
 class DatabaseConnector:
-    
+    @property
     def connect(self):
         # Open database connection
         return pymysql.connect("localhost", "paesav", "12345678", "aidebot")
@@ -16,7 +16,7 @@ class ClientChecker:
         self.user_exists = True
         self.db = database
         # prepare a cursor object using cursor() method
-        self.cursor = self.db.cursor()
+        self.cursor = database.cursor()
 
     def check_user(self):
         self.cursor.execute("SELECT id, password FROM aidebot.users where id={id}".format(id=self.user_id))
