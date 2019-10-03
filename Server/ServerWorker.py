@@ -2,11 +2,11 @@ from Server.database import DatabaseConnector, ClientChecker
 import json
 
 class ServerWorker:
+
     def __init__(self, user_id):
         self.user_id = user_id
         self.localhost = "localhost"
         self.port = 8080
-        self.database = None
         self.checker = None
 
 
@@ -15,8 +15,7 @@ class ServerWorker:
         # Connexió amb el Socket del Client (1)
 
         #Connexió amb la DB del Servidor
-        self.database = DatabaseConnector.connect
-        self.checker = ClientChecker(self.user_id, self.database)
+        self.checker = ClientChecker(self.user_id)
 
     def closeWorker(self):
         # Fa falta tancar les connexions amb el socket
