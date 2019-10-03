@@ -30,10 +30,10 @@ logger = logging.getLogger('AideBot')
 
 TOKEN_AIDEBOT = '902984072:AAFd0KLLAinZIrGhQvVePQwBt3WJ1QQQDGs'
 
-states=[LOGIN, LOGIN]
-
 TOKEN_PROVE = '938652990:AAETGF-Xh2_njSdCLn2KibcprZXH1hhqsiI'
 LOGIN, NEW_USER, CHOOSING, INTR_MEDICINE, CHECK_MED, CHECK_REM , CALENDAR_CHOOSE, CALENDAR_TASKS, GET_CN = range(9)
+
+states = [LOGIN, LOGIN]
 
 reply_keyboard = [['Introduce Medicine', 'Calendar'],
                   ['History', 'Delete reminder'],
