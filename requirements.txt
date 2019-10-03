@@ -1,5 +1,5 @@
-calendar
 datetime
 pycparser
+pymysql
+requests
 telegram
-telegram.ext
