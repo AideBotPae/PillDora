@@ -65,8 +65,8 @@ class ClientChecker:
     def add_user(self, password):
         with Database() as db:
             db.execute(
-                "INSERT INTO aidebot.users (id, password) VALUES ({id},{pwd})".format(id=self.user_id,
-                                                                                      pwd=password))
+                "INSERT INTO aidebot.users (id, password) VALUES ({id},'{pwd}')".format(id=self.user_id,
+                                                                                        pwd=password))
 
     def check_password(self, password):
 
@@ -96,4 +96,3 @@ if __name__ == "__main__":
         print("Maaaaal, no existe :(((")
     else:
         checker_2.add_user('prueba_checker_method')
-
