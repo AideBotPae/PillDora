@@ -33,7 +33,7 @@ class ServerWorker:
             user_added = self.checker.add_user(new_user, new_password)
             return user_added
         # Introduce medicine
-        elif instruction == "intr_medicine":
+        elif instruction == "INTRODUCE MEDICINE":
             medicine_name = parsed_string[1]
             is_there = self.checker.check_medicine(medicine_name)
 
