@@ -68,6 +68,7 @@ class ClientChecker:
                 "INSERT INTO aidebot.users (id, password) VALUES ({id},'{pwd}')".format(id=self.user_id,
                                                                                         pwd=password))
             print('User added\n')
+            #HAY QUE AÑADIR UN RETURN BOOLEANO DE SI SE HA HECHO BIEN O NO!!!!
 
     def check_password(self, password):
 
@@ -81,6 +82,17 @@ class ClientChecker:
             else:
                 print('Correct password')
                 return True
+
+
+    def introd_medicine(self, query_parsed):
+        print(query_parsed)
+
+    def check_medicine(self, medicine_name, quantity):
+        print(medicine_name, quantity)
+
+    def check_medicine_schedule(medicine_name, schedule):
+        print(medicine_name, schedule)
+
 
 
 if __name__ == "__main__":
