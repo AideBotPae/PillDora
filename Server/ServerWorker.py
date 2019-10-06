@@ -19,16 +19,16 @@ class ServerWorker:
         instruction = parsed_string[0]
 
         # Checking if there is any user with this user_id
-        if instruction == "check_usr":
+        if instruction == "CHECK USER":
             user_correct = self.checker.check_user()
             return user_correct
         # Checking if the user is introducing a correct password (we pass
-        elif instruction == "check_pwd":
+        elif instruction == "CHECK PASSWORD":
             [user_id, password] = parsed_string[1:3]
             pwd_correct = self.checker.check_password(user_id, password)
             return pwd_correct
         # Add a new user
-        elif instruction == "add_user":
+        elif instruction == "NEW PASSWORD":
             [new_user, new_password] = parsed_string[1:3]
             user_added = self.checker.add_user(new_user, new_password)
             return user_added
@@ -52,39 +52,37 @@ class ServerWorker:
                 quantity = parsed_string[2]
                 self.checker.increase_medicine(medicine_name, quantity)
                 return "Code 2, added " + quantity + " pills of " + medicine_name
-        elif instruction == "check_med":
-            med_checked = False
-
-            return med_checked
-        elif instruction == "check_reminder":
-            reminder_checked = False
-
-            return reminder_checked
-        elif instruction == "calendar_choose":
-            calendar_output = False
-
+        elif instruction == "JOURNEY":
+            # We output a series of actions to be done from a date to another one.
+            [user_id, begin, end] = parsed_string[1:4]
+            # If the beginning date and the end date create conflicts, the method will return a null calendar output
+            calendar_output = self.checker.get_journey(user_id, begin, end)
             return calendar_output
-        elif instruction == "calendar_tasks":
-            calendar_tasks = False
-
+        elif instruction == "TASKS CALENDAR":
+            # We output a series of actions to be done from a date.
+            [user_id, date] = parsed_string[1:3]
+            calendar_tasks = self.checker.get_tasks(user_id, date)
             return calendar_tasks
-        elif instruction == "get_cn":
-            cn = False
-
-            return cn
+        elif instruction == "DELETE REMINDER":
+            # We check if the medicine introduced is there or not.
+            [user_id, medicine_name, cn] = parsed_string[1:4]
+            is_there = self.checker.check_medicine(medicine_name)
+            if not is_there:
+                # If it is not there, we send a False statement.
+                return False
+            else:
+                info = self.checker.get_info_from_med(medicine_name, cn)
+                self.checker.delete_information(medicine_name, cn)
+                return info
+        elif instruction == "HISTORY":
+            user_id = parsed_string[1]
+            history = self.checker.get_history(user_id)
+            return history
+        elif instruction == "GET INFO":
+            [user_id, cn] = parsed_string[1:3]
+            reminder = self.checker.get_medicine(user_id, cn)
+            return reminder
         else:
             return "ERROR"
 
-    def check_user_name(self):
-        checker = ClientChecker(self.user_id, self.database)
-        user_correct = checker.check_user()
-        if user_correct:
-            self.sendInfo(bool)
-            pwd = self.readInfo()
-            password_correct = checker.check_password(pwd)
-            while not password_correct:
-                password_correct = checker.check_password()
-        else:
-            self.sendInfo("pwd")
-            pwd = self.readInfo()
-            checker.add_user(pwd)
+
