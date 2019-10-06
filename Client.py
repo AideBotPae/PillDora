@@ -24,11 +24,12 @@ import json
 
 #LOG INFORMATION
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-logger = logging.getLogger('AideBot')
+logger = logging.getLogger('AideBotHamza')
 
 #TOKENS FOR THE TELEGRAM BOT
 TOKEN_AIDEBOT = '902984072:AAFd0KLLAinZIrGhQvVePQwBt3WJ1QQQDGs'
 TOKEN_PROVE = '877926240:AAEuBzlNaqYM_kXbOMxs9lzhFsR7UpoqKWQ'
+TOKEN_HAMZA = "960821566:AAFerqi1xtYohpY58EmizS1Tia7n05eGYUM"
 
 #STATES OF THE APP
 LOGIN, NEW_USER, CHOOSING, INTR_MEDICINE, CHECK_MED, GET_CN, CHECK_REM, JOURNEY= range(8)
@@ -292,7 +293,7 @@ def see_history(update, context):
     #connects to DataBase with UserId asking for all the meds currently taking
     user_id = update.message.from_user.id
     set_function(user_id, "HISTORY")
-    set_query(user_id, "[ user_id : "+ user_id+"]")
+    set_query(user_id, "[ user_id : "+ str(user_id)+"]")
     query = create_query(user_id)
 
     return choose_function
@@ -361,7 +362,7 @@ def exit(update, context):
 def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
-    updater = Updater(token=TOKEN_AIDEBOT, use_context=True, workers=50)
+    updater = Updater(token=TOKEN_HAMZA, use_context=True, workers=50)
     dp = updater.dispatcher
     conv_handler = ConversationHandler(
         allow_reentry=True,

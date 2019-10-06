@@ -16,15 +16,17 @@ class ServerWorker:
 
     def handler_query(self, query):
         parsed_string = json.load(query)
-        instruction = parsed_string[0]
+        instruction = parsed_string["function"]
 
         # Checking if there is any user with this user_id
         if instruction == "CHECK USER":
-            user_correct = self.checker.check_user()
+            user_id = parsed_string["parameters"]["user_id"]
+            user_correct = self.checker.check_user(user_id)
             return user_correct
         # Checking if the user is introducing a correct password (we pass
         elif instruction == "CHECK PASSWORD":
-            [user_id, password] = parsed_string[1:3]
+            user_id = parsed_string["user_id"]
+            password = parsed_string["parameters"]["password"]
             pwd_correct = self.checker.check_password(user_id, password)
             return pwd_correct
         # Add a new user
@@ -34,27 +36,27 @@ class ServerWorker:
             return user_added
         # Introduce medicine
         elif instruction == "INTRODUCE MEDICINE":
-            medicine_name = parsed_string[1]
+            medicine_name = parsed_string["parameters"]["name"]
             is_there = self.checker.check_medicine(medicine_name)
-
             # We are checking if the medicine is already on the database
             if not is_there:
                 # If we are here, it means that the medicine wasn't on the database, so we input all the data
-                self.checker.introd_medicine(parsed_string[1:])
+                self.checker.introd_medicine(parsed_string["parameters"])
                 return "Code 0"
-            elif self.checker.check_medicine_schedule(medicine_name, parsed_string[3]):
-                # If we are here, the medicine is already on the database, we check first if the times concur,
+            elif self.checker.check_medicine_schedule(medicine_name, parsed_string["parameters"]["FREQUENCY"]):
+                # If we are here, the medicine is already on the database, we check first if the frequencies concur,
                 # if not PROBLEM!
                 return "Code 1"
             else:
                 # If we are here, the medicine is already on the database, and the times match, so we add the
                 # quantity only
-                quantity = parsed_string[2]
+                quantity = parsed_string["parameters"]["QUANTITY"]
                 self.checker.increase_medicine(medicine_name, quantity)
                 return "Code 2, added " + quantity + " pills of " + medicine_name
         elif instruction == "JOURNEY":
             # We output a series of actions to be done from a date to another one.
-            [user_id, begin, end] = parsed_string[1:4]
+            [user_id, begin, end] = [parsed_string["user_id"], parsed_string["parameters"]["departure_date"],
+                                     parsed_string["parameters"]["arrival_date"]]
             # If the beginning date and the end date create conflicts, the method will return a null calendar output
             calendar_output = self.checker.get_journey(user_id, begin, end)
             return calendar_output
@@ -65,24 +67,16 @@ class ServerWorker:
             return calendar_tasks
         elif instruction == "DELETE REMINDER":
             # We check if the medicine introduced is there or not.
-            [user_id, medicine_name, cn] = parsed_string[1:4]
-            is_there = self.checker.check_medicine(medicine_name)
-            if not is_there:
-                # If it is not there, we send a False statement.
-                return False
-            else:
-                info = self.checker.get_info_from_med(medicine_name, cn)
-                self.checker.delete_information(medicine_name, cn)
-                return info
+            [user_id, cn] = [parsed_string["user_id"], parsed_string["parameters"]["CN"]]
+            deleted = self.checker.delete_information(user_id, cn)
+            return deleted
         elif instruction == "HISTORY":
-            user_id = parsed_string[1]
+            user_id = parsed_string["parameters"]["user_id"]
             history = self.checker.get_history(user_id)
             return history
-        elif instruction == "GET INFO":
-            [user_id, cn] = parsed_string[1:3]
-            reminder = self.checker.get_medicine(user_id, cn)
-            return reminder
+        elif instruction == "GET REMINDER":
+            [user_id, cn] = [parsed_string["user_id"], parsed_string["parameters"]["CN"]]
+            reminder_info = self.checker.get_medicine(user_id, cn)
+            return reminder_info
         else:
             return "ERROR"
-
-

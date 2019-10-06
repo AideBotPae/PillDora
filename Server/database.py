@@ -90,7 +90,7 @@ class ClientChecker:
     def check_medicine(self, medicine_name, quantity):
         print(medicine_name, quantity)
 
-    def check_medicine_schedule(medicine_name, schedule):
+    def check_medicine_schedule(self, medicine_name, schedule):
         print(medicine_name, schedule)
 
 
