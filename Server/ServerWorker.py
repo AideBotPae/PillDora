@@ -1,7 +1,7 @@
 from Server.database import ClientChecker
 import json
 from datetime import date
-
+import time
 
 class ServerWorker:
 
@@ -90,6 +90,26 @@ class ServerWorker:
         begin = today.strftime("%d/%m/%Y")
         end = parsed_string["parameters"]["END_DATE"]
 
-        if datetime.date.today().strftime('%A') == 'Wednesday':
-            print("Pick up the kids!")
+
+
+    def actualize_daily_table(self, user_id):
+        json_medicines = self.checker.get_inventory(user_id)
+        medicines = json.load(json_medicines)
+        for medicine in medicines:
+            begin_date = medicine["BEGIN_DATE"]
+            end_date = medicine["END_DATE"]
+            today = date.today()
+            cn = medicine["NATIONAL_CODE"]
+            if today > begin_date:
+                is_there = self.checker.daily_table(user_id, cn)
+                if not is_there:
+                    modified = self.checker.add_daily_table(user_id, cn)
+                if today > end_date:
+                    modified = self.checker.delete_from_daily_table(user_id, cn)
+
+
+
+
+
+
 
