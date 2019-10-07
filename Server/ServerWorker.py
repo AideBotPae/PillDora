@@ -3,6 +3,14 @@ import json
 from datetime import date
 import time
 
+
+class Reminder(object):
+    def __init__(self, user_id, medicine, hour_of_pill):
+        self.user_id = user_id
+        self.cn = medicine["NATIONAL_CODE"]
+        self.hour = hour_of_pill
+
+
 class ServerWorker:
 
     def __init__(self, user_id):
@@ -86,9 +94,13 @@ class ServerWorker:
 
     def create_reminders(self, user_id, parsed_string):
         frequency = parsed_string["parameters"]["frequency"]
-        today = date.today()
-        begin = today.strftime("%d/%m/%Y")
-        end = parsed_string["parameters"]["END_DATE"]
+        number_of_hours = 24 / frequency
+        reminders = list()
+        for i in range(number_of_hours):
+            reminder = Reminder(user_id, parsed_string, (i+1)*frequency)
+            reminders.append(reminder)
+        return reminders
+
 
 
 
@@ -103,9 +115,14 @@ class ServerWorker:
             if today > begin_date:
                 is_there = self.checker.daily_table(user_id, cn)
                 if not is_there:
-                    modified = self.checker.add_daily_table(user_id, cn)
+                    reminders = self.create_reminders(user_id, medicine)
+                    modified = self.checker.add_daily_table(user_id, reminders)
                 if today > end_date:
                     modified = self.checker.delete_from_daily_table(user_id, cn)
+
+        daily_table = self.checker.get_daily_table(user_id)
+        self.notify_telegram(daily_table)
+        return modified
 
 
 
