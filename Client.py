@@ -288,14 +288,13 @@ def get_calendar_tasks(update, context, date, user_id):
 
 @run_async
 def see_history(update, context):
-    logger.info('User ' +get_name(update.message.from_user)+ '  seeing history')
+    logger.info('User ' +get_name(update.message.from_user)+ ' seeing history')
     #connects to DataBase with UserId asking for all the meds currently taking
     user_id = update.message.from_user.id
     set_function(user_id, "HISTORY")
-    set_query(user_id, "[ user_id : "+ user_id+"]")
+    set_query(user_id, "[ user_id : "+ str(user_id)+"]")
     query = create_query(user_id)
-
-    return choose_function
+    return choose_function(update, context)
 
 @run_async
 def delete_reminder(update, context):
