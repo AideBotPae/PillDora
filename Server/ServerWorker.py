@@ -1,5 +1,6 @@
 from Server.database import ClientChecker
 import json
+from datetime import date
 
 
 class ServerWorker:
@@ -21,7 +22,7 @@ class ServerWorker:
         # Checking if there is any user with this user_id
         if instruction == "CHECK USER":
             user_id = parsed_string["parameters"]["user_id"]
-            user_correct = self.checker.check_user(user_id)
+            user_correct = self.checker.check_user(user_id=user_id)
             return user_correct
         # Checking if the user is introducing a correct password (we pass
         elif instruction == "CHECK PASSWORD":
@@ -75,8 +76,20 @@ class ServerWorker:
             history = self.checker.get_history(user_id)
             return history
         elif instruction == "GET REMINDER":
-            [user_id, cn] = [parsed_string["user_id"], parsed_string["parameters"]["CN"]]
-            reminder_info = self.checker.get_medicine(user_id, cn)
+            [user_id, national_code] = [parsed_string["user_id"], parsed_string["parameters"]["CN"]]
+            reminder_info = self.checker.get_medicine(user_id, national_code)
             return reminder_info
         else:
             return "ERROR"
+
+
+
+    def create_reminders(self, user_id, parsed_string):
+        frequency = parsed_string["parameters"]["frequency"]
+        today = date.today()
+        begin = today.strftime("%d/%m/%Y")
+        end = parsed_string["parameters"]["END_DATE"]
+
+        if datetime.date.today().strftime('%A') == 'Wednesday':
+            print("Pick up the kids!")
+
