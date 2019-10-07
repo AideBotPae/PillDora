@@ -46,14 +46,11 @@ class Database(DatabaseConnectionCredentials):
         return self.fetchall()
 
 
-class ClientChecker:
+class DBMethods:
 
-    def __init__(self, user_id):
-        self.user_id = user_id
-
-    def check_user(self):
+    def check_user(self, user_id):
         with Database() as db:
-            data = db.query("SELECT id, password FROM aidebot.users where id={id}".format(id=self.user_id))
+            data = db.query("SELECT id FROM aidebot.users where id={id}".format(id=user_id))
 
             if not data:
                 print("User isn't registered\n")
@@ -62,19 +59,25 @@ class ClientChecker:
                 print("User registered\n")
                 return True
 
-    def add_user(self, password):
+    def add_user(self, user_id, password):
         with Database() as db:
             db.execute(
-                "INSERT INTO aidebot.users (id, password) VALUES ({id},'{pwd}')".format(id=self.user_id,
+                "INSERT INTO aidebot.users (id, password) VALUES ({id},'{pwd}')".format(id=user_id,
                                                                                         pwd=password))
-            print('User added\n')
-            #HAY QUE AÑADIR UN RETURN BOOLEANO DE SI SE HA HECHO BIEN O NO!!!!
+            data = db.query("SELECT id FROM aidebot.users where id={id}".format(id=user_id))
 
-    def check_password(self, password):
+            if not data:
+                print("User not added\n")
+                return False
+            else:
+                print('User added\n')
+                return True
+
+    def check_password(self, user_id, password):
 
         with Database() as db:
             # execute SQL query using execute() method.
-            data = db.query("SELECT id, password FROM aidebot.users where id={id}".format(id=self.user_id))
+            data = db.query("SELECT id, password FROM aidebot.users where id={id}".format(id=user_id))
 
             if password != data[0][1]:
                 print('Wrong password')
@@ -83,27 +86,46 @@ class ClientChecker:
                 print('Correct password')
                 return True
 
-
     def introd_medicine(self, query_parsed):
         print(query_parsed)
 
-    def check_medicine(self, medicine_name, quantity):
-        print(medicine_name, quantity)
+    def check_medicine(self, medicine_name):
+        print(medicine_name)
 
-    def check_medicine_schedule(self, medicine_name, schedule):
-        print(medicine_name, schedule)
+    def check_medicine_schedule(self, medicine_name, begin, end):
+        print(medicine_name, begin, end)
 
+    def increase_medicine(self, medicine_name, quantity):
+        return False
+
+    def get_journey(self, user_id, begin, end):
+        return False
+
+    def get_tasks(self, user_id, date):
+        return False
+
+    def delete_information(self, user_id, national_code):
+        return False
+
+    def get_history(self, user_id):
+        return False
+
+    def get_inventory(self, user_id, national_code=None):
+        return False
+
+    def daily_table(self, user_id, national_code):
+        return False
 
 
 if __name__ == "__main__":
-    checker = ClientChecker(user_id=1)
+    checker = DBMethods()
     exists = checker.check_user()
     if exists:
         checker.check_password('hola')
         checker.check_password('prueba')
     else:
         print("Va como el culo, no detecta el unico id :(")
-    checker_2 = ClientChecker(user_id=2)
+    checker_2 = DBMethods()
     exists_2 = checker_2.check_user()
     if exists_2:
         print("Maaaaal, no existe :(((")
