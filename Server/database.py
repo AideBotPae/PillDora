@@ -59,12 +59,12 @@ class DBMethods:
                 print("User registered\n")
                 return True
 
-    def add_user(self, user_id, password):
+    def add_user(self, new_user, new_password):
         with Database() as db:
             db.execute(
-                "INSERT INTO aidebot.users (id, password) VALUES ({id},'{pwd}')".format(id=user_id,
-                                                                                        pwd=password))
-            data = db.query("SELECT id FROM aidebot.users where id={id}".format(id=user_id))
+                "INSERT INTO aidebot.users (id, password) VALUES ({id},'{pwd}')".format(id=new_user,
+                                                                                        pwd=new_password))
+            data = db.query("SELECT id FROM aidebot.users where id={id}".format(id=new_user))
 
             if not data:
                 print("User not added\n")
@@ -140,7 +140,7 @@ class DBMethods:
         with Database() as db:
             return False
 
-    def get_reminders(self, user_id, date, to_date=None):
+    def get_reminders(self, user_id, date, to_date=None, cn=None):
         with Database() as db:
             if to_date:
                 data = db.query(''' SELECT national_code, date
@@ -148,6 +148,10 @@ class DBMethods:
                 WHERE date>='{date}' and date<='{to_date}' and user_id={id}
                 '''.format(date=date, to_date=to_date, id=user_id))
                 return data
+            elif cn:
+                # HACE FALTA AÑADIR AQUI CODIGO QUE DEVUELVA LOS REMINDERS DE UNA MEDICINA EN CONCRETO DES DE HOY!
+                # Date = today!
+                return None
             else:
                 data = db.query('''SELECT national_code, date
                 FROM aidebot.reminders 
