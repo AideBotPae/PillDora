@@ -127,6 +127,7 @@ class DBMethods:
     ''' 
     TODO
     '''
+
     def get_inventory(self, user_id, begin, end):
         with Database() as db:
             data = db.query(''' SELECT national_code, frequency, init_date, end_date, expiracy_date
@@ -161,12 +162,11 @@ class DBMethods:
 
     def delete_reminders(self, user_id, national_code):
         with Database() as db:
-
             db.execute('''DELETE FROM aidebot.inventory WHERE user_id={id} and national_code={cn}
             '''.format(id=user_id, cn=national_code))
             db.execute('''DELETE FROM aidebot.reminders WHERE user_id={id} and national_code={cn}
             '''.format(id=user_id, cn=national_code))
-            #Comprobar si se ha hecho bien
+            # Comprobar si se ha hecho bien
             return True
 
     def get_history(self, user_id):
@@ -180,15 +180,14 @@ class DBMethods:
 
 if __name__ == "__main__":
     checker = DBMethods()
-    exists = checker.check_user()
+    exists = checker.check_user(user_id=1)
     if exists:
-        checker.check_password('hola')
-        checker.check_password('prueba')
+        checker.check_password(user_id=1, password='hola')
+        checker.check_password(user_id=1, password='prueba')
     else:
         print("Va como el culo, no detecta el unico id :(")
-    checker_2 = DBMethods()
-    exists_2 = checker_2.check_user()
+    exists_2 = checker.check_user(user_id=2)
     if exists_2:
         print("Maaaaal, no existe :(((")
     else:
-        checker_2.add_user('prueba_checker_method')
+        checker.add_user(new_user=2, new_password='prueba_checker_method')
