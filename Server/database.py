@@ -180,7 +180,9 @@ class DBMethods:
 
 if __name__ == "__main__":
     checker = DBMethods()
-    exists = checker.check_user(user_id=1)
+    
+''' Users test
+ exists = checker.check_user(user_id=1)
     if exists:
         checker.check_password(user_id=1, password='hola')
         checker.check_password(user_id=1, password='prueba')
@@ -191,3 +193,5 @@ if __name__ == "__main__":
         print("Maaaaal, no existe :(((")
     else:
         checker.add_user(new_user=2, new_password='prueba_checker_method')
+
+'''
