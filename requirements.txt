@@ -1,0 +1,6 @@
+datetime
+pycparser
+pymysql
+requests
+telegram
+
