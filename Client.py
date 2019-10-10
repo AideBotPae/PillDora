@@ -27,6 +27,7 @@ logger = logging.getLogger('AideBot')
 #TOKENS FOR THE TELEGRAM BOT
 TOKEN_AIDEBOT = '902984072:AAFd0KLLAinZIrGhQvVePQwBt3WJ1QQQDGs'
 TOKEN_PROVE = '877926240:AAEuBzlNaqYM_kXbOMxs9lzhFsR7UpoqKWQ'
+TOKEN_PILLDORA = '938652990:AAETGF-Xh2_njSdCLn2KibcprZXH1hhqsiI'
 
 #STATES OF THE APP
 LOGIN, NEW_USER, CHOOSING, INTR_MEDICINE, CHECK_MED, GET_CN, CHECK_REM, JOURNEY, END= range(9)
@@ -365,15 +366,15 @@ def main():
         states={
             LOGIN: [MessageHandler(Filters.text, intr_pwd)],
             NEW_USER: [MessageHandler(Filters.text, new_user)],
-            CHOOSING: [MessageHandler(Filters.regex('^(Introduce Medicine)$'),
+            CHOOSING: [MessageHandler(Filters.regex('^Introduce Medicine$'),
                                       intr_medicine),
                        MessageHandler(Filters.regex('^Calendar$'),
                                       see_calendar),
-                       MessageHandler(Filters.regex('^History'),
+                       MessageHandler(Filters.regex('^History$'),
                                       see_history),
-                       MessageHandler(Filters.regex('^Delete reminder'),
+                       MessageHandler(Filters.regex('^Delete reminder$'),
                                       delete_reminder),
-                       MessageHandler(Filters.regex('^Journey'),
+                       MessageHandler(Filters.regex('^Journey$'),
                                       create_journey),
                        MessageHandler(Filters.regex('^Exit$'), exit)
                        ],
