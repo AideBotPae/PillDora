@@ -77,7 +77,7 @@ class DBMethods:
 
         with Database() as db:
             data = db.query("SELECT password FROM aidebot.users where id={id}".format(id=user_id))
-
+            print(data)
             if password != data[0]:
                 print('Wrong password')
                 return False
