@@ -1,3 +1,4 @@
+
 #!/usr/bin/env
 # -*- coding: utf-8 -*-
 #
@@ -19,6 +20,8 @@ import telegramcalendar
 import re
 import logging
 import json
+
+from Server.ServerWorker import ServerWorker
 
 #LOG INFORMATION
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -89,6 +92,9 @@ def set_function(user_id, text):
 def get_function(user_id):
     return aide_bot[user_id]['function']
 
+def send_query(user_id, query):
+    return (aide_bot[user_id]['serverworker'].handler_query(query))
+
 def create_query(user_id):
     query = {
         'user_id': user_id,
@@ -103,7 +109,7 @@ def create_query(user_id):
 def start(update, context):
     user_id = update.message.from_user.id
     name = get_name(update.message.from_user)
-    aide_bot[user_id]={'states': [LOGIN, LOGIN], 'intr_medicine_counter':0, 'medicine':{tag: '' for tag in MEDICINE_TAGS}, 'journey':['None', 'None'], 'function':'none', 'query': "none"}
+    aide_bot[user_id]={'states': [LOGIN, LOGIN], 'intr_medicine_counter':0, 'medicine':{tag: '' for tag in MEDICINE_TAGS}, 'journey':['None', 'None'], 'function':'none', 'query': "none", 'serverworker' : ServerWorker(user_id)}
     logger.info('User '+ name+' has connected to AideBot: ID is ' + str(user_id))
     context.bot.send_message(chat_id=user_id, text=("Welcome " + name + " ! My name is AideBot"))
 
@@ -114,6 +120,7 @@ def start(update, context):
         context.bot.send_message(chat_id=update.message.chat_id, text=("Welcome to the HealthCare Assistant AideBot."
                                                                        "Enter new password for creating your account:"))
     return set_state(user_id, NEW_USER)
+
 
 
 # Resolve message data to a readable name
@@ -133,14 +140,15 @@ def user_verification(user_id):
     set_function(user_id, 'CHECK USER')
     set_query(user_id, ['user_id : '+str(user_id)])
     query=create_query(user_id)
-    return True
+    return (send_query(user_id, query))
+
 
 # Verificates password for UserID in DataBase
 def pwd_verification(password, user_id):
     set_function(user_id, 'CHECK PASSWORD')
     set_query(user_id, ['password : '+password])
     query = create_query(user_id)
-    return True
+    return (send_query(user_id, query))
 
 # function used to Introduce Password
 @run_async
@@ -183,9 +191,10 @@ def new_user(update, context):
         set_function(user_id, 'NEW PASSWORD')
         set_query(['new_password : '+ password])
         query = create_query(user_id)
+        send_query(user_id, query)
         update.message.reply_text('Welcome ' + get_name(update.message.from_user) + '. How can I help you?', reply_markup=markup)
         return set_state(update.message.from_user.id, CHOOSING)
-    
+
     update.message.reply_text("Not a Valid Password. Enter Password with 6 to 12 characters and minimum 3 of these types of characters: uppercase, lowercase, number and $, # or @")
     return set_state(update.message.from_user.id, NEW_USER)
 
@@ -194,6 +203,25 @@ def choose_function(update, context):
     user_id=update.message.from_user.id
     if(get_query(user_id)!="None"):
         query = create_query(user_id)
+        response=json.loads(send_query(user_id, query))
+        if(response['function']=='INTRODUCE MEDICINE'):
+            if(response['parameters']=="Code 0"):
+                logger.info("Medicine correctly introduced")
+            elif (response['parameters'] == "Code 1"):
+                logger.info("Medicine already in the database with different frequencies. PROBLEM")
+            elif (response['parameters'] == "Code 2"):
+                logger.info("Medicine already in the database with same frequencies. NO PROBLEM")
+        if (response['function'] == "DELETE REMINDER"):
+            if (response['parameters']):
+                logger.info("Medicine correctly deleted")
+            else:
+                logger.info("Medicine not deleted as did not exist in the database")
+                update.message.reply_text("Medicine introduced did not exist in your history.")
+                delete_reminder
+                return set_state(update.message.from_user.id, CHOOSING)
+        if (response['function'] == "JOURNEY"):
+            logger.info("Medicines to take during journey correctly retrieved")
+            update.message.reply_text("Medicines to take during journey:\n"+ response['parameters'])
 
     set_query(user_id, "None")
     set_function(user_id, "None")
@@ -278,7 +306,10 @@ def get_calendar_tasks(update, context, date, user_id):
     set_function(user_id, "TASKS CALENDAR")
     set_query(user_id, "[ date : "+ date+"]")
     query = create_query(user_id)
-    context.bot.send_message(chat_id=update.callback_query.from_user.id, text="Is there any other way I can help you?",
+    response= send_query(user_id, query)
+    context.bot.send_message(chat_id=user_id,
+                             text="Reminders for "+ date+ " : "+response['parameters'])
+    context.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?",
                              reply_markup=markup)
 
 @run_async
@@ -289,7 +320,8 @@ def see_history(update, context):
     set_function(user_id, "HISTORY")
     set_query(user_id, "[ user_id : "+ str(user_id)+"]")
     query = create_query(user_id)
-    
+    response=send_query(user_id, query)
+    update.message.reply_text("To som up, you are currently taking these meds:\n"+response['parameters'])
     set_query(user_id,'None')
     return choose_function(update, context)
 
@@ -306,11 +338,10 @@ def get_medicine_CN(update, context):
     set_function(user_id, "GET REMINDER")
     set_query(user_id, "[CN : "+medicine_CN+"]")
     query = create_query(user_id)
-    reminder = 'Hola'
-
-    update.message.reply_text('Reminder asked to be removed:\n\tMedicine: \n\tTaken from:\n\tEnd date:\n\tFrequency: ')
+    response = send_query(user_id, query)
+    update.message.reply_text('Reminder asked to be removed:\n'+ response['parameters'])
     update.message.reply_text('Is this the reminder you want to remove? ', reply_markup=yes_no_markup)
-    set_query(user_id, reminder)
+    set_query(user_id, response['parameters']['CN'])
     set_function(user_id, 'DELETE REMINDER')
     return set_state(user_id, CHECK_REM)
 
@@ -365,15 +396,15 @@ def main():
         states={
             LOGIN: [MessageHandler(Filters.text, intr_pwd)],
             NEW_USER: [MessageHandler(Filters.text, new_user)],
-            CHOOSING: [MessageHandler(Filters.regex('^(Introduce Medicine)$'),
+            CHOOSING: [MessageHandler(Filters.regex('^Introduce Medicine$'),
                                       intr_medicine),
                        MessageHandler(Filters.regex('^Calendar$'),
                                       see_calendar),
-                       MessageHandler(Filters.regex('^History'),
+                       MessageHandler(Filters.regex('^History$'),
                                       see_history),
-                       MessageHandler(Filters.regex('^Delete reminder'),
+                       MessageHandler(Filters.regex('^Delete reminder$'),
                                       delete_reminder),
-                       MessageHandler(Filters.regex('^Journey'),
+                       MessageHandler(Filters.regex('^Journey$'),
                                       create_journey),
                        MessageHandler(Filters.regex('^Exit$'), exit)
                        ],
