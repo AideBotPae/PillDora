@@ -78,7 +78,7 @@ class DBMethods:
         with Database() as db:
             data = db.query("SELECT password FROM aidebot.users where id={id}".format(id=user_id))
             print(data)
-            if password != data[0]:
+            if password != data[0][0]:
                 print('Wrong password')
                 return False
             else:
@@ -101,7 +101,7 @@ class DBMethods:
         with Database() as db:
             data = db.query('''SELECT count(*) FROM aidebot.receipts WHERE user_id={id} and national_code={med}
             '''.format(id=user_id, med=cn))
-            if data[0] == 0:
+            if data[0][0] == 0:
                 return False
             else:
                 return True
@@ -119,7 +119,7 @@ class DBMethods:
             data = db.query('''SELECT frequency FROM aidebot.receipts WHERE user_id={id} and national_code={cn}
             '''.format(id=user_id, cn=cn))
 
-            if data[0] == freq:
+            if data[0][0] == freq:
                 return True
             else:
                 return False
