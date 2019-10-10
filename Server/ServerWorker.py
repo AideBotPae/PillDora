@@ -42,32 +42,34 @@ class ServerWorker:
         elif instruction == "NEW PASSWORD":
             [new_user, new_password] = parsed_string[1:3]
             user_added = self.checker.add_user(new_user, new_password)
-            return user_added
+            while not user_added:
+                user_added = self.checker.add_user(new_user, new_password)
+
         # Introduce medicine
         elif instruction == "INTRODUCE MEDICINE":
+            user_id = parsed_string["parameters"]["name"]
             medicine_name = parsed_string["parameters"]["name"]
-            is_there = self.checker.check_medicine(medicine_name)
+            is_there = self.checker.check_medicine(user_id, medicine_name)
             # We are checking if the medicine is already on the database
             if not is_there:
                 # If we are here, it means that the medicine wasn't on the database, so we input all the data
-                self.checker.introd_medicine(parsed_string["parameters"])
+                self.checker.introd_medicine(user_id, parsed_string["parameters"])
                 return "Code 0"
-            elif self.checker.check_medicine_schedule(medicine_name, parsed_string["parameters"]["FREQUENCY"]):
+            elif not self.checker.check_medicine_schedule(user_id, medicine_name, parsed_string["parameters"]["FREQUENCY"]):
                 # If we are here, the medicine is already on the database, we check first if the frequencies concur,
                 # if not PROBLEM!
                 return "Code 1"
             else:
                 # If we are here, the medicine is already on the database, and the times match, so we add the
                 # quantity only
-                quantity = parsed_string["parameters"]["QUANTITY"]
-                self.checker.increase_medicine(medicine_name, quantity)
-                return "Code 2, added " + quantity + " pills of " + medicine_name
+                return "Code 3"
         elif instruction == "JOURNEY":
             # We output a series of actions to be done from a date to another one.
             [user_id, begin, end] = [parsed_string["user_id"], parsed_string["parameters"]["departure_date"],
                                      parsed_string["parameters"]["arrival_date"]]
             # If the beginning date and the end date create conflicts, the method will return a null calendar output
             calendar_output = self.checker.get_journey(user_id, begin, end)
+            # Right now, the journey will have the national code, on the future, we will use the medicine name!
             return calendar_output
         elif instruction == "TASKS CALENDAR":
             # We output a series of actions to be done from a date.
