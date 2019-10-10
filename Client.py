@@ -1,4 +1,3 @@
-
 #!/usr/bin/env
 # -*- coding: utf-8 -*-
 #
@@ -13,7 +12,6 @@ bot.
 from telegram.ext import Updater, InlineQueryHandler, CommandHandler, MessageHandler, Filters, ConversationHandler, \
     CallbackQueryHandler
 from telegram.ext.dispatcher import run_async
-
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 import requests
 import telegram
@@ -31,7 +29,7 @@ TOKEN_AIDEBOT = '902984072:AAFd0KLLAinZIrGhQvVePQwBt3WJ1QQQDGs'
 TOKEN_PROVE = '877926240:AAEuBzlNaqYM_kXbOMxs9lzhFsR7UpoqKWQ'
 
 #STATES OF THE APP
-LOGIN, NEW_USER, CHOOSING, INTR_MEDICINE, CHECK_MED, GET_CN, CHECK_REM, JOURNEY= range(8)
+LOGIN, NEW_USER, CHOOSING, INTR_MEDICINE, CHECK_MED, GET_CN, CHECK_REM, JOURNEY, END= range(9)
 
 #FUNCTIONS FOR COMMUNICATING WITH DATA BASE
 QUERIES=['CHECK USER','CHECK PASSWORD', 'NEW PASSWORD', 'INTRODUCE MEDICINE', 'TASKS CALENDAR', 'HISTORY', 'JOURNEY', 'GET REMINDER', 'DELETE REMINDER']
@@ -55,16 +53,16 @@ def set_state(user_id , state):
     aide_bot[user_id]['states'][0]=state
     return state
 
-def  get_states(user_id):
+def get_states(user_id):
     return aide_bot[user_id]['states']
 
-def  get_medicine(user_id):
+def get_medicine(user_id):
     return aide_bot[user_id]['medicine']
 
 def set_medicine(user_id, num, text):
     aide_bot[user_id]['medicine'][MEDICINE_TAGS[num]] = text
 
-def  get_dates(user_id):
+def get_dates(user_id):
     return aide_bot[user_id]['journey']
 
 def set_dates(user_id, text, date):
@@ -116,7 +114,6 @@ def start(update, context):
         context.bot.send_message(chat_id=update.message.chat_id, text=("Welcome to the HealthCare Assistant AideBot."
                                                                        "Enter new password for creating your account:"))
     return set_state(user_id, NEW_USER)
-
 
 
 # Resolve message data to a readable name
@@ -186,10 +183,9 @@ def new_user(update, context):
         set_function(user_id, 'NEW PASSWORD')
         set_query(['new_password : '+ password])
         query = create_query(user_id)
-
         update.message.reply_text('Welcome ' + get_name(update.message.from_user) + '. How can I help you?', reply_markup=markup)
         return set_state(update.message.from_user.id, CHOOSING)
-
+    
     update.message.reply_text("Not a Valid Password. Enter Password with 6 to 12 characters and minimum 3 of these types of characters: uppercase, lowercase, number and $, # or @")
     return set_state(update.message.from_user.id, NEW_USER)
 
@@ -282,20 +278,20 @@ def get_calendar_tasks(update, context, date, user_id):
     set_function(user_id, "TASKS CALENDAR")
     set_query(user_id, "[ date : "+ date+"]")
     query = create_query(user_id)
-
     context.bot.send_message(chat_id=update.callback_query.from_user.id, text="Is there any other way I can help you?",
                              reply_markup=markup)
 
 @run_async
 def see_history(update, context):
-    logger.info('User ' +get_name(update.message.from_user)+ '  seeing history')
+    logger.info('User ' +get_name(update.message.from_user)+ ' seeing history')
     #connects to DataBase with UserId asking for all the meds currently taking
     user_id = update.message.from_user.id
     set_function(user_id, "HISTORY")
-    set_query(user_id, "[ user_id : "+ user_id+"]")
+    set_query(user_id, "[ user_id : "+ str(user_id)+"]")
     query = create_query(user_id)
-
-    return choose_function
+    
+    set_query(user_id,'None')
+    return choose_function(update, context)
 
 @run_async
 def delete_reminder(update, context):
@@ -310,8 +306,7 @@ def get_medicine_CN(update, context):
     set_function(user_id, "GET REMINDER")
     set_query(user_id, "[CN : "+medicine_CN+"]")
     query = create_query(user_id)
-
-    reminder="connects to database and get this reminder"
+    reminder = 'Hola'
 
     update.message.reply_text('Reminder asked to be removed:\n\tMedicine: \n\tTaken from:\n\tEnd date:\n\tFrequency: ')
     update.message.reply_text('Is this the reminder you want to remove? ', reply_markup=yes_no_markup)
@@ -356,7 +351,7 @@ def set_journey(update, context, date):
 def exit(update, context):
     update.message.reply_text("See you next time")
     logger.info('User ' +get_name(update.message.from_user)+ ' finish with AideBot')
-    return ConversationHandler.END
+    return END
 
 def main():
     # Create the Updater and pass it your bot's token.
@@ -380,6 +375,7 @@ def main():
                                       delete_reminder),
                        MessageHandler(Filters.regex('^Journey'),
                                       create_journey),
+                       MessageHandler(Filters.regex('^Exit$'), exit)
                        ],
             INTR_MEDICINE: [MessageHandler(Filters.text, send_new_medicine)],
             CHECK_MED: [MessageHandler(Filters.regex('^YES$'), choose_function),
