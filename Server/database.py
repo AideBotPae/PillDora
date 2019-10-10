@@ -76,42 +76,99 @@ class DBMethods:
     def check_password(self, user_id, password):
 
         with Database() as db:
-            # execute SQL query using execute() method.
-            data = db.query("SELECT id, password FROM aidebot.users where id={id}".format(id=user_id))
+            data = db.query("SELECT password FROM aidebot.users where id={id}".format(id=user_id))
 
-            if password != data[0][1]:
+            if password != data[0]:
                 print('Wrong password')
                 return False
             else:
                 print('Correct password')
                 return True
 
-    def introd_medicine(self, query_parsed):
-        print(query_parsed)
+    def introd_receipt(self, query_parsed, user_id, date):
+        with Database() as db:
+            db.execute('''INSERT INTO aidebot.receipts (user_id,national_code, frequency, quantity, begin_date, end_date)
+                        values ({id},{cn},{frequency},'{quantity}','{init}','{end}')'''.format(
+                id=user_id, cn=query_parsed['NAME'], frequency=query_parsed['FREQUENCY'],
+                quantity=query_parsed['QUANTITY'],
+                init=date,
+                end=query_parsed['END_DATE']
+            ))
 
-    def check_medicine(self, medicine_name):
-        print(medicine_name)
+            # Comprobar que se ha introducido bien
 
-    def check_medicine_schedule(self, medicine_name, begin, end):
-        print(medicine_name, begin, end)
+    def check_receipt(self, cn, user_id):
+        with Database() as db:
+            data = db.query('''SELECT count(*) FROM aidebot.receipts WHERE user_id={id} and national_code={med}
+            '''.format(id=user_id, med=cn))
+            if data[0] == 0:
+                return False
+            else:
+                return True
 
-    def increase_medicine(self, medicine_name, quantity):
-        return False
+    def get_medicine_frequency(self, user_id, cn):
+        with Database() as db:
+            data = db.query('''SELECT frequency 
+            FROM aidebot.receipts
+            WHERE user_id={id} and national_code={cn}
+            '''.format(id=user_id, cn=cn))
+            return data
 
-    def get_journey(self, user_id, begin, end):
-        return False
+    def check_medicine_frequency(self, user_id, cn, freq):
+        with Database() as db:
+            data = db.query('''SELECT frequency FROM aidebot.receipts WHERE user_id={id} and national_code={cn}
+            '''.format(id=user_id, cn=cn))
 
-    def get_tasks(self, user_id, date):
-        return False
+            if data[0] == freq:
+                return True
+            else:
+                return False
 
-    def delete_information(self, user_id, national_code):
-        return False
+    ''' 
+    TODO
+    '''
+    def get_inventory(self, user_id, begin, end):
+        with Database() as db:
+            data = db.query(''' SELECT national_code, frequency, init_date, end_date, expiracy_date
+             FROM aidebot.inventory 
+             WHERE user_id={id} and init_date>='{begin}' and init_date<='{end}'
+            '''.format(begin=begin, end=end, id=user_id
+                       ))
+            return data
+
+    def create_reminders(self):
+        with Database() as db:
+            return False
+
+    def get_reminders(self, user_id, date, to_date=None):
+        with Database() as db:
+            if to_date:
+                data = db.query(''' SELECT national_code, date
+                FROM aidebot.reminders 
+                WHERE date>='{date}' and date<='{to_date}' and user_id={id}
+                '''.format(date=date, to_date=to_date, id=user_id))
+                return data
+            else:
+                data = db.query('''SELECT national_code, date
+                FROM aidebot.reminders 
+                WHERE date ='{date}' and user_id={id}
+                '''.format(date=date, id=user_id))
+                return data
+
+    def delete_reminders(self, user_id, national_code):
+        with Database() as db:
+
+            db.execute('''DELETE FROM aidebot.inventory WHERE user_id={id} and national_code={cn}
+            '''.format(id=user_id, cn=national_code))
+            db.execute('''DELETE FROM aidebot.reminders WHERE user_id={id} and national_code={cn}
+            '''.format(id=user_id, cn=national_code))
+            #Comprobar si se ha hecho bien
+            return True
 
     def get_history(self, user_id):
-        return False
-
-    def get_inventory(self, user_id, national_code=None):
-        return False
+        with Database() as db:
+            data = db.query('''
+            ''')
 
     def daily_table(self, user_id, national_code):
         return False
