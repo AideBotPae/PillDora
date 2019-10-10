@@ -48,33 +48,34 @@ class ServerWorker:
         # Introduce medicine
         elif instruction == "INTRODUCE MEDICINE":
             user_id = parsed_string["parameters"]["name"]
-            medicine_name = parsed_string["parameters"]["name"]
-            is_there = self.checker.check_medicine(user_id, medicine_name)
+            medicine_name = parsed_string["parameters"]["cn"]
+            is_there = self.checker.check_receipt(user_id, medicine_name)
             # We are checking if the medicine is already on the database
             if not is_there:
                 # If we are here, it means that the medicine wasn't on the database, so we input all the data
                 self.checker.introd_medicine(user_id, parsed_string["parameters"])
                 return "Code 0"
-            elif not self.checker.check_medicine_schedule(user_id, medicine_name, parsed_string["parameters"]["FREQUENCY"]):
+            elif not self.checker.check_medicine_frequency(user_id, medicine_name, parsed_string["parameters"]["FREQUENCY"]):
                 # If we are here, the medicine is already on the database, we check first if the frequencies concur,
                 # if not PROBLEM!
-                return "Code 1"
+                return ["Code 1", self.checker.get_medicine_frequency(user_id, medicine_name), parsed_string["parameters"]["FREQUENCY"] ]
             else:
                 # If we are here, the medicine is already on the database, and the times match, so we add the
                 # quantity only
-                return "Code 3"
+                # AQUI EN EL FUTURO TOCAREMOS EL INVENTARIO
+                return "Code 2"
         elif instruction == "JOURNEY":
             # We output a series of actions to be done from a date to another one.
             [user_id, begin, end] = [parsed_string["user_id"], parsed_string["parameters"]["departure_date"],
                                      parsed_string["parameters"]["arrival_date"]]
             # If the beginning date and the end date create conflicts, the method will return a null calendar output
-            calendar_output = self.checker.get_journey(user_id, begin, end)
+            calendar_output = self.checker.get_reminders(user_id=user_id, date=begin, to_date=end)
             # Right now, the journey will have the national code, on the future, we will use the medicine name!
             return calendar_output
         elif instruction == "TASKS CALENDAR":
             # We output a series of actions to be done from a date.
             [user_id, date] = parsed_string[1:3]
-            calendar_tasks = self.checker.get_tasks(user_id, date)
+            calendar_tasks = self.checker.get_reminders(user_id, date)
             return calendar_tasks
         elif instruction == "DELETE REMINDER":
             # We check if the medicine introduced is there or not.
@@ -106,8 +107,8 @@ class ServerWorker:
 
 
 
-    def actualize_daily_table(self, user_id):
-        json_medicines = self.checker.get_inventory(user_id)
+    def actualize_daily_table(self):
+        json_medicines = self.checker.get_inventory()
         medicines = json.load(json_medicines)
         for medicine in medicines:
             begin_date = medicine["BEGIN_DATE"]
@@ -117,7 +118,7 @@ class ServerWorker:
             if today > begin_date:
                 is_there = self.checker.daily_table(user_id, cn)
                 if not is_there:
-                    reminders = self.create_reminders(user_id, medicine)
+                    reminders = self.create_reminders()
                     modified = self.checker.add_daily_table(user_id, reminders)
                 if today > end_date:
                     modified = self.checker.delete_from_daily_table(user_id, cn)
