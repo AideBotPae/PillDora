@@ -177,10 +177,27 @@ class DBMethods:
     def daily_table(self, user_id, national_code):
         return False
 
+    '''
+    Reminders batch job methods!
+    '''
+
+    def get_all_receipts(self):
+        with Database() as db:
+            data = db.query('''SELECT *
+            FROM aidebot.receipts
+            ''')
+            return data
+
+    def insert_reminders(self, user_id, cn, date):
+        with Database() as db:
+            db.execute('''INSERT INTO aidebot.reminders (user_id, national_code, date)
+            values ({id},{national_code},'{date}')
+            '''.format(id=user_id, national_code=cn, date=date))
+
 
 if __name__ == "__main__":
     checker = DBMethods()
-    
+
 ''' Users test
  exists = checker.check_user(user_id=1)
     if exists:
