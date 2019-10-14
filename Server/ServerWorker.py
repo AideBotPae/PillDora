@@ -3,6 +3,7 @@ import json
 from datetime import date
 import logging
 
+
 class Reminder(object):
     def __init__(self, user_id, medicine, hour_of_pill):
         self.user_id = user_id
@@ -24,12 +25,13 @@ class ServerWorker:
         self.checker = DBMethods(self.user_id)
 
     def handler_query(self, query):
-        parsed_string = json.load(query)
+        parsed_string = json.loads(query)
         instruction = parsed_string["function"]
         print(parsed_string)
         # Checking if there is any user with this user_id
         if instruction == "CHECK USER":
             user_id = parsed_string["parameters"]["user_id"]
+            print(user_id)
             user_correct = self.checker.check_user(user_id=user_id)
             response = self.bot_parser(user_id=user_id, function="CHECK USER") + "[boolean: " + str(
                 user_correct) + "] }"
@@ -151,3 +153,28 @@ class ServerWorker:
             response = self.bot_parser("ALL", "DAILY REMINDER") + "[reminder_info : " + reminder_info + "] }"
             self.logger.info(response)
             return response
+
+    def json_query_comprovar(self, query):
+        query_1 ="""{
+                "glossary": {
+                    "title": "example glossary",
+                    "GlossDiv": {
+                        "title": "S",
+                        "GlossList": {
+                            "GlossEntry": {
+                                "ID": "SGML",
+                                "SortAs": "SGML",
+                                "GlossTerm": "Standard Generalized Markup Language",
+                                "Acronym": "SGML",
+                                "Abbrev": "ISO 8879:1986",
+                                "GlossDef": {
+                                    "para": "A meta-markup language, used to create markup languages such as DocBook.",
+                                    "GlossSeeAlso": ["GML", "XML"]
+                                },
+                                "GlossSee": "markup"
+                            }
+                        }
+                    }
+                }
+        }"""
+        query_jsoned = json.dumps()
