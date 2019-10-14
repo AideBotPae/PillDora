@@ -195,6 +195,13 @@ class DBMethods:
             '''.format(id=user_id, national_code=cn, date=date))
 
 
+    def suprimir_reminders(self, date):
+        with Database() as db:
+            db.execute('''DELETE FROM aidebot.reminders WHERE date<'{date}'
+            '''.format(date=date))
+            # Comprobar si se ha hecho bien
+            return True
+
 if __name__ == "__main__":
     checker = DBMethods()
 
