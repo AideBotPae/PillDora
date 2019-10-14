@@ -190,9 +190,14 @@ class DBMethods:
 
     def insert_reminders(self, user_id, cn, date):
         with Database() as db:
-            db.execute('''INSERT INTO aidebot.reminders (user_id, national_code, date)
-            values ({id},{national_code},'{date}')
-            '''.format(id=user_id, national_code=cn, date=date))
+            data = db.query('''SELECT *
+            FROM aidebot.reminders
+            WHERE user_id={id} and national_code = {cn} and cast(date as date) = '{date}'
+            '''.format(id=user_id, cn=cn, date=date))
+            if data:
+                db.execute('''INSERT INTO aidebot.reminders (user_id, national_code, date)
+                values ({id},{national_code},'{date}')            
+                '''.format(id=user_id, national_code=cn, date=date))
 
 
     def suprimir_reminders(self, date):
