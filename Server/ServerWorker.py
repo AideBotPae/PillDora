@@ -18,7 +18,7 @@ class ServerWorker:
         self.localhost = "localhost"
         self.port = 8080
         self.checker = DBMethods()
-        self.logger = logging.getLogger('AideBot')
+        self.logger = logging.getLogger('ServerWorker')
 
     def connectClient(self):
         # Connexió amb la DB del Servidor
