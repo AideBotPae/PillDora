@@ -46,7 +46,7 @@ class ServerWorker:
             [new_user, new_password] = parsed_string[1:3]
             user_added = self.checker.add_user(new_user=new_user, new_password=new_password)
             while not user_added:
-                user_added = self.checker.add_user(new_user=, new_password=)
+                user_added = self.checker.add_user(new_user=new_user, new_password=new_password)
             response = self.bot_parser(user_id=new_user, function="NEW PASSWORD") + "[boolean: " + str(
                 user_added) + "] }"
             return response
@@ -77,7 +77,7 @@ class ServerWorker:
                 # If we are here, the medicine is already on the database, and the times match, so we add the
                 # quantity only
                 # AQUI EN EL FUTURO TOCAREMOS EL INVENTARIO
-                response = self.bot_parser(user_id=user_id, function=n
+                response = self.bot_parser(user_id=user_id, function=
                 "INTRODUCE MEDICINE") + "[code : 2] }"
                 return response
 
