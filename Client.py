@@ -46,7 +46,7 @@ INTR_MEDICINE_MSSGS = ["What is the medicine's name (CN)?", "How many pills are 
 MEDICINE_TAGS = ['NAME', 'QUANTITY', 'FREQUENCY', 'END_DATE', 'EXP_DATE']
 
 # KEYBOARD AND MARKUPS
-reply_keyboard = [['Introduce Medicine'+u'U\00002708', 'Calendar'+u'U\0001F4C6'], ['History'+u'U\0001F4DG', 'Delete reminder'+'U\0001F514'], ['Journey'+u'U\00002708', 'Exit'+u'U\0001F6AA']]
+reply_keyboard = [[u'Introduce Medicine \U0001F48A', u'Calendar \U0001F4C6'], [u'History \U0001F4D6', u'Delete reminder \U0001F514'], [u'Journey \U00002708', u'Exit \U0001F6AA']]
 yes_no_reply_keyboard = [['YES', 'NO']]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
@@ -236,14 +236,15 @@ def intr_medicine(update, context):
 
 def handle_pic(update, context, user_id):  # pic to obtain CN when send_new_medicine
     file = context.bot.getFile(update.message.photo[-1].file_id)
-    file.download(f'/home/paesav/Imágenes/{user_id}.jpg')
-    medicine_cn, validation_number = medicine_search(f"{user_id}.jpg")
+    filename = f'/home/paesav/Imágenes/{user_id}.jpg'
+    file.download(filename)
+    medicine_cn, validation_number = medicine_search(filename)
 
     return medicine_cn, validation_number
 
 
 def medicine_search(filename):
-    number, validation_number = Text_Recognition().init(filename, "frozen_east_text_detection.pb")
+    number, validation_number = Text_Recognition().init(filename, "/imagetextrecognition/frozen_east_text_detection.pb")
 
     return number, validation_number
 
@@ -448,17 +449,17 @@ def main():
         states={
             LOGIN: [MessageHandler(Filters.text, intr_pwd)],
             NEW_USER: [MessageHandler(Filters.text, new_user)],
-            CHOOSING: [MessageHandler(Filters.regex('^Introduce Medicine$'),
+            CHOOSING: [MessageHandler(Filters.regex('Introduce Medicine'),
                                       intr_medicine),
-                       MessageHandler(Filters.regex('^Calendar$'),
+                       MessageHandler(Filters.regex('Calendar'),
                                       see_calendar),
-                       MessageHandler(Filters.regex('^History$'),
+                       MessageHandler(Filters.regex('History'),
                                       see_history),
-                       MessageHandler(Filters.regex('^Delete reminder$'),
+                       MessageHandler(Filters.regex('Delete reminder'),
                                       delete_reminder),
-                       MessageHandler(Filters.regex('^Journey$'),
+                       MessageHandler(Filters.regex('Journey'),
                                       create_journey),
-                       MessageHandler(Filters.regex('^Exit$'), exit)
+                       MessageHandler(Filters.regex('Exit'), exit)
                        ],
             INTR_MEDICINE: [MessageHandler(Filters.text | Filters.photo, send_new_medicine)],
             CHECK_MED: [MessageHandler(Filters.regex('^YES$'), choose_function),
