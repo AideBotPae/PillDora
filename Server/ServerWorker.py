@@ -1,7 +1,7 @@
 from Server.database import DBMethods
 import json
 from datetime import date
-
+import logging
 
 class Reminder(object):
     def __init__(self, user_id, medicine, hour_of_pill):
@@ -17,6 +17,7 @@ class ServerWorker:
         self.localhost = "localhost"
         self.port = 8080
         self.checker = None
+        self.logger = logging.getLogger('AideBot')
 
     def connectClient(self):
         # Connexió amb la DB del Servidor
@@ -25,13 +26,14 @@ class ServerWorker:
     def handler_query(self, query):
         parsed_string = json.load(query)
         instruction = parsed_string["function"]
-
+        print(parsed_string)
         # Checking if there is any user with this user_id
         if instruction == "CHECK USER":
             user_id = parsed_string["parameters"]["user_id"]
             user_correct = self.checker.check_user(user_id=user_id)
             response = self.bot_parser(user_id=user_id, function="CHECK USER") + "[boolean: " + str(
                 user_correct) + "] }"
+            self.logger.info(response)
             return response
         # Checking if the user is introducing a correct password (we pass
         elif instruction == "CHECK PASSWORD":
@@ -40,15 +42,17 @@ class ServerWorker:
             pwd_correct = self.checker.check_password(user_id=user_id, password=password)
             response = self.bot_parser(user_id=user_id, function="CHECK PASSWORD") + "[boolean: " + str(
                 pwd_correct) + "] }"
+            self.logger.info(response)
             return response
         # Add a new user
         elif instruction == "NEW PASSWORD":
             [new_user, new_password] = parsed_string[1:3]
             user_added = self.checker.add_user(new_user=new_user, new_password=new_password)
             while not user_added:
-                user_added = self.checker.add_user(new_user=, new_password=)
+                user_added = self.checker.add_user(new_user=new_user, new_password=new_password)
             response = self.bot_parser(user_id=new_user, function="NEW PASSWORD") + "[boolean: " + str(
                 user_added) + "] }"
+            self.logger.info(response)
             return response
         # Introduce medicine
         elif instruction == "INTRODUCE MEDICINE":
@@ -61,6 +65,7 @@ class ServerWorker:
                 self.checker.introd_medicine(user_id=user_id, query_parsed=parsed_string["parameters"])
                 response = self.bot_parser(user_id=user_id, function="INTRODUCE MEDICINE") + "[code : 0] }"
                 self.actualize_daily_table(user_id)
+                self.logger.info(response)
                 return response
             elif not self.checker.check_medicine_frequency(user_id=user_id, cn=national_code,
                                                            freq=parsed_string["parameters"]["FREQUENCY"]):
@@ -71,14 +76,16 @@ class ServerWorker:
                     self.checker.get_medicine_frequency(user_id=user_id,
                                                         cn=national_code)) + ' [freq_introduced : ' + str(
                     parsed_string["parameters"]["FREQUENCY"]) + "] }"
+                self.logger.info(response)
                 return response
 
             else:
                 # If we are here, the medicine is already on the database, and the times match, so we add the
                 # quantity only
                 # AQUI EN EL FUTURO TOCAREMOS EL INVENTARIO
-                response = self.bot_parser(user_id=user_id, function=n
+                response = self.bot_parser(user_id=user_id, function=
                 "INTRODUCE MEDICINE") + "[code : 2] }"
+                self.logger.info(response)
                 return response
 
         elif instruction == "JOURNEY":
@@ -90,6 +97,7 @@ class ServerWorker:
             # Right now, the journey will have the national code, on the future, we will use the medicine name!
             response = self.bot_parser(user_id=user_id,
                                        function="JOURNEY") + "[journey_info : " + calendar_output + "] }"
+            self.logger.info(response)
             return response
 
         elif instruction == "TASKS CALENDAR":
@@ -97,6 +105,7 @@ class ServerWorker:
             [user_id, date_selected] = parsed_string[1:3]
             calendar_tasks = self.checker.get_reminders(user_id=user_id, date=date_selected)
             response = self.bot_parser(user_id, "TASKS CALENDAR") + "[tasks : " + calendar_tasks + "] }"
+            self.logger.info(response)
             return response
         elif instruction == "DELETE REMINDER":
             # We check if the medicine introduced is there or not.
@@ -104,22 +113,26 @@ class ServerWorker:
             deleted = self.checker.delete_information(user_id=user_id, national_code=cn)
             response = self.bot_parser(user_id=user_id, function="DELETE REMINDER") + "[boolean : " + str(
                 deleted) + "] }"
+            self.logger.info(response)
             return response
         elif instruction == "HISTORY":
             user_id = parsed_string["parameters"]["user_id"]
             history = self.checker.get_history(user_id=user_id)
             response = self.bot_parser(user_id=user_id, function="HISTORY") + "[reminder_info : " + history + "] }"
+            self.logger.info(response)
             return response
         elif instruction == "GET REMINDER":
             [user_id, national_code] = [parsed_string["user_id"], parsed_string["parameters"]["CN"]]
             reminder_info = self.checker.get_reminders(user_id=user_id, date=date.today(), cn=national_code)
             response = self.bot_parser(self.user_id,
                                        function="GET REMINDER") + "[reminder_info : " + reminder_info + "] }"
+            self.logger.info(response)
             return response
         else:
             user_id = parsed_string["parameters"]["user_id"]
             response = self.bot_parser(user_id=user_id,
                                        function="ERROR QUERY") + "[content : The query" + instruction + " is not on the query database] }"
+            self.logger.info(response)
             return response
 
     def bot_parser(self, user_id, function):
@@ -130,9 +143,11 @@ class ServerWorker:
             today = date.today()
             reminder_info = self.checker.get_reminders(user_id, today)
             response = self.bot_parser(self.user_id, "DAILY REMINDER") + "[reminder_info : " + reminder_info + "] }"
+            self.logger.info(response)
             return response
         else:
             today = date.today()
             reminder_info = self.checker.get_reminders_all(today)
             response = self.bot_parser("ALL", "DAILY REMINDER") + "[reminder_info : " + reminder_info + "] }"
+            self.logger.info(response)
             return response
