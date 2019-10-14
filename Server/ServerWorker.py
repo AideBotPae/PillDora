@@ -17,12 +17,12 @@ class ServerWorker:
         self.user_id = user_id
         self.localhost = "localhost"
         self.port = 8080
-        self.checker = None
+        self.checker = DBMethods()
         self.logger = logging.getLogger('AideBot')
 
     def connectClient(self):
         # Connexió amb la DB del Servidor
-        self.checker = DBMethods(self.user_id)
+        self.checker = DBMethods()
 
     def handler_query(self, query):
         parsed_string = json.loads(query)
