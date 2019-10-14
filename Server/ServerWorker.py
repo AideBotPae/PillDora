@@ -25,7 +25,7 @@ class ServerWorker:
     def handler_query(self, query):
         parsed_string = json.load(query)
         instruction = parsed_string["function"]
-
+        print(parsed_string)
         # Checking if there is any user with this user_id
         if instruction == "CHECK USER":
             user_id = parsed_string["parameters"]["user_id"]
