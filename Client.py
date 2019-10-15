@@ -144,7 +144,10 @@ def user_verification(user_id):
     set_query(user_id, ["user_id"], [str(user_id)])
     query=create_query(user_id)
     response=send_query(user_id, query)
-    return (json.loads(response)["parameters"]["boolean"])
+    logger.info(response)
+    logger.info(json.loads(response)["parameters"])
+    logger.info(json.loads(response)["parameters"]['boolean'])
+    return (json.loads(response)["parameters"]['boolean'])
 
 
 # Verificates password for UserID in DataBase
