@@ -116,7 +116,7 @@ def start(update, context):
     logger.info('User '+ name+' has connected to AideBot: ID is ' + str(user_id))
     context.bot.send_message(chat_id=user_id, text=("Welcome " + name + " ! My name is AideBot"))
 
-    if (user_verification(user_id)):
+    if (user_verification(user_id)=="False"):
         update.message.reply_text("Enter your password in order to get Assistance:")
         return set_state(user_id, LOGIN)
     else:
@@ -144,6 +144,7 @@ def user_verification(user_id):
     set_query(user_id, ["user_id"], [str(user_id)])
     query=create_query(user_id)
     response=send_query(user_id, query)
+    logger.info(json.loads(response)["parameters"]["boolean"])
     return (json.loads(response)["parameters"]["boolean"])
 
 
@@ -153,7 +154,6 @@ def pwd_verification(password, user_id):
     set_query(user_id, ['password'], [password])
     query = create_query(user_id)
     response=send_query(user_id, query)
-    logger.info(json.loads(response)["parameters"]["boolean"])
     return (json.loads(response)["parameters"]["boolean"])
 
 # function used to Introduce Password
