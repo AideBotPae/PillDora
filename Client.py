@@ -153,6 +153,7 @@ def pwd_verification(password, user_id):
     set_query(user_id, ['password'], [password])
     query = create_query(user_id)
     response=send_query(user_id, query)
+    logger.info(json.loads(response)["parameters"]["boolean"])
     return (json.loads(response)["parameters"]["boolean"])
 
 # function used to Introduce Password
@@ -160,7 +161,7 @@ def pwd_verification(password, user_id):
 def intr_pwd(update, context):
     password = update.message.text
     logger.info('Password for user ' +get_name(update.message.from_user)+ ' is ' + password)
-    if (pwd_verification(password, update.message.from_user.id) == False):
+    if (pwd_verification(password, update.message.from_user.id) == "False"):
         update.message.reply_text("Wrong Password. Enter correct password again:")
         return set_state(update.message.from_user.id, LOGIN)
     update.message.reply_text('Welcome ' + get_name(update.message.from_user) + '. How can I help you?',
