@@ -27,7 +27,6 @@ class ServerWorker:
     def handler_query(self, query):
         parsed_string = json.loads(query)
         instruction = parsed_string["function"]
-        print(parsed_string)
         # Checking if there is any user with this user_id
         if instruction == "CHECK USER":
             user_id = parsed_string["parameters"]["user_id"]
@@ -59,8 +58,8 @@ class ServerWorker:
             return response
         # Introduce medicine
         elif instruction == "INTRODUCE MEDICINE":
-            user_id = parsed_string["parameters"]["name"]
-            national_code = parsed_string["parameters"]["cn"]
+            user_id = parsed_string["user_id"]
+            national_code = parsed_string["parameters"]["NAME"]
             is_there = self.checker.check_receipt(user_id=user_id, cn=national_code)
             # We are checking if the medicine is already on the database
             if not is_there:
