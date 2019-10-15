@@ -144,13 +144,13 @@ class ServerWorker:
         if user_id:
             today = datetime.date.today().strftime("%Y-%m-%d")
             reminder_info = self.checker.get_reminders(user_id, today)
-            response = self.bot_parser(self.user_id, "DAILY REMINDER") + "reminder_info : " + reminder_info + "] }"
+            response = self.bot_parser(self.user_id, "DAILY REMINDER") + '"reminder_info" : "' + reminder_info + '"}}'
             self.logger.info(response)
             return response
         else:
             today = datetime.date.today().strftime("%Y-%m-%d")
             reminder_info = self.checker.get_reminders_all(today)
-            response = self.bot_parser("ALL", "DAILY REMINDER") + "reminder_info : " + reminder_info + "] }"
+            response = self.bot_parser("ALL", "DAILY REMINDER") + '"reminder_info" : "' + reminder_info + '"}}'
             self.logger.info(response)
             return response
 
