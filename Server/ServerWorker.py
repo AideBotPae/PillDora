@@ -76,7 +76,7 @@ class ServerWorker:
                 response = self.bot_parser(user_id=user_id,
                                            function="INTRODUCE MEDICINE") + "code : 1, " + " freq_database : " + str(
                     self.checker.get_medicine_frequency(user_id=user_id,
-                                                        cn=national_code)) + ' freq_introduced : ' + str(
+                                                        cn=national_code)) + ', freq_introduced : ' + str(
                     parsed_string["parameters"]["FREQUENCY"]) + "} }"
                 self.logger.info(response)
                 return response
@@ -125,7 +125,7 @@ class ServerWorker:
             return response
         elif instruction == "GET REMINDER":
             [user_id, national_code] = [parsed_string["user_id"], parsed_string["parameters"]["CN"]]
-            reminder_info = self.checker.get_reminders(user_id=user_id, date=date.today(), cn=national_code)
+            reminder_info = self.checker.get_reminders(user_id=user_id, date=datetime.today(), cn=national_code)
             response = self.bot_parser(self.user_id,
                                        function="GET REMINDER") + "reminder_info : " + reminder_info + "} }"
             self.logger.info(response)
@@ -133,7 +133,7 @@ class ServerWorker:
         else:
             user_id = parsed_string["parameters"]["user_id"]
             response = self.bot_parser(user_id=user_id,
-                                       function="ERROR QUERY") + "content : The query" + instruction + " is not on the query database} }"
+                                       function="ERROR QUERY") + "'content' : 'The query" + instruction + " is not on the query database'} }"
             self.logger.info(response)
             return response
 
