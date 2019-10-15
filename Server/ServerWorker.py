@@ -64,7 +64,7 @@ class ServerWorker:
             # We are checking if the medicine is already on the database
             if not is_there:
                 # If we are here, it means that the medicine wasn't on the database, so we input all the data
-                self.checker.introd_receipt(user_id=user_id, query_parsed=parsed_string["parameters"], date=datetime.datetime.utcnow()())
+                self.checker.introd_receipt(user_id=user_id, query_parsed=parsed_string["parameters"], date=datetime.date.today().strftime("%m/%d/%Y"))
                 response = self.bot_parser(user_id=user_id, function="INTRODUCE MEDICINE") + """ "code": "0"}}"""
                 self.actualize_daily_table(user_id)
                 self.logger.info(response)
@@ -125,7 +125,7 @@ class ServerWorker:
             return response
         elif instruction == "GET REMINDER":
             [user_id, national_code] = [parsed_string["user_id"], parsed_string["parameters"]["CN"]]
-            reminder_info = self.checker.get_reminders(user_id=user_id, date=datetime.datetime.utcnow()(), cn=national_code)
+            reminder_info = self.checker.get_reminders(user_id=user_id, date=datetime.date.today().strftime("%m/%d/%Y"), cn=national_code)
             response = self.bot_parser(self.user_id,
                                        function="GET REMINDER") + '"reminder_info" : "' + reminder_info + '"}}'
             self.logger.info(response)
@@ -142,13 +142,13 @@ class ServerWorker:
 
     def actualize_daily_table(self, user_id=None):
         if user_id:
-            today = datetime.datetime.utcnow()()
+            today = datetime.date.today().strftime("%m/%d/%Y")
             reminder_info = self.checker.get_reminders(user_id, today)
             response = self.bot_parser(self.user_id, "DAILY REMINDER") + "reminder_info : " + reminder_info + "] }"
             self.logger.info(response)
             return response
         else:
-            today = datetime.datetime.utcnow()
+            today = datetime.date.today().strftime("%m/%d/%Y")
             reminder_info = self.checker.get_reminders_all(today)
             response = self.bot_parser("ALL", "DAILY REMINDER") + "reminder_info : " + reminder_info + "] }"
             self.logger.info(response)
