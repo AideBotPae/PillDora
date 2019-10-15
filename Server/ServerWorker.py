@@ -104,7 +104,7 @@ class ServerWorker:
 
         elif instruction == "TASKS CALENDAR":
             # We output a series of actions to be done from a date.
-            [user_id, date_selected] = parsed_string[1:3]
+            [user_id, date_selected] = [parsed_string["user_id"],parsed_string["parameters"]["date"]]
             calendar_tasks = self.checker.get_reminders(user_id=user_id, date=date_selected)
             response = self.bot_parser(user_id, "TASKS CALENDAR") + '"tasks" : "' + calendar_tasks + '"}}'
             self.logger.info(response)
@@ -131,7 +131,7 @@ class ServerWorker:
             self.logger.info(response)
             return response
         else:
-            user_id = parsed_string["parameters"]["user_id"]
+            user_id = parsed_string["user_id"]
             response = self.bot_parser(user_id=user_id,
                                        function="ERROR QUERY") + '"content" : "The query ' + instruction + ' is not on the query database"}}'
             self.logger.info(response)
