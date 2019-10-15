@@ -143,7 +143,8 @@ def user_verification(user_id):
     set_function(user_id, 'CHECK USER')
     set_query(user_id, ["user_id"], [str(user_id)])
     query=create_query(user_id)
-    return (send_query(user_id, query))
+    response=send_query(user_id, query)
+    return (json.loads(response)["parameters"]["boolean"])
 
 
 # Verificates password for UserID in DataBase
@@ -151,7 +152,8 @@ def pwd_verification(password, user_id):
     set_function(user_id, 'CHECK PASSWORD')
     set_query(user_id, ['password'], [password])
     query = create_query(user_id)
-    return (send_query(user_id, query))
+    response=send_query(user_id, query)
+    return (json.loads(response)["parameters"]["boolean"])
 
 # function used to Introduce Password
 @run_async
@@ -208,11 +210,11 @@ def choose_function(update, context):
         query = create_query(user_id)
         response=json.loads(send_query(user_id, query))
         if(response['function']=='INTRODUCE MEDICINE'):
-            if(response['parameters']=="Code 0"):
+            if(response['parameters']["Code"]=="0"):
                 logger.info("Medicine correctly introduced")
-            elif (response['parameters'] == "Code 1"):
+            elif (response['parameters']["Code"]=="1"):
                 logger.info("Medicine already in the database with different frequencies. PROBLEM")
-            elif (response['parameters'] == "Code 2"):
+            elif (response['parameters']["Code"]=="2"):
                 logger.info("Medicine already in the database with same frequencies. NO PROBLEM")
         if (response['function'] == "DELETE REMINDER"):
             if (response['parameters']):
@@ -224,7 +226,7 @@ def choose_function(update, context):
                 return set_state(update.message.from_user.id, CHOOSING)
         if (response['function'] == "JOURNEY"):
             logger.info("Medicines to take during journey correctly retrieved")
-            update.message.reply_text("Medicines to take during journey:\n"+ response['parameters'])
+            update.message.reply_text("Medicines to take during journey:\n"+ response['parameters']["journey_info"])
 
     set_query(user_id, ["None"], ["None"])
     set_function(user_id, "None")
@@ -311,7 +313,7 @@ def get_calendar_tasks(update, context, date, user_id):
     query = create_query(user_id)
     response= send_query(user_id, query)
     context.bot.send_message(chat_id=user_id,
-                             text="Reminders for "+ date+ " : "+response['parameters'])
+                             text="Reminders for "+ date+ " : "+response['parameters']['tasks'])
     context.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?",
                              reply_markup=markup)
 
@@ -324,7 +326,7 @@ def see_history(update, context):
     set_query(user_id, ["user_id"], [str(user_id)])
     query = create_query(user_id)
     response=send_query(user_id, query)
-    update.message.reply_text("To som up, you are currently taking these meds:\n"+response['parameters'])
+    update.message.reply_text("To som up, you are currently taking these meds:\n"+response['parameters']['reminder_info'])
     set_query(user_id,["None"],["None"])
     return choose_function(update, context)
 
@@ -342,9 +344,9 @@ def get_medicine_CN(update, context):
     set_query(user_id, ["CN"],[medicine_CN])
     query = create_query(user_id)
     response = send_query(user_id, query)
-    update.message.reply_text('Reminder asked to be removed:\n'+ response['parameters'])
+    update.message.reply_text('Reminder asked to be removed:\n'+ response['parameters']['reminder_info'])
     update.message.reply_text('Is this the reminder you want to remove? ', reply_markup=yes_no_markup)
-    set_query(user_id, ["CN"], [response['parameters']['CN']])
+    set_query(user_id, ["CN"], [response['parameters']['reminder_info']])
     set_function(user_id, 'DELETE REMINDER')
     return set_state(user_id, CHECK_REM)
 
