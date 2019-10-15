@@ -120,7 +120,7 @@ def start(update, context):
         update.message.reply_text("Enter your password in order to get Assistance:")
         return set_state(user_id, LOGIN)
     else:
-        context.bot.send_message(chat_id=update.message.chat_id, text=("Welcome to the HealthCare Assistant AideBot."
+        context.bot.send_message(chat_id=update.message.chat_id, text=("Welcome to the HealthCare Assistant AideBot!\n"
                                                                        "Enter new password for creating your account:"))
     return set_state(user_id, NEW_USER)
 
@@ -144,7 +144,6 @@ def user_verification(user_id):
     set_query(user_id, ["user_id"], [str(user_id)])
     query=create_query(user_id)
     response=send_query(user_id, query)
-    logger.info(json.loads(response)["parameters"]["boolean"])
     return (json.loads(response)["parameters"]["boolean"])
 
 
@@ -195,7 +194,7 @@ def new_user(update, context):
         update.message.reply_text("Valid Password")
         # Introduce new UserID-Password to DataBase
         set_function(user_id, 'NEW PASSWORD')
-        set_query(['new_password'], [password])
+        set_query(user_id, ["new_password"], [password])
         query = create_query(user_id)
         send_query(user_id, query)
         update.message.reply_text('Welcome ' + get_name(update.message.from_user) + '. How can I help you?', reply_markup=markup)
