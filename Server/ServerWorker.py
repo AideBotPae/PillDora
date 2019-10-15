@@ -48,7 +48,8 @@ class ServerWorker:
             return response
         # Add a new user
         elif instruction == "NEW PASSWORD":
-            [new_user, new_password] = [parsed_string["user_id"], ["parameters"]["new_password"]]
+            new_user = parsed_string["user_id"]
+            new_password = parsed_string["parameters"]["new_password"]
             user_added = self.checker.add_user(new_user=new_user, new_password=new_password)
             while not user_added:
                 user_added = self.checker.add_user(new_user=new_user, new_password=new_password)
