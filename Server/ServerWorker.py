@@ -138,7 +138,7 @@ class ServerWorker:
             return response
 
     def bot_parser(self, user_id, function):
-        return """{"user_id": """ + str(user_id) + """ function": """ + function + """, "parameters": {"""
+        return """{"user_id": """ + str(user_id) + """, "function": """ + function + """, "parameters": {"""
 
     def actualize_daily_table(self, user_id=None):
         if user_id:
