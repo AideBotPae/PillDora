@@ -33,8 +33,8 @@ class ServerWorker:
             user_id = parsed_string["parameters"]["user_id"]
             print(user_id)
             user_correct = self.checker.check_user(user_id=user_id)
-            response = self.bot_parser(user_id=user_id, function="CHECK USER") + """ "boolean": " """ + str(
-                user_correct) + """ "}}"""
+            response = self.bot_parser(user_id=user_id, function="CHECK USER") + ' "boolean": "' + str(
+                user_correct) + '"}}'
             self.logger.info(response)
             return response
         # Checking if the user is introducing a correct password (we pass
@@ -42,8 +42,8 @@ class ServerWorker:
             user_id = parsed_string["user_id"]
             password = parsed_string["parameters"]["password"]
             pwd_correct = self.checker.check_password(user_id=user_id, password=password)
-            response = self.bot_parser(user_id=user_id, function="CHECK PASSWORD") + """ "boolean": " """ + str(
-                pwd_correct) + """ "}}"""
+            response = self.bot_parser(user_id=user_id, function="CHECK PASSWORD") +' "boolean": "' + str(
+                pwd_correct) + '"}}'
             self.logger.info(response)
             return response
         # Add a new user
@@ -52,8 +52,8 @@ class ServerWorker:
             user_added = self.checker.add_user(new_user=new_user, new_password=new_password)
             while not user_added:
                 user_added = self.checker.add_user(new_user=new_user, new_password=new_password)
-            response = self.bot_parser(user_id=new_user, function="NEW PASSWORD") + """ "boolean": " """ + str(
-                user_added) + """ "}}"""
+            response = self.bot_parser(user_id=new_user, function="NEW PASSWORD") + ' "boolean": "' + str(
+                user_added) + '"}}'
             self.logger.info(response)
             return response
         # Introduce medicine
