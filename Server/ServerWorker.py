@@ -125,7 +125,7 @@ class ServerWorker:
             return response
         elif instruction == "GET REMINDER":
             [user_id, national_code] = [parsed_string["user_id"], parsed_string["parameters"]["CN"]]
-            reminder_info = self.checker.get_reminders(user_id=user_id, date=datetime.today(), cn=national_code)
+            reminder_info = self.checker.get_reminders(user_id=user_id, date=datetime.datetime.utcnow()(), cn=national_code)
             response = self.bot_parser(self.user_id,
                                        function="GET REMINDER") + "reminder_info : " + reminder_info + "} }"
             self.logger.info(response)
