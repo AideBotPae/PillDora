@@ -172,7 +172,7 @@ def intr_pwd(update, context):
 @run_async
 def new_user(update, context):
     password = update.message.text
-    logger.info('User introduce new password:  ' + password)
+    logger.info('User introduced new password:  ' + password)
     user_id= update.message.from_user.id
 
     # check for password difficulty.
@@ -286,22 +286,22 @@ def inline_handler(update, context):
     if selected:
         if (get_states(user_id)[0] == CHOOSING):
             context.bot.send_message(chat_id=user_id,
-                         text="You selected %s" % (date.strftime("%d/%m/%Y")),
+                         text="You selected %s" % (date.strftime("%Y-%m-%d")),
                          reply_markup=ReplyKeyboardRemove())
         if(get_states(user_id)[0]==CHOOSING):
-            get_calendar_tasks(update, context, date.strftime("%d/%m/%Y"), user_id)
+            get_calendar_tasks(update, context, date.strftime("%Y-%m-%d"), user_id)
             set_state(user_id, CHOOSING)
         elif(get_states(user_id)[0]==JOURNEY):
-            set_journey(update, context, date.strftime("%d/%m/%Y"))
+            set_journey(update, context, date.strftime("%Y-%m-%d"))
             if(get_states(user_id)[1]==CHOOSING):
                  set_state(user_id, JOURNEY)
             elif(get_states(user_id)[1]==JOURNEY):
                  set_state(user_id, JOURNEY)
         elif(get_states(user_id)[0]==INTR_MEDICINE):
             context.bot.send_message(chat_id=user_id,
-                                     text=date.strftime("%d/%m/%Y"),
+                                     text=date.strftime("%Y-%m-%d"),
                                      reply_markup=ReplyKeyboardRemove())
-            set_medicine(user_id, get_counter(user_id), date.strftime("%d/%m/%Y"))
+            set_medicine(user_id, get_counter(user_id), date.strftime("%Y-%m-%d"))
             send_new_medicine(update,context)
 
 @run_async
