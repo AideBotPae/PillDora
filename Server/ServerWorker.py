@@ -64,7 +64,7 @@ class ServerWorker:
             # We are checking if the medicine is already on the database
             if not is_there:
                 # If we are here, it means that the medicine wasn't on the database, so we input all the data
-                self.checker.introd_receipt(user_id=user_id, query_parsed=parsed_string["parameters"])
+                self.checker.introd_receipt(user_id=user_id, query_parsed=parsed_string["parameters"], date=datetime.datetime.utcnow()())
                 response = self.bot_parser(user_id=user_id, function="INTRODUCE MEDICINE") + """ "code": "0"}}"""
                 self.actualize_daily_table(user_id)
                 self.logger.info(response)
