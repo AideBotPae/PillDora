@@ -65,7 +65,7 @@ class ServerWorker:
             if not is_there:
                 # If we are here, it means that the medicine wasn't on the database, so we input all the data
                 self.checker.introd_receipt(user_id=user_id, query_parsed=parsed_string["parameters"], date=datetime.date.today().strftime("%Y-%m-%d"))
-                response = self.bot_parser(user_id=user_id, function="INTRODUCE MEDICINE") + """ "code": "0"}}"""
+                response = self.bot_parser(user_id=user_id, function="INTRODUCE MEDICINE") + """ "Code": "0"}}"""
                 self.actualize_daily_table(user_id)
                 self.logger.info(response)
                 return response
@@ -74,7 +74,7 @@ class ServerWorker:
                 # If we are here, the medicine is already on the database, we check first if the frequencies concur,
                 # if not PROBLEM!
                 response = self.bot_parser(user_id=user_id,
-                                           function="INTRODUCE MEDICINE") + '"code": "1" , "freq_database" : "' + str(
+                                           function="INTRODUCE MEDICINE") + '"Code": "1" , "freq_database" : "' + str(
                     self.checker.get_medicine_frequency(user_id=user_id,
                                                         cn=national_code)) + '", "freq_introduced" : "' + str(
                     parsed_string["parameters"]["FREQUENCY"]) + '"}}'
@@ -86,7 +86,7 @@ class ServerWorker:
                 # quantity only
                 # AQUI EN EL FUTURO TOCAREMOS EL INVENTARIO
                 response = self.bot_parser(user_id=user_id, function=
-                "INTRODUCE MEDICINE") + '"code" : "2"}}'
+                "INTRODUCE MEDICINE") + '"Code" : "2"}}'
                 self.logger.info(response)
                 return response
 
