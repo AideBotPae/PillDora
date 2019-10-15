@@ -116,7 +116,7 @@ def start(update, context):
     logger.info('User '+ name+' has connected to AideBot: ID is ' + str(user_id))
     context.bot.send_message(chat_id=user_id, text=("Welcome " + name + " ! My name is AideBot"))
 
-    if (user_verification(user_id)=="False"):
+    if (user_verification(user_id)=="True"):
         update.message.reply_text("Enter your password in order to get Assistance:")
         return set_state(user_id, LOGIN)
     else:
