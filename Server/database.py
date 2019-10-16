@@ -149,7 +149,7 @@ class DBMethods:
 
     def create_reminders(self, user_id, query_parsed):
         with Database() as db:
-            db.execute('''INSERT INTO aidebot.reminders (user_id, national_code, date)
+            db.execute('''INSERT INTO aidebot.daily_reminders (user_id, national_code, date)
                                     values ({id},{cn},'{frequency}')'''.format(id=user_id,
                                                                                cn=query_parsed['NAME'],
                                                                                frequency=query_parsed[
@@ -160,7 +160,7 @@ class DBMethods:
         with Database() as db:
             if to_date:
                 data = db.query(''' SELECT national_code, date
-                FROM aidebot.reminders 
+                FROM aidebot.daily_reminders 
                 WHERE date>='{date}' and date<='{to_date}' and user_id={id}
                 '''.format(date=date, to_date=to_date, id=user_id))
                 return data
@@ -172,7 +172,7 @@ class DBMethods:
 
             else:
                 data = db.query('''SELECT national_code, date
-                FROM aidebot.reminders 
+                FROM daily_reminders.reminders 
                 WHERE date ='{date}' and user_id={id}
                 '''.format(date=date, id=user_id))
                 return data
@@ -181,7 +181,7 @@ class DBMethods:
         with Database() as db:
             db.execute('''DELETE FROM aidebot.inventory WHERE user_id={id} and national_code={cn}
             '''.format(id=user_id, cn=national_code))
-            db.execute('''DELETE FROM aidebot.reminders WHERE user_id={id} and national_code={cn}
+            db.execute('''DELETE FROM aidebot.daily_reminders WHERE user_id={id} and national_code={cn}
             '''.format(id=user_id, cn=national_code))
             db.execute('''DELETE FROM aidebot.receipts WHERE user_id={id} and national_code={cn}
                         '''.format(id=user_id, cn=national_code))
@@ -213,17 +213,17 @@ class DBMethods:
     def insert_reminders(self, user_id, cn, date):
         with Database() as db:
             data = db.query('''SELECT *
-            FROM aidebot.reminders
+            FROM aidebot.daily_reminders
             WHERE user_id={id} and national_code = {cn} and cast(date as date) = '{date}'
             '''.format(id=user_id, cn=cn, date=date))
             if data:
-                db.execute('''INSERT INTO aidebot.reminders (user_id, national_code, date)
+                db.execute('''INSERT INTO daily_reminders.reminders (user_id, national_code, date)
                 values ({id},{national_code},'{date}')            
                 '''.format(id=user_id, national_code=cn, date=date))
 
     def suprimir_reminders(self, date):
         with Database() as db:
-            db.execute('''DELETE FROM aidebot.reminders WHERE date<'{date}'
+            db.execute('''DELETE FROM aidebot.daily_reminders WHERE date<'{date}'
             '''.format(date=date))
             # Comprobar si se ha hecho bien
             return True
