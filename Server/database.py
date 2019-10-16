@@ -95,7 +95,7 @@ class DBMethods:
                 end=query_parsed['END_DATE']
             ))
             self.intr_inventory(user_id=user_id, query_parsed=query_parsed)
-
+            self.create_reminders(user_id=user_id, query_parsed=query_parsed)
             # Comprobar que se ha introducido bien
 
     def check_receipt(self, cn, user_id):
