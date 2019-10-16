@@ -150,6 +150,7 @@ class ServerWorker:
         else:
             today = datetime.date.today().strftime("%Y-%m-%d")
             reminder_info = self.checker.get_reminders_all(today)
+            print(reminder_info)
             response = self.bot_parser("ALL", "DAILY REMINDER") + '"reminder_info" : "' + reminder_info + '"}}'
             self.logger.info(response)
             return response
