@@ -94,7 +94,7 @@ class DBMethods:
                 init=date,
                 end=query_parsed['END_DATE']
             ))
-            self.intr_inventory(self, user_id, query_parsed)
+            self.intr_inventory(user_id=user_id, query_parsed=query_parsed)
 
             # Comprobar que se ha introducido bien
 
