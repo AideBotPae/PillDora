@@ -66,7 +66,7 @@ class ServerWorker:
                 # If we are here, it means that the medicine wasn't on the database, so we input all the data
                 self.checker.introd_receipt(user_id=user_id, query_parsed=parsed_string["parameters"], date=datetime.date.today().strftime("%Y-%m-%d"))
                 response = self.bot_parser(user_id=user_id, function="INTRODUCE MEDICINE") + """ "Code": "0"}}"""
-                self.actualize_daily_table(user_id)
+                #self.actualize_daily_table(user_id)
                 self.logger.info(response)
                 return response
             elif not self.checker.check_medicine_frequency(user_id=user_id, cn=national_code,
@@ -144,14 +144,12 @@ class ServerWorker:
         if user_id:
             today = datetime.date.today().strftime("%Y-%m-%d")
             reminder_info = self.checker.get_reminders(user_id, today)
-            print(reminder_info)
             response = self.bot_parser(self.user_id, "DAILY REMINDER") + '"reminder_info" : "' + reminder_info + '"}}'
             self.logger.info(response)
             return response
         else:
             today = datetime.date.today().strftime("%Y-%m-%d")
             reminder_info = self.checker.get_reminders_all(today)
-            print(reminder_info)
             response = self.bot_parser("ALL", "DAILY REMINDER") + '"reminder_info" : "' + reminder_info + '"}}'
             self.logger.info(response)
             return response
