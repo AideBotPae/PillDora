@@ -344,7 +344,11 @@ def get_medicine_CN(update, context):
     set_query(user_id, ["CN"],[medicine_CN])
     query = create_query(user_id)
     response = send_query(user_id, query)
-    update.message.reply_text('Reminder asked to be removed:\n'+ response['parameters']['reminder_info'])
+    reminder_info=response['parameters']['reminder_info']
+    if(reminder_info=="False"):
+        if update.message.reply_text('CN introduced is wrong, there is not any med with this CN'):
+            return set_state(user_id, CHOOSING)
+    update.message.reply_text('Reminder asked to be removed:\n'+ reminder_info)
     update.message.reply_text('Is this the reminder you want to remove? ', reply_markup=yes_no_markup)
     set_query(user_id, ["CN"], [response['parameters']['reminder_info']])
     set_function(user_id, 'DELETE REMINDER')
