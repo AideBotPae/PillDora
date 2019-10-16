@@ -149,7 +149,7 @@ class DBMethods:
 
     def create_reminders(self, user_id, query_parsed):
         with Database() as db:
-            db.execute('''INSERT INTO aidebot.daily_reminders (user_id, national_code, date)
+            db.execute('''INSERT INTO aidebot.daily_reminders (user_id, national_code, frequency)
                                     values ({id},{cn},'{frequency}')'''.format(id=user_id,
                                                                                cn=query_parsed['NAME'],
                                                                                frequency=query_parsed[
@@ -160,8 +160,8 @@ class DBMethods:
         with Database() as db:
             if to_date:
                 data = db.query(''' SELECT national_code, date
-                FROM aidebot.daily_reminders 
-                WHERE date>='{date}' and date<='{to_date}' and user_id={id}
+                FROM aidebot.receipts
+                WHERE begin_date>='{date}' and end_date<='{to_date}' and user_id={id}
                 '''.format(date=date, to_date=to_date, id=user_id))
                 return data
             elif cn:
@@ -171,9 +171,9 @@ class DBMethods:
                     return "False"
 
             else:
-                data = db.query('''SELECT national_code, date
-                FROM daily_reminders.reminders 
-                WHERE date ='{date}' and user_id={id}
+                data = db.query('''SELECT national_code, frequency
+                FROM aidebot.daily_reminders 
+                WHERE frequency ='{date}' and user_id={id}
                 '''.format(date=date, id=user_id))
                 return data
 
@@ -214,16 +214,16 @@ class DBMethods:
         with Database() as db:
             data = db.query('''SELECT *
             FROM aidebot.daily_reminders
-            WHERE user_id={id} and national_code = {cn} and cast(date as date) = '{date}'
+            WHERE user_id={id} and national_code = {cn} and cast(frequency as frequency) = '{date}'
             '''.format(id=user_id, cn=cn, date=date))
             if data:
-                db.execute('''INSERT INTO daily_reminders.reminders (user_id, national_code, date)
+                db.execute('''INSERT INTO aidebot.daily_reminders (user_id, national_code, frequency)
                 values ({id},{national_code},'{date}')            
                 '''.format(id=user_id, national_code=cn, date=date))
 
     def suprimir_reminders(self, date):
         with Database() as db:
-            db.execute('''DELETE FROM aidebot.daily_reminders WHERE date<'{date}'
+            db.execute('''DELETE FROM aidebot.daily_reminders WHERE frequency<'{date}'
             '''.format(date=date))
             # Comprobar si se ha hecho bien
             return True
