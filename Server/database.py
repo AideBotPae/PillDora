@@ -194,11 +194,10 @@ class DBMethods:
             FROM aidebot.reminders
             WHERE user_id={id} and national_code = {cn} and cast(date as date) = '{date}'
             '''.format(id=user_id, cn=cn, date=date))
-            if data:
+            if not data:
                 db.execute('''INSERT INTO aidebot.reminders (user_id, national_code, date)
                 values ({id},{national_code},'{date}')            
                 '''.format(id=user_id, national_code=cn, date=date))
-
 
     def suprimir_reminders(self, date):
         with Database() as db:
@@ -206,6 +205,7 @@ class DBMethods:
             '''.format(date=date))
             # Comprobar si se ha hecho bien
             return True
+
 
 if __name__ == "__main__":
     checker = DBMethods()

@@ -21,7 +21,7 @@ def create_reminders():
 
 def delete_reminders():
     date = datetime.datetime.utcnow()
-    methods.suprimir_reminders(date)
+    methods.suprimir_reminders(date=date)
 
 
 if __name__ == '__main__':
