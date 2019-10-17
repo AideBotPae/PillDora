@@ -41,7 +41,7 @@ class ServerWorker:
             user_id = parsed_string["user_id"]
             password = parsed_string["parameters"]["password"]
             pwd_correct = self.checker.check_password(user_id=user_id, password=password)
-            response = self.bot_parser(user_id=user_id, function="CHECK PASSWORD") +' "boolean": "' + str(
+            response = self.bot_parser(user_id=user_id, function="CHECK PASSWORD") + ' "boolean": "' + str(
                 pwd_correct) + '"}}'
             self.logger.info(response)
             return response
@@ -64,9 +64,10 @@ class ServerWorker:
             # We are checking if the medicine is already on the database
             if not is_there:
                 # If we are here, it means that the medicine wasn't on the database, so we input all the data
-                self.checker.introd_receipt(user_id=user_id, query_parsed=parsed_string["parameters"], date=datetime.date.today().strftime("%Y-%m-%d"))
+                self.checker.introd_receipt(user_id=user_id, query_parsed=parsed_string["parameters"],
+                                            date=datetime.date.today().strftime("%Y-%m-%d"))
                 response = self.bot_parser(user_id=user_id, function="INTRODUCE MEDICINE") + """ "Code": "0"}}"""
-                #self.actualize_daily_table(user_id)
+                # self.actualize_daily_table(user_id)
                 self.logger.info(response)
                 return response
             elif not self.checker.check_medicine_frequency(user_id=user_id, cn=national_code,
@@ -96,11 +97,11 @@ class ServerWorker:
                                      parsed_string["parameters"]["arrival_date"]]
             # If the beginning date and the end date create conflicts, the method will return a null calendar output
             calendar_output = self.checker.get_reminders(user_id=user_id, date=begin, to_date=end)
-            num_days=self.days_between(end, begin)
+            num_days = self.days_between(end, begin)
             if calendar_output is not None:
-                journey_info="Quantity of meds to take:\n"
+                journey_info = "Quantity of meds to take:\n"
                 for output in calendar_output:
-                    journey_info+="\t-> "+ output[0]+ " : "+ output[1]*num_days +"\n"
+                    journey_info += "\t-> " + output[0] + " : " + output[1] * num_days + "\n"
             # Right now, the journey will have the national code, on the future, we will use the medicine name!
             response = self.bot_parser(user_id=user_id,
                                        function="JOURNEY") + '"journey_info" : "' + journey_info + '"}}'
@@ -109,12 +110,12 @@ class ServerWorker:
 
         elif instruction == "TASKS CALENDAR":
             # We output a series of actions to be done from a date.
-            [user_id, date_selected] = [parsed_string["user_id"],parsed_string["parameters"]["date"]]
+            [user_id, date_selected] = [parsed_string["user_id"], parsed_string["parameters"]["date"]]
             calendar_output = self.checker.get_reminders(user_id=user_id, date=date_selected)
             if calendar_output is not None:
                 journey_info = "Quantity of meds to take:\n"
                 for output in calendar_output:
-                    journey_info += "\t-> " + output[0] + " : " + output[1]+ "\n"
+                    journey_info += "\t-> " + output[0] + " : " + output[1] + "\n"
             response = self.bot_parser(user_id, "TASKS CALENDAR") + '"tasks" : "' + journey_info + '"}}'
             self.logger.info(response)
             return response
@@ -132,15 +133,18 @@ class ServerWorker:
             if history is not None:
                 history_info = "History of all Meds currently being taken :\n"
                 for output in history:
-                    history_info += "\t-> Taking  " + output[0] + " until the date of " + output[1]+ "\n"
-            response = self.bot_parser(user_id=user_id, function="HISTORY") + '"reminder_info" : "' + history_info + '"}}'
+                    history_info += "\t-> Taking  " + output[0] + " until the date of " + output[1] + "\n"
+            response = self.bot_parser(user_id=user_id,
+                                       function="HISTORY") + '"reminder_info" : "' + history_info + '"}}'
             self.logger.info(response)
             return response
         elif instruction == "GET REMINDER":
             [user_id, national_code] = [parsed_string["user_id"], parsed_string["parameters"]["CN"]]
-            reminder_info = self.checker.get_reminders(user_id=user_id, date=datetime.date.today().strftime("%Y-%m-%d"), cn=national_code)
-            if(reminder_info!="False"):
-                reminder_info = "Medicine "+reminder_info[0] +" taken with a frequency of "+reminder_info[1] +" until the date of " +reminder_info[2] +"."
+            reminder_info = self.checker.get_reminders(user_id=user_id, date=datetime.date.today().strftime("%Y-%m-%d"),
+                                                       cn=national_code)
+            if (reminder_info != "False"):
+                reminder_info = "Medicine " + reminder_info[0] + " taken with a frequency of " + reminder_info[
+                    1] + " until the date of " + reminder_info[2] + "."
             response = self.bot_parser(self.user_id,
                                        function="GET REMINDER") + '"reminder_info" : "' + reminder_info + '"}}'
             self.logger.info(response)
@@ -175,7 +179,7 @@ class ServerWorker:
         return abs((d2 - d1).days)
 
     def json_query_comprovar(self, query):
-        query_1 ="""{
+        query_1 = """{
                 "glossary": {
                     "title": "example glossary",
                     "GlossDiv": {
