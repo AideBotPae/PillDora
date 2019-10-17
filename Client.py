@@ -244,7 +244,7 @@ def handle_pic(update, context, user_id):  # pic to obtain CN when send_new_medi
 
 
 def medicine_search(filename):
-    number, validation_number = Text_Recognition().init(filename, "/imagetextrecognition/frozen_east_text_detection.pb")
+    number, validation_number = Text_Recognition().init(filename, "/home/paesav/PAET2019/PillDora/imagetextrecognition/frozen_east_text_detection.pb")
 
     return number, validation_number
 
@@ -275,8 +275,8 @@ def send_new_medicine(update, context):
             else:
                 medicine_cn, validation_num = split_code(update.message.text)
 
-            if "error" in [medicine_cn, validation_num] or verify_code(medicine_cn, validation_num):
-                context.message.reply_text(
+            if "error" in [medicine_cn, validation_num] or not verify_code(medicine_cn, validation_num):
+                update.message.reply_text(
                     "An error has occurred, please repeat the photo or manually introduce the CN")
                 return INTR_MEDICINE
             else:
