@@ -94,7 +94,8 @@ class DBMethods:
                 init=date,
                 end=query_parsed['END_DATE']
             ))
-
+            self.intr_inventory(user_id=user_id, query_parsed=query_parsed)
+            self.create_reminders(user_id=user_id, query_parsed=query_parsed)
             # Comprobar que se ha introducido bien
 
     def check_receipt(self, cn, user_id):
@@ -128,35 +129,51 @@ class DBMethods:
     TODO
     '''
 
-    def get_inventory(self, user_id, begin, end):
+    def intr_inventory(self, user_id, query_parsed):
         with Database() as db:
-            data = db.query(''' SELECT national_code, frequency, init_date, end_date, expiracy_date
-             FROM aidebot.inventory 
-             WHERE user_id={id} and init_date>='{begin}' and init_date<='{end}'
-            '''.format(begin=begin, end=end, id=user_id
+            db.execute('''INSERT INTO aidebot.inventory (user_id,national_code, num_of_pills, expiracy_date)
+                        values ({id},{cn},'{quantity}','{exp_date}')'''.format(id=user_id,
+                                                                               cn=query_parsed['NAME'],
+                                                                               quantity=query_parsed['QUANTITY'],
+                                                                               exp_date=query_parsed['EXP_DATE']
+                                                                               ))
+
+    def get_receipts(self, user_id, cn):
+        with Database() as db:
+            data = db.query(''' SELECT national_code, frequency,end_date
+             FROM aidebot.receipts 
+             WHERE user_id={id} and national_code={cn}
+            '''.format(cn=cn, id=user_id
                        ))
             return data
 
-    def create_reminders(self):
+    def create_reminders(self, user_id, query_parsed):
         with Database() as db:
-            return False
+            db.execute('''INSERT INTO aidebot.daily_reminders (user_id, national_code, frequency)
+                                    values ({id},{cn},'{frequency}')'''.format(id=user_id,
+                                                                               cn=query_parsed['NAME'],
+                                                                               frequency=query_parsed[
+                                                                                   'FREQUENCY'],
+                                                                               ))
 
     def get_reminders(self, user_id, date, to_date=None, cn=None):
         with Database() as db:
             if to_date:
                 data = db.query(''' SELECT national_code, date
-                FROM aidebot.reminders 
-                WHERE date>='{date}' and date<='{to_date}' and user_id={id}
+                FROM aidebot.receipts
+                WHERE begin_date>='{date}' and end_date<='{to_date}' and user_id={id}
                 '''.format(date=date, to_date=to_date, id=user_id))
                 return data
             elif cn:
-                # HACE FALTA AÑADIR AQUI CODIGO QUE DEVUELVA LOS REMINDERS DE UNA MEDICINA EN CONCRETO DES DE HOY!
-                # Date = today!
-                return None
+                if(self.check_receipt(self, cn=cn, user_id=user_id)):
+                    return self.get_receipts(cn, user_id)
+                else:
+                    return "False"
+
             else:
-                data = db.query('''SELECT national_code, date
-                FROM aidebot.reminders 
-                WHERE date ='{date}' and user_id={id}
+                data = db.query('''SELECT national_code, frequency
+                FROM aidebot.daily_reminders 
+                WHERE frequency ='{date}' and user_id={id}
                 '''.format(date=date, id=user_id))
                 return data
 
@@ -164,15 +181,20 @@ class DBMethods:
         with Database() as db:
             db.execute('''DELETE FROM aidebot.inventory WHERE user_id={id} and national_code={cn}
             '''.format(id=user_id, cn=national_code))
-            db.execute('''DELETE FROM aidebot.reminders WHERE user_id={id} and national_code={cn}
+            db.execute('''DELETE FROM aidebot.daily_reminders WHERE user_id={id} and national_code={cn}
             '''.format(id=user_id, cn=national_code))
+            db.execute('''DELETE FROM aidebot.receipts WHERE user_id={id} and national_code={cn}
+                        '''.format(id=user_id, cn=national_code))
             # Comprobar si se ha hecho bien
             return True
 
     def get_history(self, user_id):
         with Database() as db:
-            data = db.query('''
-            ''')
+            data = db.query(''' SELECT national_code, end_date
+                FROM aidebot.receipts 
+                WHERE user_id={id}
+                '''.format(id=user_id))
+            return data
 
     def daily_table(self, user_id, national_code):
         return False
@@ -191,17 +213,17 @@ class DBMethods:
     def insert_reminders(self, user_id, cn, date):
         with Database() as db:
             data = db.query('''SELECT *
-            FROM aidebot.reminders
-            WHERE user_id={id} and national_code = {cn} and cast(date as date) = '{date}'
+            FROM aidebot.daily_reminders
+            WHERE user_id={id} and national_code = {cn} and cast(frequency as frequency) = '{date}'
             '''.format(id=user_id, cn=cn, date=date))
-            if not data:
-                db.execute('''INSERT INTO aidebot.reminders (user_id, national_code, date)
+            if data:
+                db.execute('''INSERT INTO aidebot.daily_reminders (user_id, national_code, frequency)
                 values ({id},{national_code},'{date}')            
                 '''.format(id=user_id, national_code=cn, date=date))
 
     def suprimir_reminders(self, date):
         with Database() as db:
-            db.execute('''DELETE FROM aidebot.reminders WHERE date<'{date}'
+            db.execute('''DELETE FROM aidebot.daily_reminders WHERE frequency<'{date}'
             '''.format(date=date))
             # Comprobar si se ha hecho bien
             return True
@@ -222,5 +244,4 @@ if __name__ == "__main__":
         print("Maaaaal, no existe :(((")
     else:
         checker.add_user(new_user=2, new_password='prueba_checker_method')
-
 '''
