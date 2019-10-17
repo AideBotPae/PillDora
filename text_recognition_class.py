@@ -94,12 +94,14 @@ class Text_Recognition:
         # sort the results bounding box coordinates from top to bottom
         results = sorted(results, key=lambda r:r[0][1])
         # loop over the results
+        number = "error"
+        validation_number="error"
         for (text) in results:
             # display the text OCR'd by Tesseract
             print("OCR TEXT")
             print("========")
             #print("{}\n".format(text))
-            
+
             if(len(text[0])<6):
                 number="error"
             else:

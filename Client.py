@@ -12,7 +12,7 @@ bot.
 import json
 import logging
 import re
-
+import requests
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, \
     CallbackQueryHandler
@@ -239,6 +239,7 @@ def handle_pic(update, context, user_id):  # pic to obtain CN when send_new_medi
     filename = f'/home/paesav/Imágenes/{user_id}.jpg'
     file.download(filename)
     medicine_cn, validation_number = medicine_search(filename)
+    print ('\n', medicine_cn, validation_number, '\n')
 
     return medicine_cn, validation_number
 
@@ -308,11 +309,19 @@ def send_new_medicine(update, context):
 
         return set_state(user_id, CHECK_MED)
 
+def obtain_medicine_name(CN):
+   r = requests.get(url = "https://cima.aemps.es/cima/rest/medicamento?cn=" + CN)
+   data= r.json()
+   namestring=data['presentaciones'][0]['nombre']
+   return namestring
 
 def show_medicine(user_id):
     medicine_string = ''
     for tag in MEDICINE_TAGS:
-        medicine_string += tag + ': ' + get_medicine(user_id)[tag] + '\n'
+        if tag == 'NAME':
+            medicine_string += tag + ': ' + obtain_medicine_name(get_medicine(user_id)[tag]).split(' ')[0] + '\n'
+        else:
+            medicine_string += tag + ': ' + get_medicine(user_id)[tag] + '\n'
     return medicine_string
 
 
