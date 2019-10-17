@@ -98,9 +98,11 @@ class DBMethods:
                     init=date,
                     end=query_parsed['END_DATE']
                 ))
+                #Inventory is table used to save the information of pills that we have at home.
                 self.intr_inventory(user_id=user_id, query_parsed=query_parsed)
-                # En la tabla de reminders habría lo mismo que en receipts pero menos columnas, es innecesaria
-                # self.create_reminders(user_id=user_id, query_parsed=query_parsed)
+                #Daily Reminders is table used to have the current reminders for one day.
+                #Every time day finish we check if end_Date in receipts is today. If it is today, delete reminder from daily_reminders
+                self.create_reminders(user_id=user_id, query_parsed=query_parsed)
             else:
                 # TODO: Añadir cantidad de pastillas?
                 return False
@@ -200,20 +202,31 @@ class DBMethods:
         with Database() as db:
             db.execute('''DELETE FROM aidebot.inventory WHERE user_id={id} and national_code={cn}
             '''.format(id=user_id, cn=national_code))
-            # db.execute('''DELETE FROM aidebot.daily_reminders WHERE user_id={id} and national_code={cn}
-            # '''.format(id=user_id, cn=national_code))
+            db.execute('''DELETE FROM aidebot.daily_reminders WHERE user_id={id} and national_code={cn}
+             '''.format(id=user_id, cn=national_code))
             db.execute('''DELETE FROM aidebot.receipts WHERE user_id={id} and national_code={cn}
                         '''.format(id=user_id, cn=national_code))
             return True
 
-    # def create_reminders(self, user_id, query_parsed):
-    #     with Database() as db:
-    #         db.execute('''INSERT INTO aidebot.daily_reminders (user_id, national_code, frequency)
-    #                                    values ({id},{cn},'{frequency}')'''.format(id=user_id,
-    #                                                                               cn=query_parsed['NAME'],
-    #                                                                               frequency=query_parsed[
-    #                                                                                   'FREQUENCY'],
-    #                                                                               ))
+    def get_times(self, frequency):
+        time=[]
+        num=8
+        while(num<24):
+            time.insert(num+ ':00:00')
+            num+=frequency
+        return time
+
+    def create_reminders(self, user_id, query_parsed):
+        for time in self.get_times(query_parsed['FREQUENCY']):
+            with Database() as db:
+                db.execute('''INSERT INTO aidebot.daily_reminders (user_id, national_code, time, end_date)
+                                       values ({id},{cn},'{end_date}','{time}')'''.format(id=user_id,
+                                                                                  cn=query_parsed['NAME'],
+                                                                                  end_date=query_parsed['END_DATE'],
+                                                                                  time=time
+                                                                                  ))
+
+
 
     # Reminders batch job methods
 
