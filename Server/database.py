@@ -235,7 +235,7 @@ class DBMethods:
         num=8
         while(num<24):
             time.append(str(num)+ ':00:00')
-            num+=frequency
+            num+=int(frequency)
         return time
 
     def create_reminders(self, user_id, query_parsed):
