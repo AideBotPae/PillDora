@@ -234,7 +234,7 @@ class DBMethods:
         time=[]
         num=8
         while(num<24):
-            time.insert(str(num)+ ':00:00')
+            time.append(str(num)+ ':00:00')
             num+=frequency
         return time
 
