@@ -311,7 +311,7 @@ def get_calendar_tasks(update, context, date, user_id):
     set_function(user_id, "TASKS CALENDAR")
     set_query(user_id, ["date"], [date])
     query = create_query(user_id)
-    response= send_query(user_id, query)
+    response= json.loads(send_query(user_id, query))
     context.bot.send_message(chat_id=user_id,
                              text="Reminders for "+ date+ " :\n")
     context.bot.send_message(chat_id=user_id, text=response['parameters']['tasks'])
@@ -326,7 +326,7 @@ def see_history(update, context):
     set_function(user_id, "HISTORY")
     set_query(user_id, ["user_id"], [str(user_id)])
     query = create_query(user_id)
-    response=send_query(user_id, query)
+    response=json.loads(send_query(user_id, query))
     update.message.reply_text("To som up, you are currently taking these meds:\n"+response['parameters']['reminder_info'])
     set_query(user_id,["None"],["None"])
     return choose_function(update, context)
@@ -344,7 +344,7 @@ def get_medicine_CN(update, context):
     set_function(user_id, "GET REMINDER")
     set_query(user_id, ["CN"],[medicine_CN])
     query = create_query(user_id)
-    response = send_query(user_id, query)
+    response = json.loads(send_query(user_id, query))
     reminder_info=response['parameters']['reminder_info']
     if(reminder_info=="False"):
         if update.message.reply_text('CN introduced is wrong, there is not any med with this CN'):
