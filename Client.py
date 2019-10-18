@@ -312,7 +312,7 @@ def get_calendar_tasks(update, context, date, user_id):
     set_function(user_id, "TASKS CALENDAR")
     set_query(user_id, ["date"], [date])
     query = create_query(user_id)
-    response= json.loads(send_query(user_id, query))
+    response = json.loads(send_query(user_id, query))
     context.bot.send_message(chat_id=user_id,
                              text="Reminders for "+ date+ " :\n")
     context.bot.send_message(chat_id=user_id, text=response['parameters']['tasks'])

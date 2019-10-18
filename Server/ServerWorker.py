@@ -98,9 +98,9 @@ class ServerWorker:
             # If the beginning date and the end date create conflicts, the method will return a null calendar output
             calendar_output = self.checker.get_reminders(user_id=user_id, date=begin, to_date=end)
             if calendar_output is not None:
-                journey_info = "Quantity of meds to take:\n"
+                journey_info = "Quantity of meds to take:\\n"
                 for output in calendar_output:
-                    journey_info += "\t-> " + output['cn'] + " : " + output[output['cn']['num']] + ".\n"
+                    journey_info += "\t-> " + output['cn'] + " : " + output[output['cn']['num']] + ".\\n"
             # Right now, the journey will have the national code, on the future, we will use the medicine name!
             response = self.bot_parser(user_id=user_id,
                                        function="JOURNEY") + '"journey_info" : "' + journey_info + '"}}'
@@ -112,9 +112,9 @@ class ServerWorker:
             [user_id, date_selected] = [parsed_string["user_id"], parsed_string["parameters"]["date"]]
             calendar_output = self.checker.get_reminders(user_id=user_id, date=date_selected)
             if calendar_output is not None:
-                journey_info = "Quantity of meds to take:\n"
+                journey_info = "Quantity of meds to take:\\n"
                 for output in calendar_output:
-                    journey_info += "\t-> " + str(output[0]) + " : " + str(output[1]) + "\n"
+                    journey_info += "\t-> " + str(output[0]) + " : " + str(output[1]) + "\\n"
             response = self.bot_parser(user_id, "TASKS CALENDAR") + '"tasks" : "' + journey_info + '"}}'
             self.logger.info(response)
             return response
@@ -130,9 +130,9 @@ class ServerWorker:
             user_id = parsed_string["parameters"]["user_id"]
             history = self.checker.get_history(user_id=user_id)
             if history is not None:
-                history_info = "History of all Meds currently being taken :\n"
+                history_info = "History of all Meds currently being taken :\\n"
                 for output in history:
-                    history_info += "\t-> Taking  " + str(output[0]) + " until the date of " + str(output[1]) + "\n"
+                    history_info += "\t-> Taking  " + str(output[0]) + " until the date of " + str(output[1]) + "\\n"
             response = self.bot_parser(user_id=user_id,
                                        function="HISTORY") + '"reminder_info" : "' + history_info + '"}}'
             self.logger.info(response)
