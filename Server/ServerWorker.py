@@ -100,7 +100,7 @@ class ServerWorker:
             if calendar_output is not None:
                 journey_info = "Quantity of meds to take:\n"
                 for output in calendar_output:
-                    journey_info += "\t-> " + output['cn'] + " : " + output[output['cn']['num']]+ ".\n"
+                    journey_info += "\t-> " + output['cn'] + " : " + output[output['cn']['num']] + ".\n"
             # Right now, the journey will have the national code, on the future, we will use the medicine name!
             response = self.bot_parser(user_id=user_id,
                                        function="JOURNEY") + '"journey_info" : "' + journey_info + '"}}'
@@ -114,7 +114,7 @@ class ServerWorker:
             if calendar_output is not None:
                 journey_info = "Quantity of meds to take:\n"
                 for output in calendar_output:
-                    journey_info += "\t-> " + output[0] + " : " + output[1] + "\n"
+                    journey_info += "\t-> " + str(output[0]) + " : " + str(output[1]) + "\n"
             response = self.bot_parser(user_id, "TASKS CALENDAR") + '"tasks" : "' + journey_info + '"}}'
             self.logger.info(response)
             return response
@@ -132,7 +132,7 @@ class ServerWorker:
             if history is not None:
                 history_info = "History of all Meds currently being taken :\n"
                 for output in history:
-                    history_info += "\t-> Taking  " + output[0] + " until the date of " + output[1] + "\n"
+                    history_info += "\t-> Taking  " + str(output[0]) + " until the date of " + str(output[1]) + "\n"
             response = self.bot_parser(user_id=user_id,
                                        function="HISTORY") + '"reminder_info" : "' + history_info + '"}}'
             self.logger.info(response)
@@ -142,8 +142,8 @@ class ServerWorker:
             reminder_info = self.checker.get_reminders(user_id=user_id, date=datetime.date.today().strftime("%Y-%m-%d"),
                                                        cn=national_code)
             if (reminder_info != "False"):
-                reminder_info = "Medicine " + reminder_info[0] + " taken with a frequency of " + reminder_info[
-                    1] + "hours until the date of " + reminder_info[2] + "."
+                reminder_info = "Medicine " + str(reminder_info[0]) + " taken with a frequency of " + str(
+                    reminder_info[1]) + "hours until the date of " + str(reminder_info[2]) + "."
             response = self.bot_parser(self.user_id,
                                        function="GET REMINDER") + '"reminder_info" : "' + reminder_info + '"}}'
             self.logger.info(response)
@@ -171,7 +171,6 @@ class ServerWorker:
             response = self.bot_parser("ALL", "DAILY REMINDER") + '"reminder_info" : "' + reminder_info + '"}}'
             self.logger.info(response)
             return response
-
 
     def json_query_comprovar(self, query):
         query_1 = """{
