@@ -1,3 +1,5 @@
+import datetime
+
 import pymysql
 
 
@@ -162,46 +164,66 @@ class DBMethods:
                                                                                exp_date=query_parsed['EXP_DATE']
                                                                                ))
 
+    def get_receipts(self, user_id, cn):
+        with Database() as db:
+            data = db.query(''' SELECT national_code, frequency, end_date
+                FROM aidebot.receipts 
+                WHERE user_id={id} and national_code={cn}
+               '''.format(cn=cn, id=user_id
+                          ))
+            return data
+
+
     # Reminders methods
     def get_reminders(self, user_id, date, to_date=None, cn=None):
         with Database() as db:
+            #Journey state: checking remined for some days
             if to_date:
-                # In this case, we want to know beforehand the amount of times that the user will have to take their
-                # medicines
-
-                # TODO: Como me pasan las fechas para calcular dias de viaje
-                days_away = (to_date - date).days
-
-                data = db.query(''' SELECT national_code, frequency
-                FROM aidebot.receipts
-                WHERE user_id={id}
-                '''.format(id=user_id))
-
+                date_list= self.get_array_dates(init_date=date, end_date=to_date)
                 journey_info = {}
-                for values in data:
-                    national_code = values[0]
-                    frequency = values[1]
-                    num_to_take = frequency * days_away
-                    journey_info[national_code] = {}
-                    journey_info[national_code]['frequency'] = frequency
-                    journey_info[national_code]['quantity_to_take'] = num_to_take
 
+                for day in date_list:
+                    data= self.get_calendar(user_id=user_id, date='{%Y-%m-%d}'.format(day))
+                    for values in data:
+                        national_code = values[0]
+                        journey_info['cn']=national_code
+                        journey_info[national_code] = {}
+                        journey_info[national_code]['num'] += 1
                 return journey_info
 
+            #check if there is actually a reminder of this CN in daily_reminders. If so, get all information of it.
             elif cn:
                 if self.check_receipt(cn=cn, user_id=user_id):
-                    return self.get_medicine_frequency(user_id=user_id, cn=cn)
+                    return self.get_receipts(user_id=user_id, cn=cn)
                 else:
                     return "False"
-
+            #get calendar tasks for one exact day
             else:
-                data = self.get_user_receipts_frequency(user_id=user_id)
-                return data
+                return self.get_calendar(user_id, date)
+
+    def days_between(d1, d2):
+        d1 = datetime.strptime(d1, "%Y-%m-%d")
+        d2 = datetime.strptime(d2, "%Y-%m-%d")
+        return abs((d2 - d1).days)
+
+    def get_array_dates(self, init_date, end_date):
+        in_date = datetime.datetime.strptime(init_date, '%Y-%m-%d')
+        return [in_date + datetime.timedelta(days=x) for x in range(self.days_between(init_date, end_date))]
+
+    def get_calendar(self, user_id, date):
+        with Database() as db:
+            data = db.query('''SELECT national_code, time
+                                       FROM aidebot.daily_reminders 
+                                       WHERE end_date >= '{date}' and user_id={id}
+                                       '''.format(date=date, id=user_id))
+        return data
 
     def delete_reminders(self, user_id, national_code):
         with Database() as db:
-            db.execute('''DELETE FROM aidebot.inventory WHERE user_id={id} and national_code={cn}
-            '''.format(id=user_id, cn=national_code))
+            # Deleting reminders should delete the entrance of each remind in daily_reminders and receipt, but not from inventory as has all that we have taken always.
+
+            # db.execute('''DELETE FROM aidebot.inventory WHERE user_id={id} and national_code={cn}
+            # '''.format(id=user_id, cn=national_code))
             db.execute('''DELETE FROM aidebot.daily_reminders WHERE user_id={id} and national_code={cn}
              '''.format(id=user_id, cn=national_code))
             db.execute('''DELETE FROM aidebot.receipts WHERE user_id={id} and national_code={cn}
