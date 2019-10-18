@@ -233,7 +233,7 @@ class DBMethods:
     def get_times(self, frequency):
         time=[]
         num=8
-        while(num<24):
+        while(num<=24):
             time.append(str(num)+ ':00:00')
             num+=int(frequency)
         return time
@@ -242,7 +242,7 @@ class DBMethods:
         for time in self.get_times(query_parsed['FREQUENCY']):
             with Database() as db:
                 db.execute('''INSERT INTO aidebot.daily_reminders (user_id, national_code, time, end_date)
-                                       values ({id},{cn},'{end_date}','{time}')'''.format(id=user_id,
+                                       values ({id},{cn},'{time}', '{end_date}')'''.format(id=user_id,
                                                                                   cn=query_parsed['NAME'],
                                                                                   end_date=query_parsed['END_DATE'],
                                                                                   time=time
