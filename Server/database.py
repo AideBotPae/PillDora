@@ -186,9 +186,9 @@ class DBMethods:
                     data= self.get_calendar(user_id=user_id, date=day.__format__('%Y-%m-%d'))
                     for values in data:
                         national_code = values[0]
-                        journey_info['cn']=national_code
-                        journey_info[national_code] = {}
-                        journey_info[national_code]['num'] += 1
+                        if national_code not in journey_info:
+                             journey_info[national_code] = 0
+                        journey_info[national_code] += 1
                 return journey_info
 
             #check if there is actually a reminder of this CN in daily_reminders. If so, get all information of it.
