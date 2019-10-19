@@ -207,7 +207,7 @@ def new_user(update, context):
 
 def choose_function(update, context):
     user_id=update.message.from_user.id
-    if(get_query(user_id)!="None"):
+    if((get_query(user_id)!="None") and (get_query(user_id)!={"None": "None"})):
         query = create_query(user_id)
         response=json.loads(send_query(user_id, query))
         if(response['function']=='INTRODUCE MEDICINE'):
@@ -328,7 +328,7 @@ def see_history(update, context):
     set_query(user_id, ["user_id"], [str(user_id)])
     query = create_query(user_id)
     response=json.loads(send_query(user_id, query))
-    update.message.reply_text("To som up, you are currently taking these meds:\n"+response['parameters']['reminder_info'])
+    update.message.reply_text("To sum up, you are currently taking these meds:\n"+response['parameters']['reminder_info'])
     set_query(user_id,["None"],["None"])
     return choose_function(update, context)
 
