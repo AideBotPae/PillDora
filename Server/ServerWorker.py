@@ -114,7 +114,7 @@ class ServerWorker:
             if calendar_output is not None:
                 journey_info = "Quantity of meds to take:\\n"
                 for output in calendar_output:
-                    journey_info += "\t-> " + str(output[0]) + " : " + str(output[1]) + "\\n"
+                    journey_info += "\\t-> " + str(output[0]) + " : " + str(output[1]) + "\\n"
             response = self.bot_parser(user_id, "TASKS CALENDAR") + '"tasks" : "' + journey_info + '"}}'
             self.logger.info(response)
             return response
