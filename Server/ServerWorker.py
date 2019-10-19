@@ -100,7 +100,7 @@ class ServerWorker:
             if calendar_output is not None:
                 journey_info = "Quantity of meds to take:\\n"
                 for output in list(calendar_output.keys()):
-                    journey_info += "\\t-> " + str(output) + " : " + str(calendar_output[output]) + ".\\n"
+                    journey_info += "\\t-> " + str(output) + " : " + str(calendar_output[output]) + "\\n"
             # Right now, the journey will have the national code, on the future, we will use the medicine name!
             response = self.bot_parser(user_id=user_id,
                                        function="JOURNEY") + '"journey_info" : "' + journey_info + '"}}'
@@ -112,7 +112,7 @@ class ServerWorker:
             [user_id, date_selected] = [parsed_string["user_id"], parsed_string["parameters"]["date"]]
             calendar_output = self.checker.get_reminders(user_id=user_id, date=date_selected)
             if calendar_output is not None:
-                journey_info = "Quantity of meds to take:\\n"
+                journey_info = "Reminders:\\n"
                 for output in calendar_output:
                     journey_info += "\\t-> " + str(output[0]) + " : " + str(output[1]) + "\\n"
             response = self.bot_parser(user_id, "TASKS CALENDAR") + '"tasks" : "' + journey_info + '"}}'
