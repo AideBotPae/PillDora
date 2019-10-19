@@ -121,7 +121,7 @@ class ServerWorker:
         elif instruction == "DELETE REMINDER":
             # We check if the medicine introduced is there or not.
             [user_id, cn] = [parsed_string["user_id"], parsed_string["parameters"]["CN"]]
-            deleted = self.checker.delete_information(user_id=user_id, national_code=cn)
+            deleted = self.checker.delete_reminders(user_id=user_id, national_code=cn)
             response = self.bot_parser(user_id=user_id, function="DELETE REMINDER") + '"boolean" : "' + str(
                 deleted) + '"}}'
             self.logger.info(response)
@@ -143,7 +143,7 @@ class ServerWorker:
                                                        cn=national_code)
             if (reminder_info != "False"):
                 reminder_info = "Medicine " + str(reminder_info[0][0]) + " taken with a frequency of " + str(
-                    reminder_info[0][1]) + "hours until the date of " + datetime.datetime.strftime(reminder_info[0][2], "%Y-%m-%d") + "."
+                    reminder_info[0][1]) + " hours until the date of " + datetime.datetime.strftime(reminder_info[0][2], "%Y-%m-%d") + "."
             response = self.bot_parser(self.user_id,
                                        function="GET REMINDER") + '"reminder_info" : "' + reminder_info + '"}}'
             self.logger.info(response)
