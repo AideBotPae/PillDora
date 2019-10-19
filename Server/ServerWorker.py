@@ -143,7 +143,7 @@ class ServerWorker:
                                                        cn=national_code)
             if (reminder_info != "False"):
                 reminder_info = "Medicine " + str(reminder_info[0][0]) + " taken with a frequency of " + str(
-                    reminder_info[0][1]) + "hours until the date of " + datetime.datetime.strptime(reminder_info[0][2], "%Y-%m-%d") + "."
+                    reminder_info[0][1]) + "hours until the date of " + datetime.datetime.strftime(reminder_info[0][2], "%Y-%m-%d") + "."
             response = self.bot_parser(self.user_id,
                                        function="GET REMINDER") + '"reminder_info" : "' + reminder_info + '"}}'
             self.logger.info(response)
