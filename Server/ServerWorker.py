@@ -100,7 +100,7 @@ class ServerWorker:
             if calendar_output is not None:
                 journey_info = "Quantity of meds to take:\\n"
                 for output in list(calendar_output.keys()):
-                    journey_info += "\t-> " + output + " : " + calendar_output[output] + ".\\n"
+                    journey_info += "\t-> " + str(output) + " : " + str(calendar_output[output]) + ".\\n"
             # Right now, the journey will have the national code, on the future, we will use the medicine name!
             response = self.bot_parser(user_id=user_id,
                                        function="JOURNEY") + '"journey_info" : "' + journey_info + '"}}'
