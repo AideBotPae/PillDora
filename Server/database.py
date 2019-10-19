@@ -202,8 +202,8 @@ class DBMethods:
                 return self.get_calendar(user_id, date)
 
     def days_between(self, d1, d2):
-        d1 = datetime.strptime(d1, "%Y-%m-%d")
-        d2 = datetime.strptime(d2, "%Y-%m-%d")
+        d1 = datetime.datetime.strptime(d1, "%Y-%m-%d")
+        d2 = datetime.datetime.strptime(d2, "%Y-%m-%d")
         return abs((d2 - d1).days)
 
     def get_array_dates(self, init_date, end_date):
@@ -280,17 +280,3 @@ class DBMethods:
 
 if __name__ == "__main__":
     checker = DBMethods()
-
-''' Users test
- exists = checker.check_user(user_id=1)
-    if exists:
-        checker.check_password(user_id=1, password='hola')
-        checker.check_password(user_id=1, password='prueba')
-    else:
-        print("Va como el culo, no detecta el unico id :(")
-    exists_2 = checker.check_user(user_id=2)
-    if exists_2:
-        print("Maaaaal, no existe :(((")
-    else:
-        checker.add_user(new_user=2, new_password='prueba_checker_method')
-'''
