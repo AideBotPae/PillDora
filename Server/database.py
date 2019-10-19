@@ -183,7 +183,7 @@ class DBMethods:
                 journey_info = {}
 
                 for day in date_list:
-                    data= self.get_calendar(user_id=user_id, date=date.__format__('%Y-%m-%d'))
+                    data= self.get_calendar(user_id=user_id, date=day.__format__('%Y-%m-%d'))
                     for values in data:
                         national_code = values[0]
                         journey_info['cn']=national_code
