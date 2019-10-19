@@ -132,7 +132,7 @@ class ServerWorker:
             if history is not None:
                 history_info = "History of all Meds currently being taken :\\n"
                 for output in history:
-                    history_info += "\t-> Taking  " + str(output[0]) + " until the date of " + str(output[1]) + "\\n"
+                    history_info += "\\t-> Taking  " + str(output[0]) + " until the date of " + str(output[1]) + "\\n"
             response = self.bot_parser(user_id=user_id,
                                        function="HISTORY") + '"reminder_info" : "' + history_info + '"}}'
             self.logger.info(response)
