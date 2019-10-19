@@ -142,6 +142,7 @@ class ServerWorker:
             reminder_info = self.checker.get_reminders(user_id=user_id, date=datetime.date.today().strftime("%Y-%m-%d"),
                                                        cn=national_code)
             if (reminder_info != "False"):
+                print(reminder_info)
                 reminder_info = "Medicine " + str(reminder_info[0]) + " taken with a frequency of " + str(
                     reminder_info[1]) + "hours until the date of " + str(reminder_info[2]) + "."
             response = self.bot_parser(self.user_id,
