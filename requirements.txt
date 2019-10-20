@@ -5,4 +5,5 @@ pycparser
 pymysql
 requests
 telegram
+schedule
 
