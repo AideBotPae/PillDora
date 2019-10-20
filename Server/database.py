@@ -196,7 +196,7 @@ class DBMethods:
                 if self.check_receipt(cn=cn, user_id=user_id):
                     return self.get_receipts(user_id=user_id, cn=cn)
                 else:
-                    return "False"
+                    return '"False"'
             #get calendar tasks for one exact day
             else:
                 return self.get_calendar(user_id, date)
