@@ -224,10 +224,8 @@ class DBMethods:
 
             # db.execute('''DELETE FROM aidebot.inventory WHERE user_id={id} and national_code={cn}
             # '''.format(id=user_id, cn=national_code))
-            db.execute('''DELETE FROM aidebot.daily_reminders WHERE user_id={id} and national_code={cn}
-             '''.format(id=user_id, cn=national_code))
-            db.execute('''DELETE FROM aidebot.receipts WHERE user_id={id} and national_code={cn}
-                        '''.format(id=user_id, cn=national_code))
+            db.execute('''DELETE FROM aidebot.daily_reminders WHERE user_id={id} and national_code={cn}'''.format(id=user_id, cn=national_code))
+            db.execute('''DELETE FROM aidebot.receipts WHERE user_id={id} and national_code={cn}'''.format(id=user_id, cn=national_code))
             return True
 
     def get_times(self, frequency):
