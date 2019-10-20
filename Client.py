@@ -378,7 +378,7 @@ def get_medicine_CN(update, context):
     query = create_query(user_id)
     response = json.loads(send_query(user_id, query))
     reminder_info = response['parameters']
-    if (reminder_info == "False"):
+    if (reminder_info['CN']=="False"):
         if update.message.reply_text('CN introduced is wrong, there is not any med with this CN'):
             return set_state(user_id, CHOOSING)
     reminder_info = "Medicine " + response['parameters']['CN'] + " taken with a frequency of " + response['parameters'][
