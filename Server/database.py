@@ -1,5 +1,5 @@
 import datetime
-
+import schedule
 import pymysql
 
 
@@ -246,7 +246,28 @@ class DBMethods:
                                                                                   time=time
                                                                                   ))
 
+class daily_actualizations:
+    def daily_actualizations(self):
+        #Every day at 01:00 the system will proceed to check if any reminder needs to be removed as expired
+        schedule.every().day.at("01:00").do(self.checking_expirations)
+        schedule.every().hour.do(self.checking_expirations)
+# Delete all reminders which has expired by end_date < today
+    def checking_expirations(self):
+        with Database() as db:
+            today=str(datetime.date.today())
+            db.execute('''DELETE FROM aidebot.daily_reminders WHERE (end_date<'{today}')'''.format(today=today))
+            db.execute('''DELETE FROM aidebot.receipts WHERE (end_date<'{today}')'''.format(today=today))
 
+#check for reminds of the last hour 
+    def remind_information(self):
+        with Database() as db:
+            now=datetime.datetime.now().strftime('%H:%M:%S')
+            before_now=now-datetime.timedelta(hours=1)
+            data = db.query('''SELECT national_code, time, user_id
+                                       FROM aidebot.daily_reminders 
+                                       WHERE time >= '{before_now}' and time>='{now}'
+                                       '''.format(before_now=before_now, now=now))
+            return data
 
     # Reminders batch job methods
 
