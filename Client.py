@@ -381,6 +381,7 @@ def get_medicine_CN(update, context):
     reminder_info = response['parameters']
     if (reminder_info['CN']=="False"):
         update.message.reply_text('CN introduced is wrong, there is not any med with this CN')
+        update.message.reply_text("Is there any other way I can help you?", reply_markup=markup)
         return set_state(user_id, CHOOSING)
     reminder_info = "Medicine " + response['parameters']['CN'] + " taken with a frequency of " + response['parameters'][
         'frequency'] + " hours until the date of " + response['parameters']['end_date'] + "."
