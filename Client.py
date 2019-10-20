@@ -58,62 +58,62 @@ class PillDora:
         aide_bot[user_id]['states'][1] = aide_bot[user_id]['states'][0]
         aide_bot[user_id]['states'][0] = state
         return state
-    
-    
+
+
     def get_states(self, user_id):
         return aide_bot[user_id]['states']
-    
-    
+
+
     def get_medicine(self, user_id):
         return aide_bot[user_id]['medicine']
-    
-    
+
+
     def set_medicine(self, user_id, num, text):
         aide_bot[user_id]['medicine'][MEDICINE_TAGS[num]] = text
-    
-    
+
+
     def get_dates(self, user_id):
         return aide_bot[user_id]['journey']
-    
-    
+
+
     def set_dates(self, user_id, text, date):
         if (text == "departure"):
             aide_bot[user_id]['journey'][0] = date
         else:
             aide_bot[user_id]['journey'][1] = date
-    
-    
+
+
     def set_counter(self, user_id, num):
         aide_bot[user_id]['intr_medicine_counter'] = num
-    
-    
+
+
     def get_counter(self, user_id):
         return aide_bot[user_id]['intr_medicine_counter']
-    
-    
+
+
     def set_query(self, user_id, keys, values):
         parameters = {}
         for key in keys:
             parameters[key] = values[keys.index(key)]
         aide_bot[user_id]['query'] = parameters
-    
-    
+
+
     def get_query(self, user_id):
         return aide_bot[user_id]['query']
-    
-    
+
+
     def set_function(self, user_id, text):
         aide_bot[user_id]['function'] = text
-    
-    
+
+
     def get_function(self, user_id):
         return aide_bot[user_id]['function']
-    
-    
+
+
     def send_query(self, user_id, query):
         return (aide_bot[user_id]['serverworker'].handler_query(query))
-    
-    
+
+
     def create_query(self, user_id):
         query = {
             'user_id': user_id,
@@ -123,8 +123,8 @@ class PillDora:
         query = json.dumps(query)
         logger.info(query)
         return query
-    
-    
+
+
     # MANAGE "/START" COMMAND ON TELEGRAM INPUT
     def start(self, update, context):
         user_id = update.message.from_user.id
@@ -134,7 +134,7 @@ class PillDora:
                              'function': 'none', 'query': {}, 'serverworker': ServerWorker(user_id)}
         logger.info('User ' + name + ' has connected to AideBot: ID is ' + str(user_id))
         context.bot.send_message(chat_id=user_id, text=("Welcome " + name + " ! My name is AideBot"))
-    
+
         if (self.user_verification(user_id) == "True"):
             update.message.reply_text("Enter your password in order to get Assistance:")
             return self.set_state(user_id, LOGIN)
@@ -142,8 +142,8 @@ class PillDora:
             context.bot.send_message(chat_id=update.message.chat_id, text=("Welcome to the HealthCare Assistant AideBot!\n"
                                                                            "Enter new password for creating your account:"))
         return self.set_state(user_id, NEW_USER)
-    
-    
+
+
     # Resolve message data to a readable name
     def get_name(user):
         try:
@@ -155,8 +155,8 @@ class PillDora:
                 logger.info("No username or first name.. wtf")
                 return ""
         return name
-    
-    
+
+
     # Verificates is UserID has account or it is first visit in AideBot
     def user_verification(self, user_id):
         self.set_function(user_id, 'CHECK USER')
@@ -164,8 +164,8 @@ class PillDora:
         query = self.create_query(user_id)
         response = self.send_query(user_id, query)
         return (json.loads(response)["parameters"]["boolean"])
-    
-    
+
+
     # Verificates password for UserID in DataBase
     def pwd_verification(self, password, user_id):
         self.set_function(user_id, 'CHECK PASSWORD')
@@ -173,8 +173,8 @@ class PillDora:
         query = self.create_query(user_id)
         response = self.send_query(user_id, query)
         return (json.loads(response)["parameters"]["boolean"])
-    
-    
+
+
     # function used to Introduce Password
     @run_async
     def intr_pwd(self, update, context):
@@ -186,15 +186,15 @@ class PillDora:
         update.message.reply_text('Welcome ' + self.get_name(update.message.from_user) + '. How can I help you?',
                                   reply_markup=markup)
         return self.set_state(update.message.from_user.id, CHOOSING)
-    
-    
+
+
     # function used to create user account --> associate UserID with Pwd
     @run_async
     def new_user(self, update, context):
         password = update.message.text
         logger.info('User introduced new password:  ' + password)
         user_id = update.message.from_user.id
-    
+
         # check for password difficulty.
         i = 0
         if re.search("[a-z]", password):
@@ -209,7 +209,7 @@ class PillDora:
             i = 0
         if (len(password) < 6 or len(password) > 12):
             i = 0
-    
+
         if (i > 2):
             update.message.reply_text("Valid Password")
             # Introduce new UserID-Password to DataBase
@@ -220,12 +220,12 @@ class PillDora:
             update.message.reply_text('Welcome ' + self.get_name(update.message.from_user) + '. How can I help you?',
                                       reply_markup=markup)
             return self.set_state(update.message.from_user.id, CHOOSING)
-    
+
         update.message.reply_text(
             "Not a Valid Password. Enter Password with 6 to 12 characters and minimum 3 of these types of characters: uppercase, lowercase, number and $, # or @")
         return self.set_state(update.message.from_user.id, NEW_USER)
-    
-    
+
+
     def choose_function(self, update, context):
         user_id = update.message.from_user.id
         if ((self.get_query(user_id) != "None") and (self.get_query(user_id) != {"None": "None"})):
@@ -249,28 +249,28 @@ class PillDora:
             if (response['function'] == "JOURNEY"):
                 logger.info("Medicines to take during journey correctly retrieved")
                 update.message.reply_text("Medicines to take during journey:\n" + response['parameters']["journey_info"])
-    
+
         self.set_query(user_id, ["None"], ["None"])
         self.set_function(user_id, "None")
         logger.info('User ' + self.get_name(update.message.from_user) + ' in the menu')
         update.message.reply_text("Is there any other way I can help you?", reply_markup=markup)
         return self.set_state(update.message.from_user.id, CHOOSING)
-    
-    
+
+
     @run_async
     def intr_medicine(self, update, context):
         logger.info('User introducing new medicine')
         update.message.reply_text(INTR_MEDICINE_MSSGS[self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, INTR_MEDICINE)
-    
-    
+
+
     def send_new_medicine(self, update, context):
         try:
             user_id = update.message.from_user.id
             self.set_medicine(user_id, self.get_counter(user_id), update.message.text)
         except:
             user_id = update.callback_query.from_user.id
-    
+
         self.set_counter(user_id, self.get_counter(user_id) + 1)
         logger.info(self.get_medicine(user_id))
         if self.get_counter(user_id) != len(INTR_MEDICINE_MSSGS):
@@ -291,22 +291,22 @@ class PillDora:
             self.set_query(user_id, list(self.get_medicine(user_id).keys()), list(self.get_medicine(user_id).values()))
             self.set_function(user_id, 'INTRODUCE MEDICINE')
             return self.set_state(user_id, CHECK_MED)
-    
-    
+
+
     def show_medicine(self, user_id):
         medicine_string = ''
         for tag in MEDICINE_TAGS:
             medicine_string += tag + ': ' + self.get_medicine(user_id)[tag] + '\n'
         return medicine_string
-    
-    
+
+
     @run_async
     def see_calendar(self, update, context):
         logger.info('User ' + self.get_name(update.message.from_user) + '  seeing calendar')
         update.message.reply_text("Please select a date: ",
                                   reply_markup=telegramcalendar.create_calendar())
-    
-    
+
+
     @run_async
     def inline_handler(self, update, context):
         selected, date = telegramcalendar.process_calendar_selection(context.bot, update)
@@ -331,8 +331,8 @@ class PillDora:
                                          reply_markup=ReplyKeyboardRemove())
                 self.set_medicine(user_id, self.get_counter(user_id), date.strftime("%Y-%m-%d"))
                 self.send_new_medicine(update, context)
-    
-    
+
+
     @run_async
     def get_calendar_tasks(self, update, context, date, user_id):
         logger.info('Tasks for the user on the date ' + date)
@@ -346,8 +346,8 @@ class PillDora:
         context.bot.send_message(chat_id=user_id, text=response['parameters']['tasks'])
         context.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?",
                                  reply_markup=markup)
-    
-    
+
+
     @run_async
     def see_history(self, update, context):
         logger.info('User ' + self.get_name(update.message.from_user) + ' seeing history')
@@ -361,15 +361,15 @@ class PillDora:
             "To sum up, you are currently taking these meds:\n" + response['parameters']['reminder_info'])
         self.set_query(user_id, ["None"], ["None"])
         return self.choose_function(update, context)
-    
-    
+
+
     @run_async
     def delete_reminder(self, update, context):
         logger.info('User ' + self.get_name(update.message.from_user) + ' deleting reminder')
         update.message.reply_text('Please Introduce CN of the Medicine you want to delete the reminder:')
         return self.set_state(update.message.from_user.id, GET_CN)
-    
-    
+
+
     def get_medicine_CN(self, update, context):
         medicine_CN = update.message.text
         user_id = update.message.from_user.id
@@ -390,8 +390,8 @@ class PillDora:
         self.set_query(user_id, ["CN"], [response['parameters']['CN']])
         self.set_function(user_id, 'DELETE REMINDER')
         return self.set_state(user_id, CHECK_REM)
-    
-    
+
+
     @run_async
     def create_journey(self, update, context):
         boolean = self.get_states(update.message.from_user.id)[0] == CHOOSING
@@ -405,8 +405,8 @@ class PillDora:
             update.message.reply_text("No worries. Introduce right departure date:",
                                       reply_markup=telegramcalendar.create_calendar())
         return JOURNEY
-    
-    
+
+
     def set_journey(self, update, context, date):
         user_id = update.callback_query.from_user.id
         if (self.get_states(user_id)[1] == CHOOSING):
@@ -415,7 +415,7 @@ class PillDora:
             context.bot.send_message(chat_id=user_id,
                                      text="Alright. I see you are leaving on " + date + ".\nWhen will you come back?",
                                      reply_markup=telegramcalendar.create_calendar())
-    
+
         if (self.get_states(user_id)[1] == JOURNEY):
             logger.info("Arrival date " + date)
             self.set_dates(user_id, "arrival", date)
@@ -424,14 +424,14 @@ class PillDora:
                                      reply_markup=yes_no_markup)
             self.set_query(user_id, ["departure_date", "arrival_date"], [get_dates(user_id)[0], get_dates(user_id)[1]])
             self.set_function(user_id, 'JOURNEY')
-    
-    
+
+
     def exit(self, update, context):
         update.message.reply_text("See you next time")
         logger.info('User ' + self.get_name(update.message.from_user) + ' finish with AideBot')
         return END
-    
-    
+
+
     def main(self):
         # Create the Updater and pass it your bot's token.
         # Make sure to set use_context=True to use the new context based callbacks
@@ -440,7 +440,7 @@ class PillDora:
         conv_handler = ConversationHandler(
             allow_reentry=True,
             entry_points=[CommandHandler('start', self.start)],
-    
+
             states={
                 LOGIN: [MessageHandler(Filters.text, self.intr_pwd)],
                 NEW_USER: [MessageHandler(Filters.text, self.new_user)],
@@ -470,12 +470,13 @@ class PillDora:
             },
             fallbacks=[MessageHandler(Filters.regex('^Exit$'), exit)]
         )
-    
+
         dp.add_handler(conv_handler)
         dp.add_handler(CallbackQueryHandler(self.inline_handler))
         updater.start_polling()
         updater.idle()
-    
+
 
 if __name__ == '__main__':
-    pilldora= PillDora.main()
+    pilldora = PillDora()
+    pilldora.main()
