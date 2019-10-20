@@ -1,5 +1,4 @@
 import datetime
-import schedule
 import pymysql
 
 
@@ -245,57 +244,5 @@ class DBMethods:
                                                                                   end_date=query_parsed['END_DATE'],
                                                                                   time=time
                                                                                   ))
-
-class daily_actualizations:
-    def daily_actualizations(self):
-        #Every day at 01:00 the system will proceed to check if any reminder needs to be removed as expired
-        schedule.every().day.at("01:00").do(self.checking_expirations)
-        schedule.every().hour.do(self.checking_expirations)
-# Delete all reminders which has expired by end_date < today
-    def checking_expirations(self):
-        with Database() as db:
-            today=str(datetime.date.today())
-            db.execute('''DELETE FROM aidebot.daily_reminders WHERE (end_date<'{today}')'''.format(today=today))
-            db.execute('''DELETE FROM aidebot.receipts WHERE (end_date<'{today}')'''.format(today=today))
-
-#check for reminds of the last hour 
-    def remind_information(self):
-        with Database() as db:
-            now=datetime.datetime.now().strftime('%H:%M:%S')
-            before_now=now-datetime.timedelta(hours=1)
-            data = db.query('''SELECT national_code, time, user_id
-                                       FROM aidebot.daily_reminders 
-                                       WHERE time >= '{before_now}' and time>='{now}'
-                                       '''.format(before_now=before_now, now=now))
-            return data
-
-    # Reminders batch job methods
-
-    # def get_all_receipts(self):
-    #     with Database() as db:
-    #         data = db.query('''SELECT *
-    #         FROM aidebot.receipts
-    #         ''')
-    #         return data
-    #
-    # def insert_reminders(self, user_id, cn, date):
-    #     with Database() as db:
-    #         data = db.query('''SELECT *
-    #         FROM aidebot.daily_reminders
-    #         WHERE user_id={id} and national_code = {cn} and cast(frequency as frequency) = '{date}'
-    #         '''.format(id=user_id, cn=cn, date=date))
-    #         if not data:
-    #             db.execute('''INSERT INTO aidebot.daily_reminders (user_id, national_code, frequency)
-    #             values ({id},{national_code},'{date}')
-    #             '''.format(id=user_id, national_code=cn, date=date))
-    #
-    # def suprimir_reminders(self, date):
-    #     with Database() as db:
-    #         db.execute('''DELETE FROM aidebot.daily_reminders WHERE frequency<'{date}'
-    #         '''.format(date=date))
-    #         # Comprobar si se ha hecho bien
-    #         return True
-
-
 if __name__ == "__main__":
     checker = DBMethods()
