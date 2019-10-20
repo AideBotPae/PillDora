@@ -145,7 +145,7 @@ class PillDora:
 
 
     # Resolve message data to a readable name
-    def get_name(user):
+    def get_name(self, user):
         try:
             name = user.first_name
         except (NameError, AttributeError):
