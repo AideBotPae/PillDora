@@ -141,8 +141,9 @@ class ServerWorker:
             [user_id, national_code] = [parsed_string["user_id"], parsed_string["parameters"]["CN"]]
             reminder_info = self.checker.get_reminders(user_id=user_id, date=datetime.date.today().strftime("%Y-%m-%d"),
                                                        cn=national_code)
-            if (reminder_info != "False"):
+            if (reminder_info != '"False"'):
                 reminder_info='"CN":"'+str(reminder_info[0][0])+'","frequency":"'+str(reminder_info[0][1])+'","end_date":"'+datetime.datetime.strftime(reminder_info[0][2], "%Y-%m-%d")+'"'
+
             response = self.bot_parser(self.user_id,
                                        function="GET REMINDER") + reminder_info + '}}'
             self.logger.info(response)
@@ -170,28 +171,3 @@ class ServerWorker:
             response = self.bot_parser("ALL", "DAILY REMINDER") + '"reminder_info" : "' + reminder_info + '"}}'
             self.logger.info(response)
             return response
-
-    def json_query_comprovar(self, query):
-        query_1 = """{
-                "glossary": {
-                    "title": "example glossary",
-                    "GlossDiv": {
-                        "title": "S",
-                        "GlossList": {
-                            "GlossEntry": {
-                                "ID": "SGML",
-                                "SortAs": "SGML",
-                                "GlossTerm": "Standard Generalized Markup Language",
-                                "Acronym": "SGML",
-                                "Abbrev": "ISO 8879:1986",
-                                "GlossDef": {
-                                    "para": "A meta-markup language, used to create markup languages such as DocBook.",
-                                    "GlossSeeAlso": ["GML", "XML"]
-                                },
-                                "GlossSee": "markup"
-                            }
-                        }
-                    }
-                }
-        }"""
-        query_jsoned = json.dumps()
