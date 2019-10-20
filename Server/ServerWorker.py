@@ -144,7 +144,7 @@ class ServerWorker:
             if (reminder_info != '"False"'):
                 reminder_info='"CN":"'+str(reminder_info[0][0])+'","frequency":"'+str(reminder_info[0][1])+'","end_date":"'+datetime.datetime.strftime(reminder_info[0][2], "%Y-%m-%d")+'"'
             else:
-                reminder_info='"boolean":'+reminder_info
+                reminder_info='"CN":'+reminder_info
             response = self.bot_parser(self.user_id,
                                        function="GET REMINDER") + reminder_info + '}}'
             self.logger.info(response)
