@@ -421,7 +421,7 @@ class PillDora:
             context.bot.send_message(chat_id=user_id,
                                      text="The arrival Date is on " + date + "\nIs this information correct?",
                                      reply_markup=yes_no_markup)
-            self.set_query(user_id, ["departure_date", "arrival_date"], [get_dates(user_id)[0], get_dates(user_id)[1]])
+            self.set_query(user_id, ["departure_date", "arrival_date"], [self.get_dates(user_id)[0], self.get_dates(user_id)[1]])
             self.set_function(user_id, 'JOURNEY')
 
 
