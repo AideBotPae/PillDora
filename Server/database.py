@@ -1,5 +1,4 @@
 import datetime
-
 import pymysql
 
 
@@ -245,36 +244,5 @@ class DBMethods:
                                                                                   end_date=query_parsed['END_DATE'],
                                                                                   time=time
                                                                                   ))
-
-
-
-    # Reminders batch job methods
-
-    # def get_all_receipts(self):
-    #     with Database() as db:
-    #         data = db.query('''SELECT *
-    #         FROM aidebot.receipts
-    #         ''')
-    #         return data
-    #
-    # def insert_reminders(self, user_id, cn, date):
-    #     with Database() as db:
-    #         data = db.query('''SELECT *
-    #         FROM aidebot.daily_reminders
-    #         WHERE user_id={id} and national_code = {cn} and cast(frequency as frequency) = '{date}'
-    #         '''.format(id=user_id, cn=cn, date=date))
-    #         if not data:
-    #             db.execute('''INSERT INTO aidebot.daily_reminders (user_id, national_code, frequency)
-    #             values ({id},{national_code},'{date}')
-    #             '''.format(id=user_id, national_code=cn, date=date))
-    #
-    # def suprimir_reminders(self, date):
-    #     with Database() as db:
-    #         db.execute('''DELETE FROM aidebot.daily_reminders WHERE frequency<'{date}'
-    #         '''.format(date=date))
-    #         # Comprobar si se ha hecho bien
-    #         return True
-
-
 if __name__ == "__main__":
     checker = DBMethods()
