@@ -142,7 +142,7 @@ class ServerWorker:
             reminder_info = self.checker.get_reminders(user_id=user_id, date=datetime.date.today().strftime("%Y-%m-%d"),
                                                        cn=national_code)
             if (reminder_info != "False"):
-                reminder_info='"CN":"'+str(reminder_info[0][0])+'","frequency":"'+reminder_info[0][1]+'","end_date":"'+datetime.datetime.strftime(reminder_info[0][2], "%Y-%m-%d")+'"'
+                reminder_info='"CN":"'+str(reminder_info[0][0])+'","frequency":"'+str(reminder_info[0][1])+'","end_date":"'+datetime.datetime.strftime(reminder_info[0][2], "%Y-%m-%d")+'"'
             response = self.bot_parser(self.user_id,
                                        function="GET REMINDER") + reminder_info + '}}'
             self.logger.info(response)
