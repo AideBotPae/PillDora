@@ -147,7 +147,7 @@ class ServerWorker:
             self.logger.info(response)
             return response
         # THE USER ASKS FOR THE HISTORY OF PILLS TAKEN
-        elif instruction == "CURRENT":
+        elif instruction == "CURRENT TREATMENT":
             user_id = parsed_string["parameters"]["user_id"]
             history = self.checker.get_current_treatments(user_id=user_id)
             if history is not None:
@@ -209,10 +209,11 @@ class ServerWorker:
             return response
 
     def resolve_medicine_info(self, info):
-        return True
+        data = parsed_string[""]
+        return data
 
     def resolve_name(self, cn):
-        return True
+        return data
 
     def resolve_measure(self, cn):
-        return True
+        return data
