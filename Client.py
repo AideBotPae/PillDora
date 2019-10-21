@@ -60,26 +60,26 @@ class PillDora:
         return state
 
     # Returns the state of the bot for a specific user_id
-    @staticmethod
+    
     def get_states(user_id):
         return aide_bot[user_id]['states']
 
-    @staticmethod
+    
     # Returns the last medicine associated for a specific user_id
     def get_medicine(self, user_id):
         return aide_bot[user_id]['medicine']
 
-    @staticmethod
+    
     # Insertion of a medicine for a specific user_id
     def set_medicine(self, user_id, num, text):
         aide_bot[user_id]['medicine'][MEDICINE_TAGS[num]] = text
 
-    @staticmethod
+    
     # Returns the dates on a journey for a specific user_id
     def get_dates(self, user_id):
         return aide_bot[user_id]['journey']
 
-    @staticmethod
+    
     # Insertion of the date of a journey depending on the text, it is the departure or return for a specific user_id
     def set_dates(self, user_id, text, date):
         if text == "departure":
@@ -87,17 +87,17 @@ class PillDora:
         else:
             aide_bot[user_id]['journey'][1] = date
 
-    @staticmethod
+    
     # Insertion of the number of medicines associated to a medicine for a specific user_id
     def set_counter(self, user_id, num):
         aide_bot[user_id]['intr_medicine_counter'] = num
 
-    @staticmethod
+    
     # Returns the number of medicines associated to a medicine for a specific user_id
     def get_counter(self, user_id):
         return aide_bot[user_id]['intr_medicine_counter']
 
-    @staticmethod
+    
     # Insertion of the query that the Client sends to the ServerWorker for a specific user_id
     def set_query(self, user_id, keys, values):
         # We use a dictionary for the parameters of the query on the JSON string
@@ -106,27 +106,27 @@ class PillDora:
             parameters[key] = values[keys.index(key)]
         aide_bot[user_id]['query'] = parameters
 
-    @staticmethod
+    
     # Returns the query that that the Client sends to the ServerWorker for a specific user_id
     def get_query(self, user_id):
         return aide_bot[user_id]['query']
 
-    @staticmethod
+    
     # Insertion of the function that the bot is currently on for a specific user_id
     def set_function(self, user_id, text):
         aide_bot[user_id]['function'] = text
 
-    @staticmethod
+    
     # Returns the function that the bot is doing for a specific user_id
     def get_function(self, user_id):
         return aide_bot[user_id]['function']
 
-    @staticmethod
+    
     # Sends the query to the ServerWorker and returns the JSON query response
     def send_query(self, user_id, query):
         return aide_bot[user_id]['serverworker'].handler_query(query)
 
-    @staticmethod
+    
     # Method to create a JSON from the parameters that we have introduced using the Getters and Setters
     def create_query(self, user_id):
         # We create a pseudo-class to have a template for the JSON
@@ -139,7 +139,7 @@ class PillDora:
         logger.info(query)
         return query
 
-    @staticmethod
+    
     # MANAGE "/START" COMMAND ON TELEGRAM INPUT
     def start(self, update, context):
         user_id = update.message.from_user.id
@@ -159,7 +159,7 @@ class PillDora:
                                            "Enter new password for creating your account:"))
         return self.set_state(user_id, NEW_USER)
 
-    @staticmethod
+    
     # Resolve message data to a readable name
     def get_name(self, user):
         try:
@@ -172,7 +172,7 @@ class PillDora:
                 return ""
         return name
 
-    @staticmethod
+    
     # Verification of the UserID, if he has account or if it is first visit in AideBot
     def user_verification(self, user_id):
         self.set_function(user_id, 'CHECK USER')
@@ -181,7 +181,7 @@ class PillDora:
         response = self.send_query(user_id, query)
         return json.loads(response)["parameters"]["boolean"]
 
-    @staticmethod
+    
     # Verification of the password for a UserID in DataBase
     def pwd_verification(self, password, user_id):
         self.set_function(user_id, 'CHECK PASSWORD')
@@ -190,7 +190,7 @@ class PillDora:
         response = self.send_query(user_id, query)
         return json.loads(response)["parameters"]["boolean"]
 
-    @staticmethod
+    
     # Function used to ask and introduce a password to check the identity of the user
     @run_async
     def intr_pwd(self, update, context):
@@ -203,7 +203,7 @@ class PillDora:
                                   reply_markup=markup)
         return self.set_state(update.message.from_user.id, CHOOSING)
 
-    @staticmethod
+    
     # Function used to create user account --> associates a UserID with a new password
     @run_async
     def new_user(self, update, context):
@@ -242,7 +242,7 @@ class PillDora:
             "uppercase, lowercase, number and $, # or @")
         return self.set_state(update.message.from_user.id, NEW_USER)
 
-    @staticmethod
+    
     # This method reacts to the response of the query, when we get the response, we create a query and decide what to do
     def choose_function(self, update, context):
         user_id = update.message.from_user.id
@@ -275,7 +275,7 @@ class PillDora:
         update.message.reply_text("Is there any other way I can help you?", reply_markup=markup)
         return self.set_state(update.message.from_user.id, CHOOSING)
 
-    @staticmethod
+    
     @run_async
     # Method that gets a new medicine to the recipes and changes the state of the bot to INTR MEDICINE
     def intr_medicine(self, update, context):
@@ -283,7 +283,7 @@ class PillDora:
         update.message.reply_text(INTR_MEDICINE_MSSGS[self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, INTR_MEDICINE)
 
-    @staticmethod
+    
     # Creates a query of the medicine and changes de state to CHECKING if the medicine inserted is correct or not
     def send_new_medicine(self, update, context):
         try:
@@ -313,7 +313,7 @@ class PillDora:
             self.set_function(user_id, 'INTRODUCE MEDICINE')
             return self.set_state(user_id, CHECK_MED)
 
-    @staticmethod
+    
     # After introducing a medicine, the method prints all the characteristics about the medicine to later check about it
     def show_medicine(self, user_id):
         medicine_string = ''
@@ -321,7 +321,7 @@ class PillDora:
             medicine_string += tag + ': ' + self.get_medicine(user_id)[tag] + '\n'
         return medicine_string
 
-    @staticmethod
+    
     @run_async
     # Method that shows a calendar to the user and asks to him to select a date (for various reasons)
     def see_calendar(self, update, context):
@@ -329,7 +329,7 @@ class PillDora:
         update.message.reply_text("Please select a date: ",
                                   reply_markup=telegramcalendar.create_calendar())
 
-    @staticmethod
+    
     @run_async
     # Method that handles the situations and depending on the current state, changes the state
     def inline_handler(self, update, context):
@@ -356,7 +356,7 @@ class PillDora:
                 self.set_medicine(user_id, self.get_counter(user_id), date.strftime("%Y-%m-%d"))
                 self.send_new_medicine(update, context)
 
-    @staticmethod
+    
     @run_async
     # Returns all the reminders associated for a specific date and user_id
     def get_calendar_tasks(self, update, context, date, user_id):
@@ -372,7 +372,7 @@ class PillDora:
         context.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?",
                                  reply_markup=markup)
 
-    @staticmethod
+    
     @run_async
     # Method that prints systematically the history for a certain user_id
     def see_history(self, update, context):
@@ -388,7 +388,7 @@ class PillDora:
         self.set_query(user_id, ["None"], ["None"])
         return self.choose_function(update, context)
 
-    @staticmethod
+    
     @run_async
     # Deletes a reminder using a CN for a certain user_id
     def delete_reminder(self, update, context):
@@ -435,7 +435,7 @@ class PillDora:
         return JOURNEY
 
     # Method that asks for the dates needed for a journey and changes the state of the bot to JOURNEY
-    @staticmethod
+    
     def set_journey(self, update, context, date):
         user_id = update.callback_query.from_user.id
         if self.get_states(user_id)[1] == CHOOSING:
@@ -456,14 +456,14 @@ class PillDora:
             self.set_function(user_id, 'JOURNEY')
 
     # Ends the communication between the user and the bot
-    @staticmethod
+   
     def exit(self, update, context):
         update.message.reply_text("See you next time")
         logger.info('User ' + self.get_name(update.message.from_user) + ' finish with AideBot')
         return END
 
     # Main of the Client.py, where the bot is activated and creates the transition to the different functionalities
-    @staticmethod
+ 
     def main(self):
         # Create the Updater and pass it your bot's token.
         # Make sure to set use_context=True to use the new context based callbacks
