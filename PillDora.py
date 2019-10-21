@@ -7,5 +7,5 @@ def run_threaded(job_func):
     job_thread.start()
 
 if __name__ == "__main__":
-    run_threaded(Reminder.daily_actualizations)
+    run_threaded(Reminder().daily_actualizations)
     PillDora().main()
