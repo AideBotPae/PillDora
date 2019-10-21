@@ -13,7 +13,7 @@ class Reminder:
     def daily_actualizations(self):
         # Every day at 01:00 the system will proceed to check if any reminder needs to be removed as expired
         schedule.every().day.at("01:00").do(self.checking_expirations)
-        schedule.every().hour.do(self.remind_information())
+        schedule.every().hour.do(self.remind_information)
 
         while True:
             schedule.run_pending()
@@ -46,11 +46,11 @@ class Reminder:
 
             data = db.query('''SELECT national_code, time, user_id
                                        FROM aidebot.daily_reminders 
-                                       WHERE time >= '{before_now}' and time>='{now}'
+                                       WHERE time >= '{before_now}' and time<='{now}'
                                        '''.format(before_now=before_now, now=now))
             for message in data:
                 print(message)
-                remind = "Remember to take " + str(message[0]) + " at " + message[1].strftime('%H:%M:%S')
+                remind = "Remember to take " + str(message[0]) + " at " + str(message[1])
                 self.send_reminder(message[2], remind)
 
     # Sends a reminder using parsing
