@@ -32,8 +32,9 @@ class Reminder:
     # Check for reminders of the last hour
     def remind_information(self):
         with Database() as db:
-            now = datetime.datetime.now().strftime('%H:%M:%S')
+            now = datetime.datetime.now()
             before_now = now - datetime.timedelta(hours=1)
+            now= now.strftime('%H:%M:%S')
             # this will be extract afterwards
             query = '''SELECT national_code, time, user_id
                                        FROM aidebot.daily_reminders 
