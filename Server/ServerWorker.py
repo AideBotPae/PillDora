@@ -67,7 +67,7 @@ class ServerWorker:
                 # IF WE ARE HERE, IT MEANS THAT THE MEDICINE WASN'T ON THE DATABASE, SO WE INPUT ALL THE DATA
                 self.checker.introd_receipt(user_id=user_id, query_parsed=parsed_string["parameters"],
                                             date=datetime.date.today().strftime("%Y-%m-%d"))
-                response = self.bot_parser(user_id=user_id, function="INTRODUCE MEDICINE") + """ "Code": "0"}}"""
+                response = self.bot_parser(user_id=user_id, function="INTRODUCE RECEIPT") + """ "Code": "0"}}"""
                 #     WE ALSO ACTUALIZE THE REMINDERS OF THAT DAY IN CASE WE HAVE TO TAKE ANY PILL OF THAT MEDICINE
                 # self.actualize_daily_table(user_id)
                 #     THIS SHOWS INFORMATION ON THE TERMINAL THAT RUNS THIS CLIENT
@@ -102,13 +102,13 @@ class ServerWorker:
             measure = self.resolve_measure(cn)
             introduced = self.checker.intr_inventory(user_id=user_id, query_parsed=parsed_string["parameters"],
                                             medicine_name=medicine_name, measure=measure)
-            response = self.bot_parser(user_id=user_id, function="INTRODUCE RECEIPT") + '"boolean" : '+str(introduced)+'}}'
+            response = self.bot_parser(user_id=user_id, function="INTRODUCE MEDICINE") + '"boolean" : '+str(introduced)+'}}'
             return response
 
         elif instruction == "HISTORY":
             user_id = parsed_string["user_id"]
             data = self.checker.get_history(self, user_id=user_id)
-            response = self.bot_parser(user_id=user_id, function="INTRODUCE RECEIPT") + '"history" : ' + data + '}}'
+            response = self.bot_parser(user_id=user_id, function="HISTORY") + '"history" : ' + data + '}}'
             return response
         elif instruction == "JOURNEY":
             # WE OUTPUT A SERIES OF ACTIONS TO BE DONE FROM A LEAVING DATE TO THE DEPARTURE ONE
@@ -156,7 +156,7 @@ class ServerWorker:
                 for output in history:
                     history_info += "\\t-> Taking  " + str(output[0]) + " until the date of " + str(output[1]) + "\\n"
             response = self.bot_parser(user_id=user_id,
-                                       function="HISTORY") + '"reminder_info" : "' + history_info + '"}}'
+                                       function="CURRENT TREATMENT") + '"reminder_info" : "' + history_info + '"}}'
             self.logger.info(response)
             return response
         # THE USER ASKS FOR THE REMINDERS FOR TODAY ON A SPECIFIC NATIONAL CODE
