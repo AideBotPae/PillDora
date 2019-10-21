@@ -50,7 +50,7 @@ class Reminder:
                                        '''.format(before_now=before_now, now=now))
             for message in data:
                 print(message)
-                remind = "Remember to take " + str(message[0]) + " at " + message[1].strftime('%H:%M:%S')
+                remind = "Remember to take " + str(message[0]) + " at " + str(message[1])
                 self.send_reminder(message[2], remind)
 
     # Sends a reminder using parsing
