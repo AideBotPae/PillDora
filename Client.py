@@ -60,7 +60,7 @@ class PillDora:
 
     # Returns the state of the bot for a specific user_id
     
-    def get_states(user_id):
+    def get_states(self, user_id):
         return aide_bot[user_id]['states']
 
     
