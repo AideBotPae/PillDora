@@ -35,6 +35,7 @@ class Reminder:
             now = datetime.datetime.now()
             before_now = now - datetime.timedelta(hours=1)
             now= now.strftime('%H:%M:%S')
+            before_now=before_now.strftime('%H:%M:%S')
             # this will be extract afterwards
             query = '''SELECT national_code, time, user_id
                                        FROM aidebot.daily_reminders 
