@@ -1,4 +1,3 @@
-import luigi
 import datetime
 from apscheduler.schedulers.blocking import BlockingScheduler
 from Server.database import DBMethods as methods
