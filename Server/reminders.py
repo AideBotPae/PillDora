@@ -46,7 +46,7 @@ class Reminder:
 
             data = db.query('''SELECT national_code, time, user_id
                                        FROM aidebot.daily_reminders 
-                                       WHERE time >= '{before_now}' and time>='{now}'
+                                       WHERE time >= '{before_now}' and time<='{now}'
                                        '''.format(before_now=before_now, now=now))
             for message in data:
                 print(message)
