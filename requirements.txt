@@ -1,0 +1,9 @@
+apscheduler
+datetime
+luigi
+pycparser
+pymysql
+requests
+telegram
+schedule
+
