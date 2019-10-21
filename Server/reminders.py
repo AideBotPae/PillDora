@@ -21,14 +21,14 @@ class Reminder:
             time.sleep(60 * 60 / 2)
 
     # Delete all reminders which has expired by end_date < today
-    @staticmethod
+      
     def checking_expirations(self):
         with Database() as db:
             today = str(datetime.date.today())
             db.execute('''DELETE FROM aidebot.daily_reminders WHERE (end_date<'{today}')'''.format(today=today))
             db.execute('''DELETE FROM aidebot.receipts WHERE (end_date<'{today}')'''.format(today=today))
 
-    @staticmethod
+      
     # Check for reminders of the last hour
     def remind_information(self):
         with Database() as db:
@@ -52,8 +52,8 @@ class Reminder:
                 self.send_reminder(message[2], remind)
 
     # Sends a reminder using parsing
-    @staticmethod
-    def send_reminder(user_id, reminders):
+      
+    def send_reminder(self, user_id, reminders):
         bot.send_message(chat_id=user_id,
                          text="*_`" + reminders + "`_*\n",
                          parse_mode=telegram.ParseMode.MARKDOWN)
