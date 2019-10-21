@@ -2,6 +2,7 @@ from Server.database import DBMethods
 import json
 import datetime
 import logging
+import requests
 
 
 class Reminder(object):
@@ -208,12 +209,21 @@ class ServerWorker:
             self.logger.info(response)
             return response
 
-    def resolve_medicine_info(self, info):
+    def resolve_medicine_info(self, cn):
+        str_requested =  requests.get( url = "https://cima.aemps.es/cima/rest/medicamento?cn= "+ cn)
+        parsed_string = json.loads(str_requested)
         data = parsed_string[""]
         return data
 
     def resolve_name(self, cn):
+        str_requested = requests.get(url="https://cima.aemps.es/cima/rest/medicamento?cn= " + cn)
+        parsed_string = json.loads(str_requested)
+        data = parsed_string[""]
         return data
 
+
     def resolve_measure(self, cn):
+        str_requested = requests.get(url="https://cima.aemps.es/cima/rest/medicamento?cn= " + cn)
+        parsed_string = json.loads(str_requested)
+        data = parsed_string["potato"]
         return data
