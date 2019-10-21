@@ -22,7 +22,7 @@ class Reminder:
 
     # Delete all reminders which has expired by end_date < today
     @staticmethod
-    def checking_expirations():
+    def checking_expirations(self):
         with Database() as db:
             today = str(datetime.date.today())
             db.execute('''DELETE FROM aidebot.daily_reminders WHERE (end_date<'{today}')'''.format(today=today))
