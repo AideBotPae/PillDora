@@ -209,13 +209,20 @@ class DBMethods:
                                                                                                 cn=query_parsed['NAME'],
                                                                                                 quantity=query_parsed[
                                                                                                     'QUANTITY'],
-                                                                                                # Hay que pedirlo
                                                                                                 exp_date=query_parsed[
                                                                                                     'EXP_DATE'],
                                                                                                 med=medicine_name,
                                                                                                 measure=measure
                                                                                                 ))
             return True
+
+    def get_inventory(self, user_id):
+        with Database() as db:
+            data = db.query('''SELECT national_code, medicine_name, num_of_pills, expiracy_date, measure
+            FROM aidebot.inventory
+            WHERE user_id={id}
+            '''.format(id=user_id))
+            return data
 
     #  ######                                        REMINDERS METHODS                                           #######
 
