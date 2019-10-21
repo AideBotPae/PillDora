@@ -25,7 +25,7 @@ class Database(DatabaseConnectionCredentials):
         self.commit()
         self.connection.close()
 
-    # SERIES OF METHODS NEEDED FOR THE MANIPULATION OF THE DATA ON THE MYSQL DATABASE
+    #               SERIES OF METHODS NEEDED FOR THE MANIPULATION OF THE DATA ON THE MYSQL DATABASE                    #
     @property
     def connection(self):
         return self._conn
@@ -55,7 +55,8 @@ class DBMethods:
 
     # ######                                        USER TABLE METHODS                                           #######
 
-    # METHOD THAT
+    # METHOD THAT CHECKS ON THE DATABASE IF THE USER IS THERE OR NOT
+    @staticmethod
     def check_user(self, user_id):
         with Database() as db:
             data = db.query("SELECT id FROM aidebot.users where id={id}".format(id=user_id))
@@ -67,7 +68,8 @@ class DBMethods:
                 print("User registered\n")
                 return True
 
-    # METHOD THAT
+    # METHOD THAT ADDS A NEW USER ON THE DATABASE
+    @staticmethod
     def add_user(self, new_user, new_password):
         with Database() as db:
             db.execute(
@@ -82,7 +84,8 @@ class DBMethods:
                 print('User added\n')
                 return True
 
-    # METHOD THAT
+    # METHOD THAT CONFIRMS THE IDENTITY OF THE USER BY CHECKING PASSWORD FOR A SPECIFIC USER_ID
+    @staticmethod
     def check_password(self, user_id, password):
 
         with Database() as db:
@@ -97,7 +100,8 @@ class DBMethods:
 
     #  ######                                        RECEIPT TABLE METHODS                                       #######
 
-    # METHOD THAT
+    # METHOD THAT INTRODUCES THE RECEIPT IN TO THE TABLE OF RECEIPTS
+    @staticmethod
     def introd_receipt(self, query_parsed, user_id, date):
         with Database() as db:
             exists = self.check_receipt(user_id=user_id, cn=query_parsed['NAME'])
@@ -118,7 +122,8 @@ class DBMethods:
                 # TODO: Añadir cantidad de pastillas?
                 return False
 
-    # METHOD THAT
+    # METHOD THAT CHECKS IF A MEDICINE WITH ITS NATIONAL CODE IS ON THE TABLE OF RECEIPTS
+    @staticmethod
     def check_receipt(self, cn, user_id):
         with Database() as db:
             data = db.query('''SELECT count(*) FROM aidebot.receipts WHERE user_id={id} and national_code={med}
@@ -128,7 +133,8 @@ class DBMethods:
             else:
                 return True
 
-    # METHOD THAT
+    # METHOD THAT GETS ALL THE RECEIPTS FROM THE TABLE
+    @staticmethod
     def get_receipts(self, user_id, cn):
         with Database() as db:
             data = db.query(''' SELECT national_code, frequency, end_date
@@ -138,7 +144,9 @@ class DBMethods:
                           ))
             return data
 
-    # METHOD THAT
+    # METHOD THAT GETS THE FREQUENCY ASSOCIATED TO A SPECIFIC NATIONAL CODE MEDICATION
+    # NECESSARY BECAUSE WE SEND THIS FREQUENCY IF THE FREQUENCY INTRODUCED DOESN'T MATCH WITH THE ONE ON THE TABLE
+    @staticmethod
     def get_medicine_frequency(self, user_id, cn):
         with Database() as db:
             data = db.query('''SELECT frequency 
@@ -147,7 +155,8 @@ class DBMethods:
             '''.format(id=user_id, cn=cn))
             return data
 
-    # METHOD THAT
+    # METHOD THAT COMPARES THE FREQUENCY INTRODUCED WITH THE ONE ON THE TABLE ASSOCIATED TO A CERTAIN CN
+    @staticmethod
     def check_medicine_frequency(self, user_id, cn, freq):
         with Database() as db:
             data = db.query('''SELECT frequency FROM aidebot.receipts WHERE user_id={id} and national_code={cn}
@@ -158,7 +167,8 @@ class DBMethods:
             else:
                 return False
 
-    # METHOD THAT
+    # METHOD THAT RETURNS ALL THE RECEIPTS WITH ITS NATIONAL CODE AND FREQUENCY
+    @staticmethod
     def get_user_receipts_frequency(self, user_id):
         with Database() as db:
             data = db.query(''' SELECT national_code,frequency
@@ -170,7 +180,8 @@ class DBMethods:
 
     # ######                                        HISTORY TABLE METHODS                                        #######
 
-    # METHOD THAT
+    # METHOD THAT RETURNS ALL THE HISTORY INFORMATION OF THE TABLE
+    @staticmethod
     def get_history(self, user_id):
         with Database() as db:
             data = db.query(''' SELECT national_code, end_date
@@ -181,7 +192,8 @@ class DBMethods:
 
     #  ######                                        INVENTORY TABLE METHODS                                     #######
 
-    # METHOD THAT
+    # METHOD THAT INTRODUCES A MEDICINE TO ITS INVENTORY TABLE
+    @staticmethod
     def intr_inventory(self, user_id, query_parsed):
         # Quantity es la cantidad que ha de tomarse, no las pastillas que hay
         with Database() as db:
@@ -194,10 +206,11 @@ class DBMethods:
 
     #  ######                                        REMINDERS METHODS                                           #######
 
-    # METHOD THAT
+    # METHOD THAT RETURNS THE REMINDERS DEPENDING ON THE DATES INTRODUCED, IF THERE IS ONE OR BEGIN AND END
+    @staticmethod
     def get_reminders(self, user_id, date, to_date=None, cn=None):
         with Database() as db:
-            # Journey state: checking remined for some days
+            # Journey state: checking reminded for some days
             if to_date:
                 date_list = self.get_array_dates(init_date=date, end_date=to_date)
                 journey_info = {}
@@ -217,22 +230,24 @@ class DBMethods:
                     return self.get_receipts(user_id=user_id, cn=cn)
                 else:
                     return '"False"'
-            # get calendar tasks for one exact day
+            # Get calendar tasks for one exact day
             else:
                 return self.get_calendar(user_id, date)
 
-    # METHOD THAT
+    # METHOD THAT CALCULATES THE DAYS BETWEEN TWO DATES
     def days_between(self, d1, d2):
         d1 = datetime.datetime.strptime(d1, "%Y-%m-%d")
         d2 = datetime.datetime.strptime(d2, "%Y-%m-%d")
         return (abs((d2 - d1).days) + 1)
 
-    # METHOD THAT
+    # METHOD THAT CREATES AN ARRAY OF DATES, FROM A BEGIN ONE TO AN END ONE
+    @staticmethod
     def get_array_dates(self, init_date, end_date):
         in_date = datetime.datetime.strptime(init_date, '%Y-%m-%d')
         return [in_date + datetime.timedelta(days=x) for x in range(self.days_between(init_date, end_date))]
 
-    # METHOD THAT
+    # METHOD THAT RETURNS THE CALENDAR REMINDERS FOR A SPECIFIC DATE
+    @staticmethod
     def get_calendar(self, user_id, date):
         with Database() as db:
             data = db.query('''SELECT national_code, time
@@ -241,10 +256,12 @@ class DBMethods:
                                        '''.format(date=date, id=user_id))
         return data
 
-    # METHOD THAT
+    # METHOD THAT DELETES THE REMINDER OF A MEDICINE THAT HAS A CERTAIN NATIONAL CODE
+    @staticmethod
     def delete_reminders(self, user_id, national_code):
         with Database() as db:
-            # Deleting reminders should delete the entrance of each remind in daily_reminders and receipt, but not from inventory as has all that we have taken always.
+            # Deleting reminders should delete the entrance of each remind in daily_reminders and receipt,
+            # but not from inventory as has all that we have taken always.
 
             # db.execute('''DELETE FROM aidebot.inventory WHERE user_id={id} and national_code={cn}
             # '''.format(id=user_id, cn=national_code))
@@ -255,7 +272,8 @@ class DBMethods:
                                                                                                            cn=national_code))
             return True
 
-    # METHOD THAT
+    # METHOD THAT RETURNS THE HOURS OF THE DAY THAT YOU HAVE TO TAKE DURING THE DAY, USING A SPECIFIC FREQUENCY
+    @staticmethod
     def get_times(self, frequency):
         time = []
         num = 8
@@ -264,7 +282,7 @@ class DBMethods:
             num += int(frequency)
         return time
 
-    # METHOD THAT
+    # METHOD THAT CREATES A REMINDER USING A SPECIFIC QUERY
     def create_reminders(self, user_id, query_parsed):
         for time in self.get_times(query_parsed['FREQUENCY']):
             with Database() as db:
