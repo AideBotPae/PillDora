@@ -8,17 +8,17 @@ Send /start to initiate the conversation.
 Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
-from telegram.ext import Updater, InlineQueryHandler, CommandHandler, MessageHandler, Filters, ConversationHandler, \
+import json
+import logging
+import re
+import requests
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, \
     CallbackQueryHandler
 from telegram.ext.dispatcher import run_async
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
-import requests
-import telegram
-import telegramcalendar
-import re
-import logging
-import json
 
+import telegramcalendar
+from text_recognition_class import Text_Recognition
 from Server.ServerWorker import ServerWorker
 
 # LOG INFORMATION
@@ -28,7 +28,7 @@ logger = logging.getLogger('AideBot')
 # TOKENS FOR THE TELEGRAM BOT
 TOKEN_AIDEBOT = '902984072:AAFd0KLLAinZIrGhQvVePQwBt3WJ1QQQDGs'
 TOKEN_PROVE = '877926240:AAEuBzlNaqYM_kXbOMxs9lzhFsR7UpoqKWQ'
-TOKEN_PILLDORA ='938652990:AAETGF-Xh2_njSdCLn2KibcprZXH1hhqsiI'
+TOKEN_PILLDORA = '938652990:AAETGF-Xh2_njSdCLn2KibcprZXH1hhqsiI'
 
 # STATES OF THE APP
 LOGIN, NEW_USER, CHOOSING, INTR_MEDICINE, CHECK_MED, GET_CN, CHECK_REM, JOURNEY, END = range(9)
@@ -46,10 +46,11 @@ INTR_MEDICINE_MSSGS = ["What is the medicine's name (CN)?", "How many pills are 
 MEDICINE_TAGS = ['NAME', 'QUANTITY', 'FREQUENCY', 'END_DATE', 'EXP_DATE']
 
 # KEYBOARD AND MARKUPS
-reply_keyboard = [['Introduce Medicine', 'Calendar'], ['History', 'Delete reminder'], ['Journey', 'Exit']]
+reply_keyboard = [[u'Introduce Medicine \U0001F48A', u'Calendar \U0001F4C6'], [u'History \U0001F4D6', u'Delete reminder \U0001F514'], [u'Journey \U00002708', u'Exit \U0001F6AA']]
 yes_no_reply_keyboard = [['YES', 'NO']]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
+
 
 
 class PillDora:
@@ -165,13 +166,9 @@ class PillDora:
         try:
             name = user.first_name
         except (NameError, AttributeError):
-            try:
-                name = user.username
-            except (NameError, AttributeError):
-                logger.info("No username or first name.. wtf")
-                return ""
-        return name
-
+            logger.info("No username or first name.. wtf")
+            return ""
+    return name
     
     # Verification of the UserID, if he has account or if it is first visit in AideBot
     def user_verification(self, user_id):
@@ -284,18 +281,63 @@ class PillDora:
         return self.set_state(update.message.from_user.id, INTR_MEDICINE)
 
     
+
+    def handle_pic(self, update, context, user_id):  # pic to obtain CN when send_new_medicine
+        file = context.bot.getFile(update.message.photo[-1].file_id)
+        filename = f'/home/paesav/Imágenes/{user_id}.jpg'
+        file.download(filename)
+        medicine_cn, validation_number = medicine_search(filename)
+        print ('\n', medicine_cn, validation_number, '\n')
+        return medicine_cn, validation_number
+      
+
+    def medicine_search(self, filename):
+        number, validation_number = Text_Recognition().init(filename, "/home/paesav/PAET2019/PillDora/imagetextrecognition/frozen_east_text_detection.pb")
+        return number, validation_number  
+
+    def split_code(self, cn):
+        if '.' in cn:
+            return cn.split('.')[0], cn.split('.')[-1]
+        elif len(cn) == 7:
+            return cn[:6], cn[6]
+        else:
+            return 'error', 'error'
+    
+    def verify_code(self, medicine, validation_number):
+        sum1 = 3 * (int(medicine[1]) + int(medicine[3]) + int(medicine[5]))
+        sum2 = int(medicine[0]) + int(medicine[2]) + int(medicine[4])
+        sum3 = sum1 + sum2 + 27
+        res = 10 - (sum3 % 10)
+        return res == int(validation_number)
+
+    
+ 
+            
     # Creates a query of the medicine and changes de state to CHECKING if the medicine inserted is correct or not
-    def send_new_medicine(self, update, context):
+     def send_new_medicine(self, update, context):
         try:
             user_id = update.message.from_user.id
-            self.set_medicine(user_id, self.get_counter(user_id), update.message.text)
+            if self.get_counter(user_id) == 0:
+                if update.message.photo:
+                    medicine_cn, validation_num = self.handle_pic(update, context, user_id)
+                else:
+                    medicine_cn, validation_num = self.split_code(update.message.text)
+
+                if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
+                    update.message.reply_text(
+                        "An error has occurred, please repeat the photo or manually introduce the CN")
+                    return INTR_MEDICINE
+                else:
+                    self.set_medicine(user_id, self.get_counter(user_id), medicine_cn)
+            else:
+                self.set_medicine(user_id, self.get_counter(user_id), update.message.text)
         except:
             user_id = update.callback_query.from_user.id
 
-        self.set_counter(user_id, self.get_counter(user_id) + 1)
+        self.set_counter(user_id, get_counter(user_id) + 1)
         logger.info(self.get_medicine(user_id))
         if self.get_counter(user_id) != len(INTR_MEDICINE_MSSGS):
-            if self.get_counter(user_id) < 3:
+            if (self.get_counter(user_id) < 3):
                 update.message.reply_text(INTR_MEDICINE_MSSGS[self.get_counter(user_id)])
                 return INTR_MEDICINE
             else:
@@ -313,23 +355,27 @@ class PillDora:
             self.set_function(user_id, 'INTRODUCE MEDICINE')
             return self.set_state(user_id, CHECK_MED)
 
-    
-    # After introducing a medicine, the method prints all the characteristics about the medicine to later check about it
+    def obtain_medicine_name(self, CN):
+       r = requests.get(url = "https://cima.aemps.es/cima/rest/medicamento?cn=" + CN)
+       data= r.json()
+       namestring=data['presentaciones'][0]['nombre']
+       return namestring
+                                   
     def show_medicine(self, user_id):
-        medicine_string = ''
-        for tag in MEDICINE_TAGS:
+    medicine_string = ''
+    for tag in MEDICINE_TAGS:
+        if tag == 'NAME':
+            medicine_string += tag + ': ' + self.obtain_medicine_name(self.get_medicine(user_id)[tag]).split(' ')[0] + '\n'
+        else:
             medicine_string += tag + ': ' + self.get_medicine(user_id)[tag] + '\n'
-        return medicine_string
+    return medicine_string
 
-    
     @run_async
-    # Method that shows a calendar to the user and asks to him to select a date (for various reasons)
     def see_calendar(self, update, context):
         logger.info('User ' + self.get_name(update.message.from_user) + '  seeing calendar')
         update.message.reply_text("Please select a date: ",
                                   reply_markup=telegramcalendar.create_calendar())
 
-    
     @run_async
     # Method that handles the situations and depending on the current state, changes the state
     def inline_handler(self, update, context):
@@ -355,7 +401,6 @@ class PillDora:
                                          reply_markup=ReplyKeyboardRemove())
                 self.set_medicine(user_id, self.get_counter(user_id), date.strftime("%Y-%m-%d"))
                 self.send_new_medicine(update, context)
-
     
     @run_async
     # Returns all the reminders associated for a specific date and user_id
@@ -476,17 +521,17 @@ class PillDora:
             states={
                 LOGIN: [MessageHandler(Filters.text, self.intr_pwd)],
                 NEW_USER: [MessageHandler(Filters.text, self.new_user)],
-                CHOOSING: [MessageHandler(Filters.regex('^Introduce Medicine$'),
+                CHOOSING: [MessageHandler(Filters.regex('^Introduce Medicine'),
                                           self.intr_medicine),
-                           MessageHandler(Filters.regex('^Calendar$'),
+                           MessageHandler(Filters.regex('^Calendar'),
                                           self.see_calendar),
-                           MessageHandler(Filters.regex('^History$'),
+                           MessageHandler(Filters.regex('^History'),
                                           self.see_history),
-                           MessageHandler(Filters.regex('^Delete reminder$'),
+                           MessageHandler(Filters.regex('^Delete reminder'),
                                           self.delete_reminder),
-                           MessageHandler(Filters.regex('^Journey$'),
+                           MessageHandler(Filters.regex('^Journey'),
                                           self.create_journey),
-                           MessageHandler(Filters.regex('^Exit$'), exit)
+                           MessageHandler(Filters.regex('^Exit'), exit)
                            ],
                 INTR_MEDICINE: [MessageHandler(Filters.text, self.send_new_medicine)],
                 CHECK_MED: [MessageHandler(Filters.regex('^YES$'), self.choose_function),
