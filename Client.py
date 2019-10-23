@@ -571,7 +571,7 @@ class PillDora:
                                           self.create_journey),
                            MessageHandler(Filters.regex('^Exit'), exit)
                            ],
-                INTR_MEDICINE: [MessageHandler(Filters.text, self.send_new_medicine)],
+                INTR_MEDICINE: [MessageHandler(Filters.text | Filters.photo, self.send_new_medicine)],
                 CHECK_MED: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
                             MessageHandler(Filters.regex('^NO$'), self.intr_medicine)
                             ],
