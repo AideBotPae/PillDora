@@ -4,6 +4,5 @@ luigi
 pycparser
 pymysql
 requests
-telegram
 schedule
 
