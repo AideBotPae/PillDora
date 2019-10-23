@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 #
 # Simple Bot to reply to Telegram messages
-# This program is dedicated to the public domain under the CC0 license.
 """
 Send /start to initiate the conversation.
 Press Ctrl-C on the command line or send a signal to the process to stop the
@@ -11,15 +10,16 @@ bot.
 import json
 import logging
 import re
+
 import requests
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, \
-    CallbackQueryHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler
 from telegram.ext.dispatcher import run_async
+from telegram.replykeyboardmarkup import ReplyKeyboardMarkup
+from telegram.replykeyboardremove import ReplyKeyboardRemove
 
 import telegramcalendar
-from text_recognition_class import Text_Recognition
 from Server.ServerWorker import ServerWorker
+from text_recognition_class import Text_Recognition
 
 # LOG INFORMATION
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -27,7 +27,7 @@ logger = logging.getLogger('AideBot')
 
 # TOKENS FOR THE TELEGRAM BOT
 TOKEN_AIDEBOT = '902984072:AAFd0KLLAinZIrGhQvVePQwBt3WJ1QQQDGs'
-TOKEN_PROVE = '877926240:AAEuBzlNaqYM_kXbOMxs9lzhFsR7UpoqKWQ'
+TOKEN_TEST = '877926240:AAEuBzlNaqYM_kXbOMxs9lzhFsR7UpoqKWQ'
 TOKEN_PILLDORA = '938652990:AAETGF-Xh2_njSdCLn2KibcprZXH1hhqsiI'
 
 # STATES OF THE APP
@@ -36,24 +36,31 @@ LOGIN, NEW_USER, CHOOSING, INTR_MEDICINE, CHECK_MED, GET_CN, CHECK_REM, JOURNEY,
 # FUNCTIONS FOR COMMUNICATING WITH DATA BASE
 QUERIES = ['CHECK USER', 'CHECK PASSWORD', 'NEW PASSWORD', 'INTRODUCE MEDICINE', 'TASKS CALENDAR', 'HISTORY', 'JOURNEY',
            'GET REMINDER', 'DELETE REMINDER']
+
 # MANAGE WHOLE INFORMATION
 aide_bot = {}
 
 # TAGS TO MANAGE INTRODUCING MEDICINES
-INTR_MEDICINE_MSSGS = ["What is the medicine's name (CN)?", "How many pills are in the packaging?",
+INTR_MEDICINE_MSSGS = ["What is the medicine's name (CN)?\n You can also send me a photo of the package!",
+                       "How many pills are in the packaging?",
                        "How often do you take your pill (in hours)?",
                        "Which day does treatment end?", "When does the medicine expire?"]
 MEDICINE_TAGS = ['NAME', 'QUANTITY', 'FREQUENCY', 'END_DATE', 'EXP_DATE']
 
 # KEYBOARD AND MARKUPS
-reply_keyboard = [[u'Introduce Medicine \U0001F48A', u'Calendar \U0001F4C6'], [u'History \U0001F4D6', u'Delete reminder \U0001F514'], [u'Journey \U00002708', u'Exit \U0001F6AA']]
+reply_keyboard = [[u'Introduce Medicine \U0001F48A', u'Calendar \U0001F4C6'],
+                  [u'History \U0001F4D6', u'Delete reminder \U0001F514'], [u'Journey \U00002708', u'Exit \U0001F6AA']]
 yes_no_reply_keyboard = [['YES', 'NO']]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 
 
-
 class PillDora:
+    """
+    Telegram bot that serves as an aide to the clients of the product. It has a set of features that help customers
+    to remember to take their pills (how many and when) and manages the customer's receipts and meds provisions.
+    """
+
     # GETTERS AND SETTERS TO EASY FUNCTIONS
     def set_state(self, user_id, state):
         aide_bot[user_id]['states'][1] = aide_bot[user_id]['states'][0]
@@ -61,26 +68,22 @@ class PillDora:
         return state
 
     # Returns the state of the bot for a specific user_id
-    
+
     def get_states(self, user_id):
         return aide_bot[user_id]['states']
 
-    
     # Returns the last medicine associated for a specific user_id
     def get_medicine(self, user_id):
         return aide_bot[user_id]['medicine']
 
-    
     # Insertion of a medicine for a specific user_id
     def set_medicine(self, user_id, num, text):
         aide_bot[user_id]['medicine'][MEDICINE_TAGS[num]] = text
 
-    
     # Returns the dates on a journey for a specific user_id
     def get_dates(self, user_id):
         return aide_bot[user_id]['journey']
 
-    
     # Insertion of the date of a journey depending on the text, it is the departure or return for a specific user_id
     def set_dates(self, user_id, text, date):
         if text == "departure":
@@ -88,17 +91,14 @@ class PillDora:
         else:
             aide_bot[user_id]['journey'][1] = date
 
-    
     # Insertion of the number of medicines associated to a medicine for a specific user_id
     def set_counter(self, user_id, num):
         aide_bot[user_id]['intr_medicine_counter'] = num
 
-    
     # Returns the number of medicines associated to a medicine for a specific user_id
     def get_counter(self, user_id):
         return aide_bot[user_id]['intr_medicine_counter']
 
-    
     # Insertion of the query that the Client sends to the ServerWorker for a specific user_id
     def set_query(self, user_id, keys, values):
         # We use a dictionary for the parameters of the query on the JSON string
@@ -107,29 +107,33 @@ class PillDora:
             parameters[key] = values[keys.index(key)]
         aide_bot[user_id]['query'] = parameters
 
-    
     # Returns the query that that the Client sends to the ServerWorker for a specific user_id
     def get_query(self, user_id):
         return aide_bot[user_id]['query']
 
-    
     # Insertion of the function that the bot is currently on for a specific user_id
     def set_function(self, user_id, text):
         aide_bot[user_id]['function'] = text
 
-    
     # Returns the function that the bot is doing for a specific user_id
     def get_function(self, user_id):
         return aide_bot[user_id]['function']
 
-    
-    # Sends the query to the ServerWorker and returns the JSON query response
     def send_query(self, user_id, query):
+        """Sends the query to the ServerWorker and returns the JSON query response.
+
+        :param user_id: User unique identifier (login)
+        :param query: Query to be send to the ServerWorker
+        :return: the response to the query from sever
+        """
         return aide_bot[user_id]['serverworker'].handler_query(query)
 
-    
-    # Method to create a JSON from the parameters that we have introduced using the Getters and Setters
     def create_query(self, user_id):
+        """Creates a JSON from the parameters that we have introduced using the Getters and Setters
+
+        :param user_id: User unique identifier (login)
+        :return: query string generated
+        """
         # We create a pseudo-class to have a template for the JSON
         query = {
             'user_id': user_id,
@@ -140,9 +144,13 @@ class PillDora:
         logger.info(query)
         return query
 
-    
-    # MANAGE "/START" COMMAND ON TELEGRAM INPUT
     def start(self, update, context):
+        """Manages /start command initializing a new aide_bot dictionary for the new user. It also manaages a login.
+
+        :param update: Updater for bot token
+        :param context: Handler context
+        :return: the new state to be on
+        """
         user_id = update.message.from_user.id
         name = self.get_name(update.message.from_user)
         aide_bot[user_id] = {'states': [LOGIN, LOGIN], 'intr_medicine_counter': 0,
@@ -160,37 +168,52 @@ class PillDora:
                                            "Enter new password for creating your account:"))
         return self.set_state(user_id, NEW_USER)
 
-    
-    # Resolve message data to a readable name
     def get_name(self, user):
+        """Resolve message data to a readable name.
+
+        :param user: User identifier
+        :return: first name of the user
+        """
         try:
             name = user.first_name
         except (NameError, AttributeError):
             logger.info("No username or first name.. wtf")
             return ""
-    return name
-    
-    # Verification of the UserID, if he has account or if it is first visit in AideBot
+        return name
+
     def user_verification(self, user_id):
+        """Verification of the UserID, if he has account or if it is first visit in AideBot
+
+        :param user_id: User unique identifier
+        :return: a boolean indicating whether the user is registered or not
+        """
         self.set_function(user_id, 'CHECK USER')
         self.set_query(user_id, ["user_id"], [str(user_id)])
         query = self.create_query(user_id)
         response = self.send_query(user_id, query)
         return json.loads(response)["parameters"]["boolean"]
 
-    
-    # Verification of the password for a UserID in DataBase
     def pwd_verification(self, password, user_id):
+        """ Verification of the password for a UserID in DataBase
+
+        :param password: Password introduced by the user
+        :param user_id: User unique identifier
+        :return: whether the password is the correct one or not
+        """
         self.set_function(user_id, 'CHECK PASSWORD')
         self.set_query(user_id, ['password'], [password])
         query = self.create_query(user_id)
         response = self.send_query(user_id, query)
         return json.loads(response)["parameters"]["boolean"]
 
-    
-    # Function used to ask and introduce a password to check the identity of the user
     @run_async
     def intr_pwd(self, update, context):
+        """Method used to ask and introduce a password to check the identity of the user
+
+        :param update: Updater for bot token
+        :param context: Handler's context
+        :return: the new state to be on (LOGIN if fails, CHOOSING if succeeds)
+        """
         password = update.message.text
         logger.info('Password for user ' + self.get_name(update.message.from_user) + ' is ' + password)
         if self.pwd_verification(password, update.message.from_user.id) == "False":
@@ -200,10 +223,14 @@ class PillDora:
                                   reply_markup=markup)
         return self.set_state(update.message.from_user.id, CHOOSING)
 
-    
-    # Function used to create user account --> associates a UserID with a new password
     @run_async
     def new_user(self, update, context):
+        """ Function used to create user account --> associates a UserID with a new password
+
+        :param update: Updater for bot token
+        :param context: Handler's context
+        :return: the new state to be on (NEW_USER if fails, CHOOSING if succeeds)
+        """
         password = update.message.text
         logger.info('User introduced new password:  ' + password)
         user_id = update.message.from_user.id
@@ -223,7 +250,7 @@ class PillDora:
         if len(password) < 6 or len(password) > 12:
             i = 0
 
-        if (i > 2):
+        if i > 2:
             update.message.reply_text("Valid Password")
             # Introduce new UserID-Password to DataBase
             self.set_function(user_id, 'NEW PASSWORD')
@@ -239,9 +266,13 @@ class PillDora:
             "uppercase, lowercase, number and $, # or @")
         return self.set_state(update.message.from_user.id, NEW_USER)
 
-    
-    # This method reacts to the response of the query, when we get the response, we create a query and decide what to do
-    def choose_function(self, update, context):
+    def manage_response(self, update, context):
+        """Sends a query and gets the response, deciding what to do depending on the response 'function' field
+
+        :param update: Updater for bot token
+        :param context: Handler's context
+        :return: state CHOOSING
+        """
         user_id = update.message.from_user.id
         if (self.get_query(user_id) != "None") and (self.get_query(user_id) != {"None": "None"}):
             query = self.create_query(user_id)
@@ -259,7 +290,7 @@ class PillDora:
                 else:
                     logger.info("Medicine not deleted as did not exist in the database")
                     update.message.reply_text("Medicine introduced did not exist in your history.")
-                    self.delete_reminder
+                    self.delete_reminder()
                     return self.set_state(update.message.from_user.id, CHOOSING)
             if response['function'] == "JOURNEY":
                 logger.info("Medicines to take during journey correctly retrieved")
@@ -272,53 +303,30 @@ class PillDora:
         update.message.reply_text("Is there any other way I can help you?", reply_markup=markup)
         return self.set_state(update.message.from_user.id, CHOOSING)
 
-    
     @run_async
-    # Method that gets a new medicine to the recipes and changes the state of the bot to INTR MEDICINE
     def intr_medicine(self, update, context):
+        """ Method that gets a new medicine to the recipes and starts the form
+
+        :param update: Updater for bot token
+        :param context: Handler's context
+        :return: new state INTR_MEDICINE
+        """
         logger.info('User introducing new medicine')
         update.message.reply_text(INTR_MEDICINE_MSSGS[self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, INTR_MEDICINE)
 
-    
+    def send_new_medicine(self, update, context):
+        """Asks the user information in order to complete the medicine form, and once completed sets the query ready to
+        be sent.
 
-    def handle_pic(self, update, context, user_id):  # pic to obtain CN when send_new_medicine
-        file = context.bot.getFile(update.message.photo[-1].file_id)
-        filename = f'/home/paesav/Imágenes/{user_id}.jpg'
-        file.download(filename)
-        medicine_cn, validation_number = medicine_search(filename)
-        print ('\n', medicine_cn, validation_number, '\n')
-        return medicine_cn, validation_number
-      
-
-    def medicine_search(self, filename):
-        number, validation_number = Text_Recognition().init(filename, "/home/paesav/PAET2019/PillDora/imagetextrecognition/frozen_east_text_detection.pb")
-        return number, validation_number  
-
-    def split_code(self, cn):
-        if '.' in cn:
-            return cn.split('.')[0], cn.split('.')[-1]
-        elif len(cn) == 7:
-            return cn[:6], cn[6]
-        else:
-            return 'error', 'error'
-    
-    def verify_code(self, medicine, validation_number):
-        sum1 = 3 * (int(medicine[1]) + int(medicine[3]) + int(medicine[5]))
-        sum2 = int(medicine[0]) + int(medicine[2]) + int(medicine[4])
-        sum3 = sum1 + sum2 + 27
-        res = 10 - (sum3 % 10)
-        return res == int(validation_number)
-
-    
- 
-            
-    # Creates a query of the medicine and changes de state to CHECKING if the medicine inserted is correct or not
-     def send_new_medicine(self, update, context):
+        :param update: Updater for bot token
+        :param context: Handler's context
+        :return: state INTR_MEDICINE while form not completed, state CHECK_MED once completed
+        """
         try:
             user_id = update.message.from_user.id
-            if self.get_counter(user_id) == 0:
-                if update.message.photo:
+            if self.get_counter(user_id) == 0:  # If we are in the first field of the form
+                if update.message.photo:  # If user sent a photo, we apply
                     medicine_cn, validation_num = self.handle_pic(update, context, user_id)
                 else:
                     medicine_cn, validation_num = self.split_code(update.message.text)
@@ -334,7 +342,7 @@ class PillDora:
         except:
             user_id = update.callback_query.from_user.id
 
-        self.set_counter(user_id, get_counter(user_id) + 1)
+        self.set_counter(user_id, self.get_counter(user_id) + 1)
         logger.info(self.get_medicine(user_id))
         if self.get_counter(user_id) != len(INTR_MEDICINE_MSSGS):
             if (self.get_counter(user_id) < 3):
@@ -355,20 +363,52 @@ class PillDora:
             self.set_function(user_id, 'INTRODUCE MEDICINE')
             return self.set_state(user_id, CHECK_MED)
 
-    def obtain_medicine_name(self, CN):
-       r = requests.get(url = "https://cima.aemps.es/cima/rest/medicamento?cn=" + CN)
-       data= r.json()
-       namestring=data['presentaciones'][0]['nombre']
-       return namestring
-                                   
-    def show_medicine(self, user_id):
-    medicine_string = ''
-    for tag in MEDICINE_TAGS:
-        if tag == 'NAME':
-            medicine_string += tag + ': ' + self.obtain_medicine_name(self.get_medicine(user_id)[tag]).split(' ')[0] + '\n'
+    def handle_pic(self, update, context, user_id):  # pic to obtain CN when send_new_medicine
+        file = context.bot.getFile(update.message.photo[-1].file_id)
+        filename = f'/home/paesav/Imágenes/{user_id}.jpg'
+        file.download(filename)
+        medicine_cn, validation_number = self.medicine_search(filename)
+        print('\n', medicine_cn, validation_number, '\n')
+        return medicine_cn, validation_number
+
+    def medicine_search(self, filename):
+        number, validation_number = Text_Recognition().init(filename,
+                                                            "/home/paesav/PAET2019/PillDora/imagetextrecognition/frozen_east_text_detection.pb")
+        return number, validation_number
+
+    def split_code(self, cn):
+        if '.' in cn:
+            return cn.split('.')[0], cn.split('.')[-1]
+        elif len(cn) == 7:
+            return cn[:6], cn[6]
         else:
-            medicine_string += tag + ': ' + self.get_medicine(user_id)[tag] + '\n'
-    return medicine_string
+            return 'error', 'error'
+
+    def verify_code(self, medicine, validation_number):
+        sum1 = 3 * (int(medicine[1]) + int(medicine[3]) + int(medicine[5]))
+        sum2 = int(medicine[0]) + int(medicine[2]) + int(medicine[4])
+        sum3 = sum1 + sum2 + 27
+        res = 10 - (sum3 % 10)
+        return res == int(validation_number)
+
+    def obtain_medicine_name(self, CN):
+        r = requests.get(url="https://cima.aemps.es/cima/rest/medicamento?cn=" + CN)
+        data = r.json()
+        namestring = data['presentaciones'][0]['nombre']
+        return namestring
+
+    def show_medicine(self, user_id):
+        '''medicine_string = ''
+        for tag in MEDICINE_TAGS:
+            if tag == 'NAME':
+                medicine_string += tag + ': ' + self.obtain_medicine_name(self.get_medicine(user_id)[tag]).split(' ')[
+                    0] + '\n'
+            else:
+                medicine_string += tag + ': ' + self.get_medicine(user_id)[tag] + '\n'
+        '''
+        med_param = lambda x: self.obtain_medicine_name(x).split(' ')[0] if x == 'NAME' else self.get_medicine(user_id)[
+            x]
+        return '\n'.join(f'{tag}: {med_param(tag)}' for tag in MEDICINE_TAGS)
 
     @run_async
     def see_calendar(self, update, context):
@@ -401,7 +441,7 @@ class PillDora:
                                          reply_markup=ReplyKeyboardRemove())
                 self.set_medicine(user_id, self.get_counter(user_id), date.strftime("%Y-%m-%d"))
                 self.send_new_medicine(update, context)
-    
+
     @run_async
     # Returns all the reminders associated for a specific date and user_id
     def get_calendar_tasks(self, update, context, date, user_id):
@@ -417,7 +457,6 @@ class PillDora:
         context.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?",
                                  reply_markup=markup)
 
-    
     @run_async
     # Method that prints systematically the history for a certain user_id
     def see_history(self, update, context):
@@ -431,9 +470,8 @@ class PillDora:
         update.message.reply_text(
             "To sum up, you are currently taking these meds:\n" + response['parameters']['reminder_info'])
         self.set_query(user_id, ["None"], ["None"])
-        return self.choose_function(update, context)
+        return self.manage_response(update, context)
 
-    
     @run_async
     # Deletes a reminder using a CN for a certain user_id
     def delete_reminder(self, update, context):
@@ -480,7 +518,7 @@ class PillDora:
         return JOURNEY
 
     # Method that asks for the dates needed for a journey and changes the state of the bot to JOURNEY
-    
+
     def set_journey(self, update, context, date):
         user_id = update.callback_query.from_user.id
         if self.get_states(user_id)[1] == CHOOSING:
@@ -501,18 +539,18 @@ class PillDora:
             self.set_function(user_id, 'JOURNEY')
 
     # Ends the communication between the user and the bot
-   
+
     def exit(self, update, context):
         update.message.reply_text("See you next time")
         logger.info('User ' + self.get_name(update.message.from_user) + ' finish with AideBot')
         return END
 
     # Main of the Client.py, where the bot is activated and creates the transition to the different functionalities
- 
+
     def main(self):
         # Create the Updater and pass it your bot's token.
         # Make sure to set use_context=True to use the new context based callbacks
-        updater = Updater(token=TOKEN_PROVE, use_context=True, workers=50)
+        updater = Updater(token=TOKEN_PILLDORA, use_context=True, workers=50)
         dp = updater.dispatcher
         conv_handler = ConversationHandler(
             allow_reentry=True,
@@ -534,14 +572,14 @@ class PillDora:
                            MessageHandler(Filters.regex('^Exit'), exit)
                            ],
                 INTR_MEDICINE: [MessageHandler(Filters.text, self.send_new_medicine)],
-                CHECK_MED: [MessageHandler(Filters.regex('^YES$'), self.choose_function),
+                CHECK_MED: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
                             MessageHandler(Filters.regex('^NO$'), self.intr_medicine)
                             ],
-                CHECK_REM: [MessageHandler(Filters.regex('^YES$'), self.choose_function),
+                CHECK_REM: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
                             MessageHandler(Filters.regex('^NO$'), self.delete_reminder)
                             ],
                 GET_CN: [MessageHandler(Filters.text, self.get_medicine_CN)],
-                JOURNEY: [MessageHandler(Filters.regex('^YES$'), self.choose_function),
+                JOURNEY: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
                           MessageHandler(Filters.regex('^NO$'), self.create_journey)
                           ]
             },
