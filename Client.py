@@ -406,8 +406,7 @@ class PillDora:
             else:
                 medicine_string += tag + ': ' + self.get_medicine(user_id)[tag] + '\n'
         '''
-        med_param = lambda x: self.obtain_medicine_name(x).split(' ')[0] if x == 'NAME' else self.get_medicine(user_id)[
-            x]
+        med_param = lambda x: self.obtain_medicine_name(self.get_medicine(user_id)[x]).split(' ')[0] if x == 'NAME' else self.get_medicine(user_id)[x]
         return '\n'.join(f'{tag}: {med_param(tag)}' for tag in MEDICINE_TAGS)
 
     @run_async
