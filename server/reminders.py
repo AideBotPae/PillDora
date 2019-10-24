@@ -1,5 +1,5 @@
 import telegram
-from Server.database import Database
+from server.database import Database
 import datetime
 import schedule
 import time
