@@ -20,6 +20,7 @@ from telegram.replykeyboardremove import ReplyKeyboardRemove
 import botui.telegramcalendar as telegramcalendar
 from server.reminders import TOKEN_PROVE
 from server.serverworker import ServerWorker
+import server.cima as cima
 from imagerecognition.ocr.ocr import TextRecognition
 
 # LOG INFORMATION
@@ -32,11 +33,11 @@ TOKEN_TEST = '877926240:AAEuBzlNaqYM_kXbOMxs9lzhFsR7UpoqKWQ'
 TOKEN_PILLDORA = '938652990:AAETGF-Xh2_njSdCLn2KibcprZXH1hhqsiI'
 
 # STATES OF THE APP
-LOGIN, NEW_USER, CHOOSING, INTR_PRESCRIPTION, CHECK_PRE, GET_CN, CHECK_REM, JOURNEY, END = range(9)
+LOGIN, NEW_USER, CHOOSING, INTR_PRESCRIPTION, INTR_MEDICINE, SHOW_INFORMATION, CHECK_PRE, CHECK_MED,  GET_CN, CHECK_REM, JOURNEY, END = range(11)
 
 # FUNCTIONS FOR COMMUNICATING WITH DATA BASE
 QUERIES = ['CHECK USER', 'CHECK PASSWORD', 'NEW PASSWORD', 'INTRODUCE PRESCRIPTION', 'INTRODUCE MEDICINE',
-           'TASKS CALENDAR', 'HISTORY', 'JOURNEY',
+           'TASKS CALENDAR', 'CURRENT TREATMENT', 'JOURNEY', 'HISTORY', 'INVENTORY'
            'GET REMINDER', 'DELETE REMINDER']
 
 # MANAGE WHOLE INFORMATION
@@ -46,9 +47,12 @@ aide_bot = {}
 INTR_PRESCRIPTION_MSSGS = ["What is the medicine's name (CN)?\n You can also send me a photo of the package!",
                            "How many pills do you have to take each time?",
                            "How often do you take your pill (in hours)?",
-                           "Which day does treatment end?", "When does the medicine expire?"]
-MEDICINE_TAGS = ['NAME', 'QUANTITY', 'FREQUENCY', 'END_DATE', 'EXP_DATE']
+                           "Which day does treatment end?"]
+PRESCRIPTION_TAGS = ['NAME', 'QUANTITY', 'FREQUENCY', 'END_DATE']
 
+INTR_MEDICINE_MSSGS=["What is the medicine's name (CN)?\n You can also send me a photo of the package!",
+                     "How many pills are contained in the box?", "When does the medicine expire?"]
+MEDICINE_TAGS = ['NAME', 'QUANTITY', 'EXP_DATE']
 # KEYBOARD AND MARKUPS
 reply_keyboard = [
     [u'Introduce Prescription \U0001F4C3', u'Introduce Medicine \U0001F48A', u'Delete reminder \U0001F514'],
@@ -77,6 +81,14 @@ class PillDora:
     def get_states(self, user_id):
         return aide_bot[user_id]['states']
 
+    # Returns the last prescription associated for a specific user_id
+    def get_prescription(self, user_id):
+        return aide_bot[user_id]['prescription']
+
+    # Insertion of a prescription for a specific user_id
+    def set_prescription(self, user_id, num, text):
+        aide_bot[user_id]['prescription'][PRESCRIPTION_TAGS[num]] = text
+
     # Returns the last medicine associated for a specific user_id
     def get_medicine(self, user_id):
         return aide_bot[user_id]['medicine']
@@ -84,7 +96,6 @@ class PillDora:
     # Insertion of a medicine for a specific user_id
     def set_medicine(self, user_id, num, text):
         aide_bot[user_id]['medicine'][MEDICINE_TAGS[num]] = text
-
     # Returns the dates on a journey for a specific user_id
     def get_dates(self, user_id):
         return aide_bot[user_id]['journey']
@@ -159,7 +170,9 @@ class PillDora:
         user_id = update.message.from_user.id
         name = self.get_name(update.message.from_user)
         aide_bot[user_id] = {'states': [LOGIN, LOGIN], 'intr_prescription_counter': 0,
-                             'medicine': {tag: '' for tag in MEDICINE_TAGS}, 'journey': ['None', 'None'],
+                             'prescription': {tag: '' for tag in PRESCRIPTION_TAGS},
+                             'medicine': {tag: '' for tag in MEDICINE_TAGS},
+                             'journey': ['None', 'None'],
                              'function': 'none', 'query': {}, 'serverworker': ServerWorker(user_id)}
         logger.info('User ' + name + ' has connected to AideBot: ID is ' + str(user_id))
         context.bot.send_message(chat_id=user_id, text=("Welcome " + name + " ! My name is AideBot"))
@@ -289,12 +302,19 @@ class PillDora:
                     logger.info("Medicine already in the database with different frequencies. PROBLEM")
                 elif response['parameters']["Code"] == "2":
                     logger.info("Medicine already in the database with same frequencies. NO PROBLEM")
+            if response['function'] == 'INTRODUCE MEDICINE':
+                if response['parameters']["Code"] == "0":
+                    logger.info("Medicine correctly introduced")
+                elif response['parameters']["Code"] == "1":
+                    logger.info("Medicine already in the database with different frequencies. PROBLEM")
+                elif response['parameters']["Code"] == "2":
+                    logger.info("Medicine already in the database with same frequencies. NO PROBLEM")
             if response['function'] == "DELETE REMINDER":
                 if response['parameters']:
                     logger.info("Medicine correctly deleted")
                 else:
                     logger.info("Medicine not deleted as did not exist in the database")
-                    update.message.reply_text("Medicine introduced did not exist in your history.")
+                    update.message.reply_text("Medicine introduced did not exist in your current Treatment.")
                     self.delete_reminder()
                     return self.set_state(update.message.from_user.id, CHOOSING)
             if response['function'] == "JOURNEY":
@@ -316,12 +336,12 @@ class PillDora:
         :param context: Handler's context
         :return: new state INTR_PRESCRIPTION
         """
-        logger.info('User introducing new medicine')
+        logger.info('User introducing new prescription')
         update.message.reply_text(INTR_PRESCRIPTION_MSSGS[self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, INTR_PRESCRIPTION)
 
     def send_new_prescription(self, update, context):
-        """Asks the user information in order to complete the medicine form, and once completed sets the query ready to
+        """Asks the user information in order to complete the prescription form, and once completed sets the query ready to
         be sent.
 
         :param update: Updater for bot token
@@ -341,14 +361,14 @@ class PillDora:
                         "An error has occurred, please repeat the photo or manually introduce the CN")
                     return INTR_PRESCRIPTION
                 else:
-                    self.set_medicine(user_id, self.get_counter(user_id), medicine_cn)
+                    self.set_prescription(user_id, self.get_counter(user_id), medicine_cn)
             else:
-                self.set_medicine(user_id, self.get_counter(user_id), update.message.text)
+                self.set_prescription(user_id, self.get_counter(user_id), update.message.text)
         except:
             user_id = update.callback_query.from_user.id
 
         self.set_counter(user_id, self.get_counter(user_id) + 1)
-        logger.info(self.get_medicine(user_id))
+        logger.info(self.get_prescription(user_id))
         if self.get_counter(user_id) != len(INTR_PRESCRIPTION_MSSGS):
             if (self.get_counter(user_id) < 3):
                 update.message.reply_text(INTR_PRESCRIPTION_MSSGS[self.get_counter(user_id)])
@@ -364,7 +384,7 @@ class PillDora:
                                      text='Is the medicine correctly introduced? ', reply_markup=yes_no_markup)
             context.bot.send_message(chat_id=user_id,
                                      text=self.show_medicine(user_id))
-            self.set_query(user_id, list(self.get_medicine(user_id).keys()), list(self.get_medicine(user_id).values()))
+            self.set_query(user_id, list(self.get_prescription(user_id).keys()), list(self.get_prescription(user_id).values()))
             self.set_function(user_id, 'INTRODUCE PRESCRIPTION')
             return self.set_state(user_id, CHECK_PRE)
 
@@ -396,24 +416,102 @@ class PillDora:
         res = 10 - (sum3 % 10)
         return res == int(validation_number)
 
-    def obtain_medicine_name(self, CN):
-        r = requests.get(url="https://cima.aemps.es/cima/rest/medicamento?cn=" + CN)
-        data = r.json()
-        namestring = data['presentaciones'][0]['nombre']
-        return namestring
-
     def show_medicine(self, user_id):
         '''medicine_string = ''
-        for tag in MEDICINE_TAGS:
+        for tag in PRESCRIPTION_TAGS:
             if tag == 'NAME':
-                medicine_string += tag + ': ' + self.obtain_medicine_name(self.get_medicine(user_id)[tag]).split(' ')[
+                medicine_string += tag + ': ' + cima.get_med_name(self.get_prescription(user_id)[tag]).split(' ')[
                     0] + '\n'
             else:
-                medicine_string += tag + ': ' + self.get_medicine(user_id)[tag] + '\n'
+                medicine_string += tag + ': ' + self.get_prescription(user_id)[tag] + '\n'
         '''
-        med_param = lambda x: self.obtain_medicine_name(self.get_medicine(user_id)[x]).split(' ')[0] if x == 'NAME' else \
-        self.get_medicine(user_id)[x]
-        return '\n'.join(f"{tag}: {med_param(tag)}" for tag in MEDICINE_TAGS)
+        med_param = lambda x: cima.get_med_name(self.get_prescription(user_id)[x]).split(' ')[0] if x == 'NAME' else \
+        self.get_prescription(user_id)[x]
+        return '\n'.join(f"{tag}: {med_param(tag)}" for tag in PRESCRIPTION_TAGS)
+
+    @run_async
+    def intr_medicine(self, update, context):
+        """ Method that gets quantities of new medicine
+
+        :param update: Updater for bot token
+        :param context: Handler's context
+        :return: new state INTR_MEDICINE
+        """
+        logger.info('User introducing new medicine')
+        update.message.reply_text(INTR_MEDICINE_MSSGS[self.get_counter(update.message.from_user.id)])
+        return self.set_state(update.message.from_user.id, INTR_MEDICINE)
+
+    def send_new_medicine(self, update, context):
+        """Asks the user information in order to complete the medicine form, and once completed sets the query ready to
+        be sent.
+
+        :param update: Updater for bot token
+        :param context: Handler's context
+        :return: state INTR_MEDICINE while form not completed, state CHECK_MED once completed
+        """
+        try:
+            user_id = update.message.from_user.id
+            if self.get_counter(user_id) == 0:  # If we are in the first field of the form
+                if update.message.photo:  # If user sent a photo, we apply
+                    medicine_cn, validation_num = self.handle_pic(update, context, user_id)
+                else:
+                    medicine_cn, validation_num = self.split_code(update.message.text)
+
+                if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
+                    update.message.reply_text(
+                        "An error has occurred, please repeat the photo or manually introduce the CN")
+                    return INTR_MEDICINE
+                else:
+                    self.set_medicine(user_id, self.get_counter(user_id), medicine_cn)
+            else:
+                self.set_medicine(user_id, self.get_counter(user_id), update.message.text)
+        except:
+            user_id = update.callback_query.from_user.id
+
+        self.set_counter(user_id, self.get_counter(user_id) + 1)
+        logger.info(self.get_medicine(user_id))
+        if self.get_counter(user_id) != len(INTR_MEDICINE_MSSGS):
+            if (self.get_counter(user_id) < 1):
+                update.message.reply_text(INTR_MEDICINE_MSSGS[self.get_counter(user_id)])
+                return INTR_MEDICINE
+            else:
+                context.bot.send_message(chat_id=user_id,
+                                         text=INTR_MEDICINE_MSSGS[self.get_counter(user_id)],
+                                         reply_markup=telegramcalendar.create_calendar())
+                return CHECK_MED
+        else:
+            self.set_counter(user_id, 0)
+            context.bot.send_message(chat_id=user_id,
+                                     text='Is the medicine correctly introduced? ', reply_markup=yes_no_markup)
+            context.bot.send_message(chat_id=user_id,
+                                     text=self.show_medicine(user_id))
+            self.set_query(user_id, list(self.get_medicine(user_id).keys()), list(self.get_medicine(user_id).values()))
+            self.set_function(user_id, 'INTRODUCE MEDICINE')
+            return self.set_state(user_id, CHECK_MED)
+
+    @run_async
+    def show_information(self, update, context):
+        logger.info('User ' + self.get_name(update.message.from_user) + '  searching for information')
+        update.message.reply_text("Introduce CN of the Medicine you want information about:")
+        self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
+
+    def show_infoAbout(self, update, context):
+        user_id = update.message.from_user.id
+        if update.message.photo:  # If user sent a photo, we apply
+            medicine_cn, validation_num = self.handle_pic(update, context, user_id)
+        else:
+            medicine_cn, validation_num = self.split_code(update.message.text)
+
+        if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
+            update.message.reply_text(
+                "An error has occurred, please repeat the photo or manually introduce the CN")
+            return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
+        else:
+            info=cima.get_info_about(medicine_cn)
+            name=cima.get_med_name(medicine_cn)
+            update.message.reply_text("Information about medicine "+name+":\n\t"+ info)
+            return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
+
 
     @run_async
     def see_calendar(self, update, context):
@@ -444,8 +542,14 @@ class PillDora:
                 context.bot.send_message(chat_id=user_id,
                                          text=date.strftime("%Y-%m-%d"),
                                          reply_markup=ReplyKeyboardRemove())
-                self.set_medicine(user_id, self.get_counter(user_id), date.strftime("%Y-%m-%d"))
+                self.set_prescription(user_id, self.get_counter(user_id), date.strftime("%Y-%m-%d"))
                 self.send_new_prescription(update, context)
+            elif self.get_states(user_id)[0] == INTR_MEDICINE:
+                context.bot.send_message(chat_id=user_id,
+                                         text=date.strftime("%Y-%m-%d"),
+                                         reply_markup=ReplyKeyboardRemove())
+                self.set_medicine(user_id, self.get_counter(user_id), date.strftime("%Y-%m-%d"))
+                self.send_new_medicine(update, context)
 
     @run_async
     # Returns all the reminders associated for a specific date and user_id
@@ -463,12 +567,12 @@ class PillDora:
                                  reply_markup=markup)
 
     @run_async
-    # Method that prints systematically the history for a certain user_id
-    def see_history(self, update, context):
-        logger.info('User ' + self.get_name(update.message.from_user) + ' seeing history')
+    # Method that prints systematically the current Treatment for a certain user_id
+    def see_currentTreatment(self, update, context):
+        logger.info('User ' + self.get_name(update.message.from_user) + ' seeing current Treatment')
         # connects to DataBase with UserId asking for all the medications he is currently taking
         user_id = update.message.from_user.id
-        self.set_function(user_id, "HISTORY")
+        self.set_function(user_id, "CURRENT TREATMENT")
         self.set_query(user_id, ["user_id"], [str(user_id)])
         query = self.create_query(user_id)
         response = json.loads(self.send_query(user_id, query))
@@ -477,6 +581,35 @@ class PillDora:
         self.set_query(user_id, ["None"], ["None"])
         return self.manage_response(update, context)
 
+    @run_async
+    # Method that prints systematically the History for a certain user_id
+    def see_history(self, update, context):
+        logger.info('User ' + self.get_name(update.message.from_user) + ' seeing History')
+        # connects to DataBase with UserId asking if user took last reminders
+        user_id = update.message.from_user.id
+        self.set_function(user_id, "HISTORY")
+        self.set_query(user_id, ["user_id"], [str(user_id)])
+        query = self.create_query(user_id)
+        response = json.loads(self.send_query(user_id, query))
+        update.message.reply_text(
+            "To sum up, history of your last reminders:\n" + response['parameters']['history'])
+        self.set_query(user_id, ["None"], ["None"])
+        return self.manage_response(update, context)
+
+    @run_async
+    # Method that prints systematically the Inventory for a certain user_id
+    def see_inventory(self, update, context):
+        logger.info('User ' + self.get_name(update.message.from_user) + ' seeing Inventory')
+        # connects to DataBase with UserId asking if user took last reminders
+        user_id = update.message.from_user.id
+        self.set_function(user_id, "INVENTORY")
+        self.set_query(user_id, ["user_id"], [str(user_id)])
+        query = self.create_query(user_id)
+        response = json.loads(self.send_query(user_id, query))
+        update.message.reply_text(
+            "To sum up, your inventory consists on:\n" + response['parameters']['inventory'])
+        self.set_query(user_id, ["None"], ["None"])
+        return self.manage_response(update, context)
     @run_async
     # Deletes a reminder using a CN for a certain user_id
     def delete_reminder(self, update, context):
@@ -498,9 +631,8 @@ class PillDora:
             update.message.reply_text('CN introduced is wrong, there is not any med with this CN')
             update.message.reply_text("Is there any other way I can help you?", reply_markup=markup)
             return self.set_state(user_id, CHOOSING)
-        reminder_info = "Medicine " + response['parameters']['CN'] + " taken with a frequency of " + \
-                        response['parameters'][
-                            'frequency'] + " hours until the date of " + response['parameters']['end_date'] + "."
+        reminder_info = "Medicine " + cima.get_med_name(response['parameters']['CN']) + " taken with a frequency of " + \
+                        response['parameters']['frequency'] + " hours until the date of " + response['parameters']['end_date'] + "."
         update.message.reply_text('Reminder asked to be removed:\n ->\t' + reminder_info)
         update.message.reply_text('Is this the reminder you want to remove? ', reply_markup=yes_no_markup)
         self.set_query(user_id, ["CN"], [response['parameters']['CN']])
@@ -564,12 +696,20 @@ class PillDora:
             states={
                 LOGIN: [MessageHandler(Filters.text, self.intr_pwd)],
                 NEW_USER: [MessageHandler(Filters.text, self.new_user)],
-                CHOOSING: [MessageHandler(Filters.regex('^Introduce Medicine'),
+                CHOOSING: [MessageHandler(Filters.regex('^Introduce Prescription'),
                                           self.intr_prescription),
+                           MessageHandler(Filters.regex('^Introduce Medicine'),
+                                          self.intr_medicine),
                            MessageHandler(Filters.regex('^Calendar'),
                                           self.see_calendar),
+                           MessageHandler(Filters.regex('^Current Treatment'),
+                                          self.see_currentTreatment),
                            MessageHandler(Filters.regex('^History'),
                                           self.see_history),
+                           MessageHandler(Filters.regex('^Inventory'),
+                                          self.see_inventory),
+                           MessageHandler(Filters.regex('^Show Information'),
+                                          self.show_information),
                            MessageHandler(Filters.regex('^Delete reminder'),
                                           self.delete_reminder),
                            MessageHandler(Filters.regex('^Journey'),
@@ -577,8 +717,13 @@ class PillDora:
                            MessageHandler(Filters.regex('^Exit'), self.exit)
                            ],
                 INTR_PRESCRIPTION: [MessageHandler(Filters.text | Filters.photo, self.send_new_prescription)],
+                INTR_MEDICINE: [MessageHandler(Filters.text | Filters.photo, self.send_new_medicine)],
+                SHOW_INFORMATION: [MessageHandler(Filters.text , self.show_infoAbout)],
                 CHECK_PRE: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
                             MessageHandler(Filters.regex('^NO$'), self.intr_prescription)
+                            ],
+                CHECK_MED: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
+                            MessageHandler(Filters.regex('^NO$'), self.intr_medicine)
                             ],
                 CHECK_REM: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
                             MessageHandler(Filters.regex('^NO$'), self.delete_reminder)
