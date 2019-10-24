@@ -56,27 +56,21 @@ class ServerWorker:
                 user_added) + '"}}'
             self.logger.info(response)
             return response
-        # INTRODUCING A NEW MEDICINE
-        elif instruction == "INTRODUCE MEDICINE":
+        # INTRODUCING NEW PRESCRIPTION
+        elif instruction == "INTRODUCE PRESCRIPTION":
             user_id = parsed_string["user_id"]
             national_code = parsed_string["parameters"]["NAME"]
             is_there = self.checker.check_receipt(user_id=user_id, cn=national_code)
-            # CHECKING IF THE MEDICINE IS ALREADY ON THE DATABASE
             if not is_there:
-                # IF WE ARE HERE, IT MEANS THAT THE MEDICINE WASN'T ON THE DATABASE, SO WE INPUT ALL THE DATA
                 self.checker.introd_receipt(user_id=user_id, query_parsed=parsed_string["parameters"],
                                             date=datetime.date.today().strftime("%Y-%m-%d"))
-                response = self.bot_parser(user_id=user_id, function="INTRODUCE MEDICINE") + """ "Code": "0"}}"""
-                #     WE ALSO ACTUALIZE THE REMINDERS OF THAT DAY IN CASE WE HAVE TO TAKE ANY PILL OF THAT MEDICINE
-                # self.actualize_daily_table(user_id)
-                #     THIS SHOWS INFORMATION ON THE TERMINAL THAT RUNS THIS CLIENT
-                #     IT IS USED TO SHOW THE INFORMATION THAT WE ARE SENDING
+                response = self.bot_parser(user_id=user_id, function="INTRODUCE PRESCRIPTION") + """ "Code": "0"}}"""
+
                 self.logger.info(response)
                 return response
             elif not self.checker.check_medicine_frequency(user_id=user_id, cn=national_code,
                                                            freq=parsed_string["parameters"]["FREQUENCY"]):
-                # IF WE ARE HERE, THE MEDICINE IS ALREADY ON THE DATABASE, WE CHECK FIRST IF THE FREQUENCIES CONCUR,
-                # IF THEY NOT, IT IS A PROBLEM!
+
                 response = self.bot_parser(user_id=user_id,
                                            function="INTRODUCE MEDICINE") + '"Code": "1" , "freq_database" : "' + str(
                     self.checker.get_medicine_frequency(user_id=user_id,
@@ -84,15 +78,23 @@ class ServerWorker:
                     parsed_string["parameters"]["FREQUENCY"]) + '"}}'
                 self.logger.info(response)
                 return response
-
             else:
-                # IF WE ARE HERE, THE MEDICINE IS ALREADY ON THE DATABASE AND THE FREQUENCIES MATCH, SO WE INCREASE
-                # THE QUANTITY OF PILLS THAT WE HAVE TO TAKE
-                # (((((((AQUI EN EL FUTURO TOCAREMOS EL INVENTARIO)))))))
                 response = self.bot_parser(user_id=user_id, function=
                 "INTRODUCE MEDICINE") + '"Code" : "2"}}'
                 self.logger.info(response)
                 return response
+
+        # INTRODUCING NEW MEDICINE:
+        elif instruction == "INTRODUCE MEDICINE":
+            user_id = parsed_string["user_id"]
+            national_code = parsed_string["parameters"]["NAME"]
+            is_there = self.checker.check_receipt(user_id=user_id, cn=national_code)
+            # IF WE ARE HERE, IT MEANS THAT THE MEDICINE WASN'T ON THE DATABASE, SO WE INPUT ALL THE DATA
+            self.checker.intr_inventory(user_id=user_id, query_parsed=parsed_string["parameters"])
+            response = self.bot_parser(user_id=user_id, function="INTRODUCE MEDICINE") + """ "Code": "0"}}"""
+            self.logger.info(response)
+            return response
+
         # THE USER WANTS TO PLAN A JOURNEY
         elif instruction == "JOURNEY":
             # WE OUTPUT A SERIES OF ACTIONS TO BE DONE FROM A LEAVING DATE TO THE DEPARTURE ONE
@@ -104,12 +106,11 @@ class ServerWorker:
                 journey_info = "Quantity of meds to take:\\n"
                 for output in list(calendar_output.keys()):
                     journey_info += "\\t-> " + str(output) + " : " + str(calendar_output[output]) + "\\n"
-            #   (((RIGHT NOW, THE MEDICINES ON THE JOURNEY WILL HAVE A NATIONAL CODE, ON THE FUTURE THEY WILL
-            #                               GO BY THE MEDICINE NAME)))
             response = self.bot_parser(user_id=user_id,
                                        function="JOURNEY") + '"journey_info" : "' + journey_info + '"}}'
             self.logger.info(response)
             return response
+
         # THE USER WANTS INFORMATION ABOUT THE REMINDERS OF A SPECIFIC DATE
         elif instruction == "TASKS CALENDAR":
             # WE OUTPUT A SERIES OF ACTIONS TO BE DONE FOR A SPECIFIC DATE
@@ -122,6 +123,7 @@ class ServerWorker:
             response = self.bot_parser(user_id, "TASKS CALENDAR") + '"tasks" : "' + journey_info + '"}}'
             self.logger.info(response)
             return response
+
         # THE USER WANTS TO DELETE A REMINDER
         elif instruction == "DELETE REMINDER":
             # WE CHECK IF A MEDICINE REMINDER IS THERE FIRST
@@ -131,18 +133,51 @@ class ServerWorker:
                 deleted) + '"}}'
             self.logger.info(response)
             return response
+
+        # THE USER ASKS FOR THE CURRENT TREATMENT
+        elif instruction == "CURRENT TREATMENT":
+            user_id = parsed_string["parameters"]["user_id"]
+            current_treatment = self.checker.get_currentTreatment(user_id=user_id)
+            if current_treatment is not None:
+                current_treatment_info = "Meds currently being taken :\\n"
+                for output in current_treatment:
+                    current_treatment_info += "\\t-> Taking  " + str(output[0]) + " until the date of " + str(output[1]) + "\\n"
+            response = self.bot_parser(user_id=user_id,
+                                       function="CURRENT TREATMENT") + '"reminder_info" : "' + current_treatment_info + '"}}'
+            self.logger.info(response)
+            return response
+
         # THE USER ASKS FOR THE HISTORY OF PILLS TAKEN
         elif instruction == "HISTORY":
             user_id = parsed_string["parameters"]["user_id"]
             history = self.checker.get_history(user_id=user_id)
             if history is not None:
-                history_info = "History of all Meds currently being taken :\\n"
+                history_info = "History of last meds :\\n"
                 for output in history:
-                    history_info += "\\t-> Taking  " + str(output[0]) + " until the date of " + str(output[1]) + "\\n"
+                    history_info += "\\t-> " + str(output[0]) + " of " + str(output[1])
+                    if output[2]:
+                        history_info +=": taken\\n"
+                    else:
+                        history_info += ": not taken\\n"
             response = self.bot_parser(user_id=user_id,
-                                       function="HISTORY") + '"reminder_info" : "' + history_info + '"}}'
+                                       function="HISTORY") + '"history" : "' + history_info + '"}}'
             self.logger.info(response)
             return response
+
+            # THE USER ASKS FOR THE HISTORY OF PILLS TAKEN
+        elif instruction == "INVENTORY":
+            user_id = parsed_string["parameters"]["user_id"]
+            inventory = self.checker.get_history(user_id=user_id)
+            if inventory is not None:
+                inventory_info = "Your current inventory consists on:\\n"
+                for output in inventory:
+                    inventory_info += "\\t-> There are " + str(output[1]) + " of " + str(output[0]) + " which expire on " + datetime.datetime.strftime(output[2],
+                                                                                         "%Y-%m-%d")
+            response = self.bot_parser(user_id=user_id,
+                                       function="INVENTORY") + '"history" : "' + inventory_info + '"}}'
+            self.logger.info(response)
+            return response
+
         # THE USER ASKS FOR THE REMINDERS FOR TODAY ON A SPECIFIC NATIONAL CODE
         elif instruction == "GET REMINDER":
             [user_id, national_code] = [parsed_string["user_id"], parsed_string["parameters"]["CN"]]
@@ -160,6 +195,7 @@ class ServerWorker:
                                        function="GET REMINDER") + reminder_info + '}}'
             self.logger.info(response)
             return response
+
         # IF WE SEND A WRONG QUERY, WE SEND THE INFORMATION LIKE THIS
         else:
             user_id = parsed_string["user_id"]
