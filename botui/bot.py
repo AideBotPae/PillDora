@@ -18,8 +18,8 @@ from telegram.replykeyboardmarkup import ReplyKeyboardMarkup
 from telegram.replykeyboardremove import ReplyKeyboardRemove
 
 import telegramcalendar
-from Server.ServerWorker import ServerWorker
-from imagetextrecognition.text_recognition_class import Text_Recognition
+from server.ServerWorker import ServerWorker
+from ..imagerecognition.ocr.ocr import Text_Recognition
 
 # LOG INFORMATION
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
