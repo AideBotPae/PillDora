@@ -1,5 +1,5 @@
-from Client import PillDora
-from Server.reminders import Reminder
+from botui.bot import PillDora
+from server.reminders import Reminder
 import threading
 
 def run_threaded(job_func):
