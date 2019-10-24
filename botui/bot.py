@@ -370,7 +370,7 @@ class PillDora:
 
     def handle_pic(self, update, context, user_id):  # pic to obtain CN when send_new_prescription
         file = context.bot.getFile(update.message.photo[-1].file_id)
-        filename = f'/home/paesav/Imágenes/{user_id}.jpg'
+        filename = '/home/paesav/Imágenes/{user_id}.jpg'
         file.download(filename)
         medicine_cn, validation_number = self.medicine_search(filename)
         print('\n', medicine_cn, validation_number, '\n')
