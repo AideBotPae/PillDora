@@ -370,7 +370,7 @@ class PillDora:
 
     def handle_pic(self, update, context, user_id):  # pic to obtain CN when send_new_prescription
         file = context.bot.getFile(update.message.photo[-1].file_id)
-        filename = '/home/paesav/Imágenes/{user_id}.jpg'
+        filename = f"/home/paesav/Imágenes/{user_id}.jpg"
         file.download(filename)
         medicine_cn, validation_number = self.medicine_search(filename)
         print('\n', medicine_cn, validation_number, '\n')
@@ -413,7 +413,7 @@ class PillDora:
         '''
         med_param = lambda x: self.obtain_medicine_name(self.get_medicine(user_id)[x]).split(' ')[0] if x == 'NAME' else \
         self.get_medicine(user_id)[x]
-        return '\n'.join(f'{tag}: {med_param(tag)}' for tag in MEDICINE_TAGS)
+        return '\n'.join(f"{tag}: {med_param(tag)}" for tag in MEDICINE_TAGS)
 
     @run_async
     def see_calendar(self, update, context):
