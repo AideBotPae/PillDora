@@ -151,7 +151,7 @@ class PillDora:
         :param context: Handler context
         :return: the new state to be on
         """
-        user_id = update.callback_query.from_user.id
+        user_id = update.message.from_user.id
         name = self.get_name(update.message.from_user)
         aide_bot[user_id] = {'states': [LOGIN, LOGIN], 'intr_medicine_counter': 0,
                              'medicine': {tag: '' for tag in MEDICINE_TAGS}, 'journey': ['None', 'None'],
