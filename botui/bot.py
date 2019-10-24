@@ -19,7 +19,7 @@ from telegram.replykeyboardremove import ReplyKeyboardRemove
 
 import botui.telegramcalendar
 from server.serverworker import ServerWorker
-from ..imagerecognition.ocr.ocr import TextRecognition
+from imagerecognition.ocr.ocr import TextRecognition
 
 # LOG INFORMATION
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
