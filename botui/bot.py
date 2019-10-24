@@ -49,10 +49,10 @@ INTR_PRESCRIPTION_MSSGS = ["What is the medicine's name (CN)?\n You can also sen
 MEDICINE_TAGS = ['NAME', 'QUANTITY', 'FREQUENCY', 'END_DATE', 'EXP_DATE']
 
 # KEYBOARD AND MARKUPS
-reply_keyboard = [[u'Introduce Prescription \U0001F4C3', u'Introduce Medicine \U0001F48A'],
-                [u'Journey \U0000270D', u'Calendar \U0001F4C6'],
+reply_keyboard = [[u'Introduce Prescription \U0001F4C3', u'Introduce Medicine \U0001F48A', u'Delete reminder \U0001F514'],
+                [u'Journey \U0000270D', u'Calendar \U0001F4C6', u'Pharmacy \U0001F3E5'],
                   [u'History \U0001F4D6', u'Inventory \U00002696'],
-                  [u'Pharmacy \U0001F3E5', u'Delete reminder \U0001F514'],[u'Show Information \U0001F4AC', u'Exit \U0001F6AA']]
+                  [u'Show Information \U0001F4AC', u'Exit \U0001F6AA']]
 yes_no_reply_keyboard = [['YES', 'NO']]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
