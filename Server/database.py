@@ -192,7 +192,7 @@ class DBMethods:
 
     def get_history(self, user_id):
         with Database() as db:
-            data = db.query('''SELECT national_code, medicine_name, last_taken_pill, taken
+            data = db.query('''SELECT national_code, last_taken_pill, taken
             FROM aidebot.history
             WHERE user_id={id}'''.format(id=user_id))
 
@@ -202,23 +202,22 @@ class DBMethods:
 
     # METHOD THAT INTRODUCES A MEDICINE TO ITS INVENTORY TABLE
 
-    def intr_inventory(self, user_id, query_parsed, medicine_name, measure):
+    def intr_inventory(self, user_id, query_parsed, measure):
         with Database() as db:
-            db.execute('''INSERT INTO aidebot.inventory (user_id,national_code, num_of_pills, expiracy_date,medicine_name,measure)
-                        values ({id},{cn},'{quantity}','{exp_date}',{med},{measure}})'''.format(id=user_id,
-                                                                                                cn=query_parsed['NAME'],
-                                                                                                quantity=query_parsed[
-                                                                                                    'QUANTITY'],
-                                                                                                exp_date=query_parsed[
-                                                                                                    'EXP_DATE'],
-                                                                                                med=medicine_name,
-                                                                                                measure=measure
-                                                                                                ))
+            db.execute('''INSERT INTO aidebot.inventory (user_id,national_code, num_of_pills, expiracy_date,measure)
+                        values ({id},{cn},'{quantity}','{exp_date}',{measure}})'''.format(id=user_id,
+                                                                                          cn=query_parsed['NAME'],
+                                                                                          quantity=query_parsed[
+                                                                                              'QUANTITY'],
+                                                                                          exp_date=query_parsed[
+                                                                                              'EXP_DATE'],
+                                                                                          measure=measure
+                                                                                          ))
             return True
 
     def get_inventory(self, user_id):
         with Database() as db:
-            data = db.query('''SELECT national_code, medicine_name, num_of_pills, expiracy_date, measure
+            data = db.query('''SELECT national_code, num_of_pills, expiracy_date, measure
             FROM aidebot.inventory
             WHERE user_id={id}
             '''.format(id=user_id))
