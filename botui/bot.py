@@ -568,7 +568,7 @@ class PillDora:
                                           self.delete_reminder),
                            MessageHandler(Filters.regex('^Journey'),
                                           self.create_journey),
-                           MessageHandler(Filters.regex('^Exit'), exit)
+                           MessageHandler(Filters.regex('^Exit'), self.exit)
                            ],
                 INTR_MEDICINE: [MessageHandler(Filters.text | Filters.photo, self.send_new_medicine)],
                 CHECK_MED: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
