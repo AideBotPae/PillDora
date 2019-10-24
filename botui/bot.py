@@ -44,13 +44,13 @@ QUERIES = ['CHECK USER', 'CHECK PASSWORD', 'NEW PASSWORD', 'INTRODUCE PRESCRIPTI
 aide_bot = {}
 
 # TAGS TO MANAGE INTRODUCING MEDICINES
-INTR_PRESCRIPTION_MSSGS = ["What is the medicine's name (CN)?\n You can also send me a photo of the package!",
+INTR_PRESCRIPTION_MSSGS = ["What is the medicine's name (CN)?\nYou can also send me a photo of the package!",
                            "How many pills do you have to take each time?",
                            "How often do you take your pill (in hours)?",
                            "Which day does treatment end?"]
 PRESCRIPTION_TAGS = ['NAME', 'QUANTITY', 'FREQUENCY', 'END_DATE']
 
-INTR_MEDICINE_MSSGS=["What is the medicine's name (CN)?\n You can also send me a photo of the package!",
+INTR_MEDICINE_MSSGS=["What is the medicine's name (CN)?\nYou can also send me a photo of the package!",
                      "How many pills are contained in the box?", "When does the medicine expire?"]
 MEDICINE_TAGS = ['NAME', 'QUANTITY', 'EXP_DATE']
 # KEYBOARD AND MARKUPS
@@ -370,7 +370,7 @@ class PillDora:
         self.set_counter(user_id, self.get_counter(user_id) + 1)
         logger.info(self.get_prescription(user_id))
         if self.get_counter(user_id) != len(INTR_PRESCRIPTION_MSSGS):
-            if (self.get_counter(user_id) < 3):
+            if (self.get_counter(user_id) < 2):
                 update.message.reply_text(INTR_PRESCRIPTION_MSSGS[self.get_counter(user_id)])
                 return INTR_PRESCRIPTION
             else:
