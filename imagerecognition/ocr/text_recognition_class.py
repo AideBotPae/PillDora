@@ -5,7 +5,7 @@ import argparse
 import cv2
 import requests
 
-class Text_Recognition:
+class TextRecognition:
     width=320
     height=320
     padding=0.0
