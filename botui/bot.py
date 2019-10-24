@@ -17,7 +17,7 @@ from telegram.ext.dispatcher import run_async
 from telegram.replykeyboardmarkup import ReplyKeyboardMarkup
 from telegram.replykeyboardremove import ReplyKeyboardRemove
 
-import botui.telegramcalendar
+from botui import telegramcalendar
 from server.serverworker import ServerWorker
 from imagerecognition.ocr.ocr import TextRecognition
 
