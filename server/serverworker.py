@@ -1,8 +1,7 @@
-from Server.database import DBMethods
+from server.database import DBMethods
 import json
 import datetime
 import logging
-import requests
 
 
 class Reminder(object):
@@ -58,7 +57,7 @@ class ServerWorker:
             self.logger.info(response)
             return response
         # INTRODUCING A NEW MEDICINE
-        elif instruction == "INTRODUCE RECEIPT":
+        elif instruction == "INTRODUCE MEDICINE":
             user_id = parsed_string["user_id"]
             national_code = parsed_string["parameters"]["NAME"]
             is_there = self.checker.check_receipt(user_id=user_id, cn=national_code)
@@ -67,7 +66,7 @@ class ServerWorker:
                 # IF WE ARE HERE, IT MEANS THAT THE MEDICINE WASN'T ON THE DATABASE, SO WE INPUT ALL THE DATA
                 self.checker.introd_receipt(user_id=user_id, query_parsed=parsed_string["parameters"],
                                             date=datetime.date.today().strftime("%Y-%m-%d"))
-                response = self.bot_parser(user_id=user_id, function="INTRODUCE RECEIPT") + """ "Code": "0"}}"""
+                response = self.bot_parser(user_id=user_id, function="INTRODUCE MEDICINE") + """ "Code": "0"}}"""
                 #     WE ALSO ACTUALIZE THE REMINDERS OF THAT DAY IN CASE WE HAVE TO TAKE ANY PILL OF THAT MEDICINE
                 # self.actualize_daily_table(user_id)
                 #     THIS SHOWS INFORMATION ON THE TERMINAL THAT RUNS THIS CLIENT
@@ -95,21 +94,6 @@ class ServerWorker:
                 self.logger.info(response)
                 return response
         # THE USER WANTS TO PLAN A JOURNEY
-        elif instruction == "INTRODUCE MEDICINE":
-            user_id = parsed_string["user_id"]
-            cn = parsed_string["parameters"]["NAME"]
-            # medicine_name = self.resolve_name(cn)
-            # measure = self.resolve_measure(cn)
-            introduced = self.checker.intr_inventory(user_id=user_id, query_parsed=parsed_string["parameters"],
-                                            medicine_name=medicine_name, measure=measure)
-            response = self.bot_parser(user_id=user_id, function="INTRODUCE MEDICINE") + '"boolean" : '+str(introduced)+'}}'
-            return response
-
-        elif instruction == "HISTORY":
-            user_id = parsed_string["user_id"]
-            data = self.checker.get_history(self, user_id=user_id)
-            response = self.bot_parser(user_id=user_id, function="HISTORY") + '"history" : ' + data + '}}'
-            return response
         elif instruction == "JOURNEY":
             # WE OUTPUT A SERIES OF ACTIONS TO BE DONE FROM A LEAVING DATE TO THE DEPARTURE ONE
             [user_id, begin, end] = [parsed_string["user_id"], parsed_string["parameters"]["departure_date"],
@@ -148,15 +132,15 @@ class ServerWorker:
             self.logger.info(response)
             return response
         # THE USER ASKS FOR THE HISTORY OF PILLS TAKEN
-        elif instruction == "CURRENT TREATMENT":
+        elif instruction == "HISTORY":
             user_id = parsed_string["parameters"]["user_id"]
-            history = self.checker.get_current_treatments(user_id=user_id)
+            history = self.checker.get_history(user_id=user_id)
             if history is not None:
                 history_info = "History of all Meds currently being taken :\\n"
                 for output in history:
                     history_info += "\\t-> Taking  " + str(output[0]) + " until the date of " + str(output[1]) + "\\n"
             response = self.bot_parser(user_id=user_id,
-                                       function="CURRENT TREATMENT") + '"reminder_info" : "' + history_info + '"}}'
+                                       function="HISTORY") + '"reminder_info" : "' + history_info + '"}}'
             self.logger.info(response)
             return response
         # THE USER ASKS FOR THE REMINDERS FOR TODAY ON A SPECIFIC NATIONAL CODE
@@ -175,12 +159,6 @@ class ServerWorker:
             response = self.bot_parser(self.user_id,
                                        function="GET REMINDER") + reminder_info + '}}'
             self.logger.info(response)
-            return response
-        elif instruction == "SHOW INFO ABOUT":
-            user_id = parsed_string["user_id"]
-            cn = parsed_string["parameters"]["NAME"]
-            # information = self.resolve_medicine_info(cn)
-            response = self.bot_parser(user_id=user_id, function="INTRODUCE RECEIPT") + '"information" : ' + information + '}}'
             return response
         # IF WE SEND A WRONG QUERY, WE SEND THE INFORMATION LIKE THIS
         else:
@@ -208,22 +186,3 @@ class ServerWorker:
             response = self.bot_parser("ALL", "DAILY REMINDER") + '"reminder_info" : "' + reminder_info + '"}}'
             self.logger.info(response)
             return response
-
-    def resolve_medicine_info(self, cn):
-        str_requested =  requests.get( url = "https://cima.aemps.es/cima/rest/medicamento?cn= "+ cn)
-        parsed_string = json.loads(str_requested)
-        data = parsed_string[""]
-        return data
-
-    def resolve_name(self, cn):
-        str_requested = requests.get(url="https://cima.aemps.es/cima/rest/medicamento?cn= " + cn)
-        parsed_string = json.loads(str_requested)
-        data = parsed_string[""]
-        return data
-
-
-    def resolve_measure(self, cn):
-        str_requested = requests.get(url="https://cima.aemps.es/cima/rest/medicamento?cn= " + cn)
-        parsed_string = json.loads(str_requested)
-        data = parsed_string["potato"]
-        return data
