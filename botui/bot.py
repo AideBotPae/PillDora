@@ -35,7 +35,8 @@ TOKEN_PILLDORA = '938652990:AAETGF-Xh2_njSdCLn2KibcprZXH1hhqsiI'
 LOGIN, NEW_USER, CHOOSING, INTR_PRESCRIPTION, CHECK_PRE, GET_CN, CHECK_REM, JOURNEY, END = range(9)
 
 # FUNCTIONS FOR COMMUNICATING WITH DATA BASE
-QUERIES = ['CHECK USER', 'CHECK PASSWORD', 'NEW PASSWORD', 'INTRODUCE PRESCRIPTION', 'INTRODUCE MEDICINE', 'TASKS CALENDAR', 'HISTORY', 'JOURNEY',
+QUERIES = ['CHECK USER', 'CHECK PASSWORD', 'NEW PASSWORD', 'INTRODUCE PRESCRIPTION', 'INTRODUCE MEDICINE',
+           'TASKS CALENDAR', 'HISTORY', 'JOURNEY',
            'GET REMINDER', 'DELETE REMINDER']
 
 # MANAGE WHOLE INFORMATION
@@ -43,16 +44,17 @@ aide_bot = {}
 
 # TAGS TO MANAGE INTRODUCING MEDICINES
 INTR_PRESCRIPTION_MSSGS = ["What is the medicine's name (CN)?\n You can also send me a photo of the package!",
-                       "How many pills do you have to take each time?",
-                       "How often do you take your pill (in hours)?",
-                       "Which day does treatment end?", "When does the medicine expire?"]
+                           "How many pills do you have to take each time?",
+                           "How often do you take your pill (in hours)?",
+                           "Which day does treatment end?", "When does the medicine expire?"]
 MEDICINE_TAGS = ['NAME', 'QUANTITY', 'FREQUENCY', 'END_DATE', 'EXP_DATE']
 
 # KEYBOARD AND MARKUPS
-reply_keyboard = [[u'Introduce Prescription \U0001F4C3', u'Introduce Medicine \U0001F48A', u'Delete reminder \U0001F514'],
-                [u'Journey \U0000270D', u'Calendar \U0001F4C6', u'Pharmacy \U0001F3E5'],
-                  [u'History \U0001F4D6', u'Inventory \U00002696'],
-                  [u'Show Information \U0001F4AC', u'Exit \U0001F6AA']]
+reply_keyboard = [
+    [u'Introduce Prescription \U0001F4C3', u'Introduce Medicine \U0001F48A', u'Delete reminder \U0001F514'],
+    [u'History \U0001F4D6', u'Inventory \U00002696', u'Current Treatments \U0001F3E5'],
+    [u'Journey \U0000270D', u'Calendar \U0001F4C6'],
+    [u'Show Information \U0001F4AC', u'Exit \U0001F6AA']]
 yes_no_reply_keyboard = [['YES', 'NO']]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
@@ -376,7 +378,7 @@ class PillDora:
 
     def medicine_search(self, filename):
         number, validation_number = TextRecognition().init(filename,
-                                                            "/home/paesav/PAET2019/PillDora/imagetextrecognition/frozen_east_text_detection.pb")
+                                                           "/home/paesav/PAET2019/PillDora/imagetextrecognition/frozen_east_text_detection.pb")
         return number, validation_number
 
     def split_code(self, cn):
@@ -409,7 +411,8 @@ class PillDora:
             else:
                 medicine_string += tag + ': ' + self.get_medicine(user_id)[tag] + '\n'
         '''
-        med_param = lambda x: self.obtain_medicine_name(self.get_medicine(user_id)[x]).split(' ')[0] if x == 'NAME' else self.get_medicine(user_id)[x]
+        med_param = lambda x: self.obtain_medicine_name(self.get_medicine(user_id)[x]).split(' ')[0] if x == 'NAME' else \
+        self.get_medicine(user_id)[x]
         return '\n'.join(f'{tag}: {med_param(tag)}' for tag in MEDICINE_TAGS)
 
     @run_async
