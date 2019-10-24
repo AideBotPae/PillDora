@@ -582,7 +582,7 @@ class PillDora:
                           MessageHandler(Filters.regex('^NO$'), self.create_journey)
                           ]
             },
-            fallbacks=[MessageHandler(Filters.regex('^Exit$'), exit)]
+            fallbacks=[MessageHandler(Filters.regex('^Exit$'), self.exit)]
         )
 
         dp.add_handler(conv_handler)
