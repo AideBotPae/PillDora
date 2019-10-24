@@ -98,8 +98,8 @@ class ServerWorker:
         elif instruction == "INTRODUCE MEDICINE":
             user_id = parsed_string["user_id"]
             cn = parsed_string["parameters"]["NAME"]
-            medicine_name = self.resolve_name(cn)
-            measure = self.resolve_measure(cn)
+            # medicine_name = self.resolve_name(cn)
+            # measure = self.resolve_measure(cn)
             introduced = self.checker.intr_inventory(user_id=user_id, query_parsed=parsed_string["parameters"],
                                             medicine_name=medicine_name, measure=measure)
             response = self.bot_parser(user_id=user_id, function="INTRODUCE MEDICINE") + '"boolean" : '+str(introduced)+'}}'
@@ -179,7 +179,7 @@ class ServerWorker:
         elif instruction == "SHOW INFO ABOUT":
             user_id = parsed_string["user_id"]
             cn = parsed_string["parameters"]["NAME"]
-            information = self.resolve_medicine_info(cn)
+            # information = self.resolve_medicine_info(cn)
             response = self.bot_parser(user_id=user_id, function="INTRODUCE RECEIPT") + '"information" : ' + information + '}}'
             return response
         # IF WE SEND A WRONG QUERY, WE SEND THE INFORMATION LIKE THIS
