@@ -18,7 +18,7 @@ from telegram.replykeyboardmarkup import ReplyKeyboardMarkup
 from telegram.replykeyboardremove import ReplyKeyboardRemove
 
 import telegramcalendar
-from server.ServerWorker import ServerWorker
+from server.serverworker import ServerWorker
 from ..imagerecognition.ocr.ocr import Text_Recognition
 
 # LOG INFORMATION
