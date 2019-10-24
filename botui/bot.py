@@ -19,7 +19,7 @@ from telegram.replykeyboardremove import ReplyKeyboardRemove
 
 import telegramcalendar
 from server.serverworker import ServerWorker
-from ..imagerecognition.ocr.ocr import Text_Recognition
+from ..imagerecognition.ocr.ocr import TextRecognition
 
 # LOG INFORMATION
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -372,7 +372,7 @@ class PillDora:
         return medicine_cn, validation_number
 
     def medicine_search(self, filename):
-        number, validation_number = Text_Recognition().init(filename,
+        number, validation_number = TextRecognition().init(filename,
                                                             "/home/paesav/PAET2019/PillDora/imagetextrecognition/frozen_east_text_detection.pb")
         return number, validation_number
 
