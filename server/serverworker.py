@@ -1,4 +1,5 @@
 from server.database import DBMethods
+import server.cima as cima
 import json
 import datetime
 import logging
@@ -72,7 +73,7 @@ class ServerWorker:
                                                            freq=parsed_string["parameters"]["FREQUENCY"]):
 
                 response = self.bot_parser(user_id=user_id,
-                                           function="INTRODUCE MEDICINE") + '"Code": "1" , "freq_database" : "' + str(
+                                           function="INTRODUCE PRESCRIPTION") + '"Code": "1" , "freq_database" : "' + str(
                     self.checker.get_medicine_frequency(user_id=user_id,
                                                         cn=national_code)) + '", "freq_introduced" : "' + str(
                     parsed_string["parameters"]["FREQUENCY"]) + '"}}'
@@ -80,7 +81,7 @@ class ServerWorker:
                 return response
             else:
                 response = self.bot_parser(user_id=user_id, function=
-                "INTRODUCE MEDICINE") + '"Code" : "2"}}'
+                "INTRODUCE PRESCRIPTION") + '"Code" : "2"}}'
                 self.logger.info(response)
                 return response
 
@@ -105,7 +106,7 @@ class ServerWorker:
             if calendar_output is not None:
                 journey_info = "Quantity of meds to take:\\n"
                 for output in list(calendar_output.keys()):
-                    journey_info += "\\t-> " + str(output) + " : " + str(calendar_output[output]) + "\\n"
+                    journey_info += "\\t-> " + cima.get_med_name(str(output)) + " : " + str(calendar_output[output]) + "\\n"
             response = self.bot_parser(user_id=user_id,
                                        function="JOURNEY") + '"journey_info" : "' + journey_info + '"}}'
             self.logger.info(response)
@@ -119,7 +120,7 @@ class ServerWorker:
             if calendar_output is not None:
                 journey_info = "Reminders:\\n"
                 for output in calendar_output:
-                    journey_info += "\\t-> " + str(output[0]) + " : " + str(output[1]) + "\\n"
+                    journey_info += "\\t-> " + cima.get_med_name(str(output[0])) + " : " + str(output[1]) + "\\n"
             response = self.bot_parser(user_id, "TASKS CALENDAR") + '"tasks" : "' + journey_info + '"}}'
             self.logger.info(response)
             return response
@@ -141,7 +142,7 @@ class ServerWorker:
             if current_treatment is not None:
                 current_treatment_info = "Meds currently being taken :\\n"
                 for output in current_treatment:
-                    current_treatment_info += "\\t-> Taking  " + str(output[0]) + " until the date of " + str(output[1]) + "\\n"
+                    current_treatment_info += "\\t-> Taking  " + cima.get_med_name(str(output[0])) + " until the date of " + str(output[1]) + "\\n"
             response = self.bot_parser(user_id=user_id,
                                        function="CURRENT TREATMENT") + '"reminder_info" : "' + current_treatment_info + '"}}'
             self.logger.info(response)
@@ -154,7 +155,7 @@ class ServerWorker:
             if history is not None:
                 history_info = "History of last meds :\\n"
                 for output in history:
-                    history_info += "\\t-> " + str(output[0]) + " of " + str(output[1])
+                    history_info += "\\t-> " + cima.get_med_name(str(output[0])) + " of " + str(output[1])
                     if output[2]:
                         history_info +=": taken\\n"
                     else:
@@ -171,7 +172,7 @@ class ServerWorker:
             if inventory is not None:
                 inventory_info = "Your current inventory consists on:\\n"
                 for output in inventory:
-                    inventory_info += "\\t-> There are " + str(output[1]) + " of " + str(output[0]) + " which expire on " + datetime.datetime.strftime(output[2],
+                    inventory_info += "\\t-> There are " + str(output[1]) + " of " + cima.get_med_name(str(output[0])) + " which expire on " + datetime.datetime.strftime(output[2],
                                                                                          "%Y-%m-%d")
             response = self.bot_parser(user_id=user_id,
                                        function="INVENTORY") + '"history" : "' + inventory_info + '"}}'
