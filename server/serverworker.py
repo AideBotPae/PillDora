@@ -1,4 +1,4 @@
-from Server.database import DBMethods
+from database import DBMethods
 import json
 import datetime
 import logging
