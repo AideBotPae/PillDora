@@ -594,8 +594,11 @@ class PillDora:
         self.set_query(user_id, ["user_id"], [str(user_id)])
         query = self.create_query(user_id)
         response = json.loads(self.send_query(user_id, query))
-        update.message.reply_text(
-            "To sum up, you are currently taking these meds:\n" + response['parameters']['reminder_info'])
+        if response['parameters']['reminder_info'] =="False":
+            update.message.reply_text("There is actually no Current Treatment about you in the DataBase")
+        else:
+            update.message.reply_text(
+                "To sum up, you are currently taking these meds:\n" + response['parameters']['reminder_info'])
         self.set_query(user_id, ["None"], ["None"])
         return self.manage_response(update, context)
 
