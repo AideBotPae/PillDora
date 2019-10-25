@@ -1,23 +1,20 @@
-import telegram
-from telegram import ReplyKeyboardMarkup
 from server.database import Database
 import datetime
 import schedule
 import time
-from threading import Timer
+
 
 
 # THIS CLASS IS THE ONE THAT HAS THE TASK OF ACTUALIZING THE DAILY TABLE EVERY DAY WITH THE REMINDERS!
 class Reminder:
-    def __init__(self, Pilldora):
-        self.pilldora=Pilldora
+    def __init__(self, pilldora):
+        self.pilldora=pilldora
 
     def daily_actualizations(self):
         # Every day at 01:00 the system will proceed to check if any reminder needs to be removed as expired
         schedule.every().day.at("01:00").do(self.checking_expirations)
         schedule.every().day.at("02:00").do(self.delete_history)
         schedule.every().hour.do(self.remind_information)
-        Timer(1*60, self.test).start()
         while True:
             schedule.run_pending()
             # Sleeps for half an hour
