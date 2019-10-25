@@ -490,7 +490,7 @@ class PillDora:
         self.set_counter(user_id, self.get_counter(user_id) + 1)
         logger.info(self.get_medicine(user_id))
         if self.get_counter(user_id) != len(INTR_MEDICINE_MSSGS):
-            if (self.get_counter(user_id) < 1):
+            if (self.get_counter(user_id) < 2):
                 update.message.reply_text(INTR_MEDICINE_MSSGS[self.get_counter(user_id)])
                 return INTR_MEDICINE
             else:
@@ -789,7 +789,7 @@ class PillDora:
                            ],
                 INTR_PRESCRIPTION: [MessageHandler(Filters.text | Filters.photo, self.send_new_prescription)],
                 INTR_MEDICINE: [MessageHandler(Filters.text | Filters.photo, self.send_new_medicine)],
-                SHOW_INFORMATION: [MessageHandler(Filters.text, self.show_infoAbout)],
+                SHOW_INFORMATION: [MessageHandler(Filters.text | Filters.photo, self.show_infoAbout)],
                 CHECK_PRE: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
                             MessageHandler(Filters.regex('^NO$'), self.intr_prescription)
                             ],
