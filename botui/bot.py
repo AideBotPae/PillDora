@@ -12,10 +12,12 @@ import logging
 import re
 
 import requests
+import telegram
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler
 from telegram.ext.dispatcher import run_async
 from telegram.replykeyboardmarkup import ReplyKeyboardMarkup
 from telegram.replykeyboardremove import ReplyKeyboardRemove
+from threading import Event
 
 import botui.telegramcalendar as telegramcalendar
 from server.serverworker import ServerWorker
@@ -32,8 +34,8 @@ TOKEN_AIDEBOT = '902984072:AAFd0KLLAinZIrGhQvVePQwBt3WJ1QQQDGs'
 TOKEN_PILLDORA = '938652990:AAETGF-Xh2_njSdCLn2KibcprZXH1hhqsiI'
 
 # STATES OF THE APP
-LOGIN, NEW_USER, CHOOSING, INTR_PRESCRIPTION, INTR_MEDICINE, SHOW_INFORMATION, CHECK_PRE, CHECK_MED, GET_CN, CHECK_REM, JOURNEY, END = range(
-    12)
+LOGIN, NEW_USER, CHOOSING, INTR_PRESCRIPTION, INTR_MEDICINE, SHOW_INFORMATION, CHECK_PRE, CHECK_MED, GET_CN, CHECK_REM, JOURNEY, END, REMINDERS = range(
+    13)
 
 # FUNCTIONS FOR COMMUNICATING WITH DATA BASE
 QUERIES = ['CHECK USER', 'CHECK PASSWORD', 'NEW PASSWORD', 'INTRODUCE PRESCRIPTION', 'INTRODUCE MEDICINE',
@@ -42,6 +44,9 @@ QUERIES = ['CHECK USER', 'CHECK PASSWORD', 'NEW PASSWORD', 'INTRODUCE PRESCRIPTI
 
 # MANAGE WHOLE INFORMATION
 aide_bot = {}
+
+# MANAGE THREADS STATES SYNCHRONICITY
+event = Event()
 
 # TAGS TO MANAGE INTRODUCING MEDICINES
 INTR_PRESCRIPTION_MSSGS = ["What is the medicine's name (CN)?\nYou can also send me a photo of the package!",
@@ -83,6 +88,13 @@ class PillDora:
 
     def in_end(self, user_id):
         return aide_bot[user_id]['states'][0] == END
+
+    def set_reminder(self, user_id, cn, time):
+        aide_bot[user_id]['reminder']['cn'] == cn
+        aide_bot[user_id]['reminder']['time'] == time
+
+    def get_reminder(self, user_id):
+        return aide_bot[user_id]['reminder']
 
     # Returns the last prescription associated for a specific user_id
     def get_prescription(self, user_id):
@@ -177,7 +189,9 @@ class PillDora:
                              'prescription': {tag: '' for tag in PRESCRIPTION_TAGS},
                              'medicine': {tag: '' for tag in MEDICINE_TAGS},
                              'journey': ['None', 'None'],
-                             'function': 'none', 'query': {}, 'serverworker': ServerWorker(user_id)}
+                             'function': 'none', 'query': {},
+                             'reminder': {'cn': "None", 'time':'None'},
+                             'serverworker': ServerWorker(user_id)}
         logger.info('User ' + name + ' has connected to AideBot: ID is ' + str(user_id))
         context.bot.send_message(chat_id=user_id, text=("Welcome " + name + " ! My name is AideBot"))
 
@@ -681,11 +695,53 @@ class PillDora:
                            [self.get_dates(user_id)[0], self.get_dates(user_id)[1]])
             self.set_function(user_id, 'JOURNEY')
 
-    # Ends the communication between the user and the bot
+    def send_reminders(self, data):
+        for message in data:
+            print(message)
+            self.pilldora.send_reminder(user_id=str(message[2]), cn=str(message[0]), time=str(message[1]))
 
+    # Sends a reminder using parsing
+    def send_reminder(self, update, context, user_id, cn, time):
+            self.set_reminder(user_id, str(cn), str(time))
+            if self.in_end(user_id):
+                reminder = "Remember to take " + cn + " at " + time
+                context.bot.send_message(chat_id=user_id,
+                                 text="*_`" + reminder + "`_*\n",
+                                 parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=yes_no_markup)
+                return self.set_state(user_id, REMINDERS)
+            else:
+                return self.delay_reminder(user_id, cn, time)
+
+    def delay_reminder(self, user_id, cn, time):
+        event.wait()
+        self.send_reminder(user_id, cn, time)
+        event.clear()
+
+
+
+    def intr_history_yes(self, update, context):
+        user_id=update.message.from_user.id
+        self.set_function(user_id, 'CHECK USER')
+        reminder=self.get_reminder(user_id)
+        self.set_query(user_id, ["user_id", "NAME", "DATE", "BOOLEAN"], [str(user_id)], reminder['cn'], reminder['time'], "True")
+        query = self.create_query(user_id)
+        response = self.send_query(user_id, query)
+        self.set_state(user_id, END)
+
+    def intr_history_no(self, update, context):
+        user_id=update.message.from_user.id
+        self.set_function(user_id, 'CHECK USER')
+        reminder=self.get_reminder(user_id)
+        self.set_query(user_id, ["user_id", "NAME", "DATE", "BOOLEAN"], [str(user_id)], reminder['cn'], reminder['time'], "False")
+        query = self.create_query(user_id)
+        response = self.send_query(user_id, query)
+        self.set_state(user_id, END)
+
+    # Ends the communication between the user and the bot
     def exit(self, update, context):
         update.message.reply_text("See you next time")
         logger.info('User ' + self.get_name(update.message.from_user) + ' finish with AideBot')
+        event.set()
         return self.set_state(update.message.chat_id, END)
 
     # Main of the Client.py, where the bot is activated and creates the transition to the different functionalities
