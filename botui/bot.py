@@ -750,13 +750,13 @@ class PillDora:
         event.set()
         return self.set_state(update.message.chat_id, END)
 
-    def show_current_aidebot_status(self, update, context):
+    def show_current_aidebot_status(self, bot):
         user_id = str(821061948)
         info=self.get_states(user_id)[0]
-        context.bot.send_message(chat_id=user_id,
+        bot.send_message(chat_id=user_id,
                                  text="*_`" + info + "`_*\n",
                                  parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=yes_no_markup)
-        
+
 
     # Main of the Client.py, where the bot is activated and creates the transition to the different functionalities
     def main(self):
