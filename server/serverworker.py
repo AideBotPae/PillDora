@@ -137,10 +137,12 @@ class ServerWorker:
         elif instruction == "CURRENT TREATMENT":
             user_id = parsed_string["parameters"]["user_id"]
             current_treatment = self.checker.get_currentTreatment(user_id=user_id)
-            if current_treatment is not None:
+            if current_treatment is not ():
                 current_treatment_info = "Meds currently being taken :\\n"
                 for output in current_treatment:
                     current_treatment_info += "\\t-> Taking  " + cima.get_med_name(str(output[0])) + " until the date of " + str(output[1]).split()[0] + "\\n"
+            else:
+                current_treatment_info="False"
             response = self.bot_parser(user_id=user_id,
                                        function="CURRENT TREATMENT") + '"reminder_info" : "' + current_treatment_info + '"}}'
             self.logger.info(response)
