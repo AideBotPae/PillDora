@@ -609,8 +609,11 @@ class PillDora:
         self.set_query(user_id, ["user_id"], [str(user_id)])
         query = self.create_query(user_id)
         response = json.loads(self.send_query(user_id, query))
-        update.message.reply_text(
-            "To sum up, history of your last reminders:\n" + response['parameters']['history'])
+        if response['parameters']['history'] =="False":
+            update.message.reply_text("There is actually no history about you in the DataBase")
+        else:
+            update.message.reply_text(
+                "To sum up, history of your last reminders:\n" + response['parameters']['history'])
         self.set_query(user_id, ["None"], ["None"])
         return self.manage_response(update, context)
 
