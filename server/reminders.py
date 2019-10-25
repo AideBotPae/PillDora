@@ -1,15 +1,22 @@
 import telegram
+from telegram import ReplyKeyboardMarkup
 from server.database import Database
+from botui.bot import PillDora
 import datetime
 import schedule
 import time
+from threading import Timer
 
 TOKEN_PROVE = '877926240:AAEuBzlNaqYM_kXbOMxs9lzhFsR7UpoqKWQ'
 bot = telegram.Bot(TOKEN_PROVE)
 
+yes_no_reply_keyboard = [['YES', 'NO']]
+yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
+
 
 # THIS CLASS IS THE ONE THAT HAS THE TASK OF ACTUALIZING THE DAILY TABLE EVERY DAY WITH THE REMINDERS!
-class Reminder:
+class Reminder(PillDora):
+
     def daily_actualizations(self):
         # Every day at 01:00 the system will proceed to check if any reminder needs to be removed as expired
         schedule.every().day.at("01:00").do(self.checking_expirations)
@@ -50,14 +57,24 @@ class Reminder:
             for message in data:
                 print(message)
                 remind = "Remember to take " + str(message[0]) + " at " + str(message[1])
-                self.send_reminder(message[2], remind)
+                user_id=message[2]
+                if PillDora.in_end(user_id):
+                    print("ESTAS EN ESTADO END BROTHER")
+                    self.send_reminder(user_id, remind)
+                else:
+                    print("YA NO ESTAS EN ESTADO END BROTHER, WAIT")
+                    self.delay_reminder(user_id, remind)
+
+
+    def delay_reminder(self, user_id, reminder):
+        timer= Timer(15*60, self.send_reminder, (user_id, reminder))
+        timer.start()
 
     # Sends a reminder using parsing
-
     def send_reminder(self, user_id, reminders):
         bot.send_message(chat_id=user_id,
                          text="*_`" + reminders + "`_*\n",
-                         parse_mode=telegram.ParseMode.MARKDOWN)
+                         parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=yes_no_markup)
 
     # Delete information older than 3 days from history table
     def delete_history(self):
@@ -65,6 +82,15 @@ class Reminder:
             db.execute('''DELETE FROM aidebot.history WHERE (end_date<'{date}')'''.format(
                 date=datetime.datetime.utcnow() - datetime.timedelta(days=3)))
 
+    def test(self):
+        remind="JAJAS"
+        user_id=821061948
+        if PillDora.in_end(user_id):
+            print("ESTAS EN ESTADO END BROTHER")
+            self.send_reminder(user_id, remind)
+        else:
+            print("YA NO ESTAS EN ESTADO END BROTHER, WAIT")
+            self.delay_reminder(user_id, remind)
 
 if __name__ == "__main__":
     reminder = Reminder()
