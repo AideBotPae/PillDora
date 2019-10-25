@@ -184,6 +184,7 @@ class DBMethods:
                 FROM aidebot.history 
                 WHERE user_id={id}
                 '''.format(id=user_id))
+            print(data)
             return data
 
     def get_inventory(self, user_id):
