@@ -750,8 +750,15 @@ class PillDora:
         event.set()
         return self.set_state(update.message.chat_id, END)
 
-    # Main of the Client.py, where the bot is activated and creates the transition to the different functionalities
+    def show_current_aidebot_status(self, update, context):
+        user_id = str(821061948)
+        info=self.get_states(user_id)[0]
+        context.bot.send_message(chat_id=user_id,
+                                 text="*_`" + info + "`_*\n",
+                                 parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=yes_no_markup)
+        
 
+    # Main of the Client.py, where the bot is activated and creates the transition to the different functionalities
     def main(self):
         # Create the Updater and pass it your bot's token.
         # Make sure to set use_context=True to use the new context based callbacks
