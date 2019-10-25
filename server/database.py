@@ -167,6 +167,17 @@ class DBMethods:
                 '''.format(id=user_id))
             return data
 
+    def intr_to_history(self, user_id, query_parsed):
+        with Database() as db:
+            db.execute('''INSERT INTO aidebot.history (user_id, national_code, last_taken_pill, taken)
+                                   values ({id},{cn},'{date}', '{boolean}')'''.format(id=user_id,
+                                                                                       cn=query_parsed['NAME'],
+                                                                                       date=query_parsed[
+                                                                                           'DATE'],
+                                                                                       boolean=query_parsed[
+                                                                                           'BOOLEAN'],
+                                                                                       ))
+
     def get_history(self, user_id):
         with Database() as db:
             data = db.query(''' SELECT national_code, last_taken_pill, taken
@@ -189,7 +200,7 @@ class DBMethods:
             db.execute('''INSERT INTO aidebot.inventory (user_id,national_code, num_of_pills, expiracy_date)
                         values ({id},{cn},'{quantity}','{exp_date}')'''.format(id=user_id,
                                                                                cn=query_parsed['NAME'],
-                                                                               quantity=0,  # Hay que pedirlo
+                                                                               quantity=query_parsed['QUANTITY'],
                                                                                exp_date=query_parsed['EXP_DATE']
                                                                                ))
 
