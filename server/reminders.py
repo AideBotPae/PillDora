@@ -15,12 +15,15 @@ class Reminder:
         schedule.every().day.at("01:00").do(self.checking_expirations)
         schedule.every().day.at("02:00").do(self.delete_history)
         schedule.every().hour.do(self.remind_information)
+        schedule.every().minute.do(self.test)
         while True:
             schedule.run_pending()
             # Sleeps for half an hour
             time.sleep(60 * 60 / 2)
 
     # Delete all reminders which has expired by end_date < today
+    def test(self):
+        self.pilldora.show_current_aidebot_status()
 
     def checking_expirations(self):
         with Database() as db:
