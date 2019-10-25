@@ -1,7 +1,6 @@
 import telegram
 from telegram import ReplyKeyboardMarkup
 from server.database import Database
-from botui.bot import PillDora
 import datetime
 import schedule
 import time
@@ -15,10 +14,13 @@ yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=Tru
 
 
 # THIS CLASS IS THE ONE THAT HAS THE TASK OF ACTUALIZING THE DAILY TABLE EVERY DAY WITH THE REMINDERS!
-class Reminder(PillDora):
-
+class Reminder:
+    def __init__(self, Pilldora):
+        self.pilldora=Pilldora
+        
     def daily_actualizations(self):
         # Every day at 01:00 the system will proceed to check if any reminder needs to be removed as expired
+        self.test()
         schedule.every().day.at("01:00").do(self.checking_expirations)
         schedule.every().day.at("02:00").do(self.delete_history)
         schedule.every().hour.do(self.remind_information)
@@ -58,7 +60,7 @@ class Reminder(PillDora):
                 print(message)
                 remind = "Remember to take " + str(message[0]) + " at " + str(message[1])
                 user_id=message[2]
-                if PillDora.in_end(user_id):
+                if self.pilldora.in_end(user_id):
                     print("ESTAS EN ESTADO END BROTHER")
                     self.send_reminder(user_id, remind)
                 else:
@@ -85,7 +87,7 @@ class Reminder(PillDora):
     def test(self):
         remind="JAJAS"
         user_id=821061948
-        if PillDora.in_end(user_id):
+        if self.pilldora.in_end(user_id):
             print("ESTAS EN ESTADO END BROTHER")
             self.send_reminder(user_id, remind)
         else:
