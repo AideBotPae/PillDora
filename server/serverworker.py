@@ -150,7 +150,7 @@ class ServerWorker:
         elif instruction == "HISTORY":
             user_id = parsed_string["parameters"]["user_id"]
             history = self.checker.get_history(user_id=user_id)
-            if history is not None:
+            if history is not ():
                 history_info = "History of last meds :\\n"
                 for output in history:
                     history_info += "\\t-> " + cima.get_med_name(str(output[0])) + " of " + str(output[1])
@@ -158,6 +158,8 @@ class ServerWorker:
                         history_info +=": taken\\n"
                     else:
                         history_info += ": not taken\\n"
+            else:
+                history_info="False"
             response = self.bot_parser(user_id=user_id,
                                        function="HISTORY") + '"history" : "' + history_info + '"}}'
             self.logger.info(response)
@@ -176,9 +178,10 @@ class ServerWorker:
         elif instruction == "INVENTORY":
             user_id = parsed_string["parameters"]["user_id"]
             inventory = self.checker.get_inventory(user_id=user_id)
-            if inventory is not None:
+            if inventory is not ():
                 inventory_info = "Your current inventory consists on:\\n"
                 for output in inventory:
+                    print(output)
                     inventory_info += "\\t-> There are " + str(output[1]) + " of " + cima.get_med_name(str(output[0])) + " which expire on " + datetime.datetime.strftime(output[2],
                                                                                          "%Y-%m-%d")
             response = self.bot_parser(user_id=user_id,
