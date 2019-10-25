@@ -85,12 +85,10 @@ class ServerWorker:
                 self.logger.info(response)
                 return response
 
-        # INTRODUCING NEW MEDICINE:
+        # INTRODUCING NEW MEDICINE BOUGHT:
         elif instruction == "INTRODUCE MEDICINE":
             user_id = parsed_string["user_id"]
             national_code = parsed_string["parameters"]["NAME"]
-            is_there = self.checker.check_receipt(user_id=user_id, cn=national_code)
-            # IF WE ARE HERE, IT MEANS THAT THE MEDICINE WASN'T ON THE DATABASE, SO WE INPUT ALL THE DATA
             self.checker.intr_inventory(user_id=user_id, query_parsed=parsed_string["parameters"])
             response = self.bot_parser(user_id=user_id, function="INTRODUCE MEDICINE") + """ "Code": "0"}}"""
             self.logger.info(response)
@@ -142,7 +140,7 @@ class ServerWorker:
             if current_treatment is not None:
                 current_treatment_info = "Meds currently being taken :\\n"
                 for output in current_treatment:
-                    current_treatment_info += "\\t-> Taking  " + cima.get_med_name(str(output[0])) + " until the date of " + str(output[1]) + "\\n"
+                    current_treatment_info += "\\t-> Taking  " + cima.get_med_name(str(output[0])) + " until the date of " + str(output[1]).split()[0] + "\\n"
             response = self.bot_parser(user_id=user_id,
                                        function="CURRENT TREATMENT") + '"reminder_info" : "' + current_treatment_info + '"}}'
             self.logger.info(response)
@@ -168,14 +166,14 @@ class ServerWorker:
             # THE USER ASKS FOR THE HISTORY OF PILLS TAKEN
         elif instruction == "INVENTORY":
             user_id = parsed_string["parameters"]["user_id"]
-            inventory = self.checker.get_history(user_id=user_id)
+            inventory = self.checker.get_inventory(user_id=user_id)
             if inventory is not None:
                 inventory_info = "Your current inventory consists on:\\n"
                 for output in inventory:
                     inventory_info += "\\t-> There are " + str(output[1]) + " of " + cima.get_med_name(str(output[0])) + " which expire on " + datetime.datetime.strftime(output[2],
                                                                                          "%Y-%m-%d")
             response = self.bot_parser(user_id=user_id,
-                                       function="INVENTORY") + '"history" : "' + inventory_info + '"}}'
+                                       function="INVENTORY") + '"inventory" : "' + inventory_info + '"}}'
             self.logger.info(response)
             return response
 
