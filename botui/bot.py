@@ -33,12 +33,13 @@ TOKEN_TEST = '877926240:AAEuBzlNaqYM_kXbOMxs9lzhFsR7UpoqKWQ'
 TOKEN_PILLDORA = '938652990:AAETGF-Xh2_njSdCLn2KibcprZXH1hhqsiI'
 
 # STATES OF THE APP
-LOGIN, NEW_USER, CHOOSING, INTR_PRESCRIPTION, INTR_MEDICINE, SHOW_INFORMATION, CHECK_PRE, CHECK_MED,  GET_CN, CHECK_REM, JOURNEY, END = range(12)
+LOGIN, NEW_USER, CHOOSING, INTR_PRESCRIPTION, INTR_MEDICINE, SHOW_INFORMATION, CHECK_PRE, CHECK_MED, GET_CN, CHECK_REM, JOURNEY, END = range(
+    12)
 
 # FUNCTIONS FOR COMMUNICATING WITH DATA BASE
 QUERIES = ['CHECK USER', 'CHECK PASSWORD', 'NEW PASSWORD', 'INTRODUCE PRESCRIPTION', 'INTRODUCE MEDICINE',
            'TASKS CALENDAR', 'CURRENT TREATMENT', 'JOURNEY', 'HISTORY', 'INVENTORY'
-           'GET REMINDER', 'DELETE REMINDER']
+                                                                        'GET REMINDER', 'DELETE REMINDER']
 
 # MANAGE WHOLE INFORMATION
 aide_bot = {}
@@ -50,8 +51,8 @@ INTR_PRESCRIPTION_MSSGS = ["What is the medicine's name (CN)?\nYou can also send
                            "Which day does treatment end?"]
 PRESCRIPTION_TAGS = ['NAME', 'QUANTITY', 'FREQUENCY', 'END_DATE']
 
-INTR_MEDICINE_MSSGS=["What is the medicine's name (CN)?\nYou can also send me a photo of the package!",
-                     "How many pills are contained in the box?", "When does the medicine expire?"]
+INTR_MEDICINE_MSSGS = ["What is the medicine's name (CN)?\nYou can also send me a photo of the package!",
+                       "How many pills are contained in the box?", "When does the medicine expire?"]
 MEDICINE_TAGS = ['NAME', 'QUANTITY', 'EXP_DATE']
 # KEYBOARD AND MARKUPS
 reply_keyboard = [
@@ -81,6 +82,9 @@ class PillDora:
     def get_states(self, user_id):
         return aide_bot[user_id]['states']
 
+    def in_end(self, user_id):
+        return aide_bot[user_id]['states'][0] == END
+
     # Returns the last prescription associated for a specific user_id
     def get_prescription(self, user_id):
         return aide_bot[user_id]['prescription']
@@ -96,6 +100,7 @@ class PillDora:
     # Insertion of a medicine for a specific user_id
     def set_medicine(self, user_id, num, text):
         aide_bot[user_id]['medicine'][MEDICINE_TAGS[num]] = text
+
     # Returns the dates on a journey for a specific user_id
     def get_dates(self, user_id):
         return aide_bot[user_id]['journey']
@@ -384,7 +389,8 @@ class PillDora:
                                      text='Is the medicine correctly introduced? ', reply_markup=yes_no_markup)
             context.bot.send_message(chat_id=user_id,
                                      text=self.show_medicine(user_id))
-            self.set_query(user_id, list(self.get_prescription(user_id).keys()), list(self.get_prescription(user_id).values()))
+            self.set_query(user_id, list(self.get_prescription(user_id).keys()),
+                           list(self.get_prescription(user_id).values()))
             self.set_function(user_id, 'INTRODUCE PRESCRIPTION')
             return self.set_state(user_id, CHECK_PRE)
 
@@ -426,7 +432,7 @@ class PillDora:
                 medicine_string += tag + ': ' + self.get_prescription(user_id)[tag] + '\n'
         '''
         med_param = lambda x: cima.get_med_name(self.get_prescription(user_id)[x]).split(' ')[0] if x == 'NAME' else \
-        self.get_prescription(user_id)[x]
+            self.get_prescription(user_id)[x]
         return '\n'.join(f"{tag}: {med_param(tag)}" for tag in PRESCRIPTION_TAGS)
 
     @run_async
@@ -507,11 +513,10 @@ class PillDora:
                 "An error has occurred, please repeat the photo or manually introduce the CN")
             return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
         else:
-            info=cima.get_info_about(medicine_cn)
-            name=cima.get_med_name(medicine_cn)
-            update.message.reply_text("Information about medicine "+name+":\n\t"+ info)
+            info = cima.get_info_about(medicine_cn)
+            name = cima.get_med_name(medicine_cn)
+            update.message.reply_text("Information about medicine " + name + ":\n\t" + info)
             return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
-
 
     @run_async
     def see_calendar(self, update, context):
@@ -610,6 +615,7 @@ class PillDora:
             "To sum up, your inventory consists on:\n" + response['parameters']['inventory'])
         self.set_query(user_id, ["None"], ["None"])
         return self.manage_response(update, context)
+
     @run_async
     # Deletes a reminder using a CN for a certain user_id
     def delete_reminder(self, update, context):
@@ -632,7 +638,8 @@ class PillDora:
             update.message.reply_text("Is there any other way I can help you?", reply_markup=markup)
             return self.set_state(user_id, CHOOSING)
         reminder_info = "Medicine " + cima.get_med_name(response['parameters']['CN']) + " taken with a frequency of " + \
-                        response['parameters']['frequency'] + " hours until the date of " + response['parameters']['end_date'] + "."
+                        response['parameters']['frequency'] + " hours until the date of " + response['parameters'][
+                            'end_date'] + "."
         update.message.reply_text('Reminder asked to be removed:\n ->\t' + reminder_info)
         update.message.reply_text('Is this the reminder you want to remove? ', reply_markup=yes_no_markup)
         self.set_query(user_id, ["CN"], [response['parameters']['CN']])
@@ -680,7 +687,7 @@ class PillDora:
     def exit(self, update, context):
         update.message.reply_text("See you next time")
         logger.info('User ' + self.get_name(update.message.from_user) + ' finish with AideBot')
-        return END
+        return self.set_state(update.message.chat_id, END)
 
     # Main of the Client.py, where the bot is activated and creates the transition to the different functionalities
 
@@ -718,7 +725,7 @@ class PillDora:
                            ],
                 INTR_PRESCRIPTION: [MessageHandler(Filters.text | Filters.photo, self.send_new_prescription)],
                 INTR_MEDICINE: [MessageHandler(Filters.text | Filters.photo, self.send_new_medicine)],
-                SHOW_INFORMATION: [MessageHandler(Filters.text , self.show_infoAbout)],
+                SHOW_INFORMATION: [MessageHandler(Filters.text, self.show_infoAbout)],
                 CHECK_PRE: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
                             MessageHandler(Filters.regex('^NO$'), self.intr_prescription)
                             ],
@@ -731,7 +738,10 @@ class PillDora:
                 GET_CN: [MessageHandler(Filters.text, self.get_medicine_CN)],
                 JOURNEY: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
                           MessageHandler(Filters.regex('^NO$'), self.create_journey)
-                          ]
+                          ],
+                END: [MessageHandler(Filters.regex('^YES$'), self.intr_history_yes),
+                      MessageHandler(Filters.regex('^NO$'), self.intr_history_no)
+                      ]
             },
             fallbacks=[MessageHandler(Filters.regex('^Exit$'), self.exit)]
         )
