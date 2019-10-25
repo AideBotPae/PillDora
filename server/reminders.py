@@ -2,6 +2,7 @@ from server.database import Database
 import datetime
 import schedule
 import time
+import telegram
 
 
 
@@ -23,7 +24,8 @@ class Reminder:
 
     # Delete all reminders which has expired by end_date < today
     def test(self):
-        self.pilldora.show_current_aidebot_status()
+        bot = telegram.Bot('877926240:AAEuBzlNaqYM_kXbOMxs9lzhFsR7UpoqKWQ')
+        self.pilldora.show_current_aidebot_status(bot)
 
     def checking_expirations(self):
         with Database() as db:
