@@ -388,7 +388,7 @@ class PillDora:
         self.set_counter(user_id, self.get_counter(user_id) + 1)
         logger.info(self.get_prescription(user_id))
         if self.get_counter(user_id) != len(INTR_PRESCRIPTION_MSSGS):
-            if (self.get_counter(user_id) < 2):
+            if self.get_counter(user_id) < 3:
                 update.message.reply_text(INTR_PRESCRIPTION_MSSGS[self.get_counter(user_id)])
                 return INTR_PRESCRIPTION
             else:
