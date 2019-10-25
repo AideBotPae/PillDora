@@ -163,6 +163,15 @@ class ServerWorker:
             self.logger.info(response)
             return response
 
+            # THE USER ASKS TO INTRODUCE HISTORY OF PILLS TAKEN
+        elif instruction == "INTRODUCE HISTORY":
+            user_id = parsed_string["parameters"]["user_id"]
+            history = self.checker.intr_to_history(user_id=user_id, query_parsed=parsed_string["parameters"])
+            response = self.bot_parser(user_id=user_id,
+                                       function="INTRODUCE HISTORY") + '"boolean" : "' + history + '"}}'
+            self.logger.info(response)
+            return response
+
             # THE USER ASKS FOR THE HISTORY OF PILLS TAKEN
         elif instruction == "INVENTORY":
             user_id = parsed_string["parameters"]["user_id"]
