@@ -118,7 +118,8 @@ class ServerWorker:
             if calendar_output is not None:
                 journey_info = "Reminders:\\n"
                 for output in calendar_output:
-                    journey_info += "\\t-> " + cima.get_med_name(str(output[0])) + " : " + str(output[1]) + "\\n"
+                    time=str(output[1]).split(',')[1] if len(str(output[1]).split(','))==2 else str(output[1])
+                    journey_info += "\\t-> " + cima.get_med_name(str(output[0])) + " : " + time + "\\n"
             response = self.bot_parser(user_id, "TASKS CALENDAR") + '"tasks" : "' + journey_info + '"}}'
             self.logger.info(response)
             return response
@@ -140,7 +141,7 @@ class ServerWorker:
             if current_treatment is not ():
                 current_treatment_info = "Meds currently being taken :\\n"
                 for output in current_treatment:
-                    current_treatment_info += "\\t-> Taking  " + cima.get_med_name(str(output[0])) + " until the date of " + str(output[1]).split()[0] + "\\n"
+                    current_treatment_info += "\\t-> Taking " + cima.get_med_name(str(output[0])) + " until the date of " + str(output[1]).split()[0] + "\\n"
             else:
                 current_treatment_info="False"
             response = self.bot_parser(user_id=user_id,
