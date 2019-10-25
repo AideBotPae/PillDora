@@ -184,6 +184,8 @@ class ServerWorker:
                     print(output)
                     inventory_info += "\\t-> There are " + str(output[1]) + " of " + cima.get_med_name(str(output[0])) + " which expire on " + datetime.datetime.strftime(output[2],
                                                                                          "%Y-%m-%d")
+            else:
+                inventory_info="False"
             response = self.bot_parser(user_id=user_id,
                                        function="INVENTORY") + '"inventory" : "' + inventory_info + '"}}'
             self.logger.info(response)
