@@ -60,7 +60,7 @@ INTR_MEDICINE_MSSGS = ["What is the medicine's name (CN)?\nYou can also send me 
 MEDICINE_TAGS = ['NAME', 'QUANTITY', 'EXP_DATE']
 # KEYBOARD AND MARKUPS
 reply_keyboard = [
-    [u'Introduce Prescription \U0001F4C3', u'Introduce Medicine \U0001F48A', u'Delete reminder \U0001F514'],
+    [u'New Prescription \U0001F4C3', u'New Medicine \U0001F48A', u'Delete reminder \U0001F514'],
     [u'History \U0001F4D6', u'Inventory \U00002696', u'Current Treatments \U0001F3E5'],
     [u'Journey \U0000270D', u'Calendar \U0001F4C6'],
     [u'Show Information \U0001F4AC', u'Exit \U0001F6AA']]
@@ -318,15 +318,21 @@ class PillDora:
                     logger.info("Medicine correctly introduced")
                 elif response['parameters']["Code"] == "1":
                     logger.info("Medicine already in the database with different frequencies. PROBLEM")
+                    update.message.reply_text("There is already a prescription of same med that has not expire yet. Different frequencies")
+                    update.message.reply_text("In order to introduce this new prescription, please first delete the other reminder.")
                 elif response['parameters']["Code"] == "2":
                     logger.info("Medicine already in the database with same frequencies. NO PROBLEM")
+                    update.message.reply_text("There is already a prescription of same med with same frequencies")
+                if response['parameters']['inventory'] == "None":
+                    update.message.reply_text("In your inventory we do not have any of this medicine. Please 'Introduce Medicine' after getting the med")
+                elif response['parameters']['inventory'] == "Enough":
+                    update.message.reply_text("In your inventory there is enough of this medicine for this whole treatment. No need to buy it.")
+                elif response['parameters']['inventory'] == "Need to buy":
+                    update.message.reply_text("In your inventory there is some of this medicine but not enough for the whole treatment. Need to buy it.")
+
             if response['function'] == 'INTRODUCE MEDICINE':
                 if response['parameters']["Code"] == "0":
                     logger.info("Medicine correctly introduced")
-                elif response['parameters']["Code"] == "1":
-                    logger.info("Medicine already in the database with different frequencies. PROBLEM")
-                elif response['parameters']["Code"] == "2":
-                    logger.info("Medicine already in the database with same frequencies. NO PROBLEM")
             if response['function'] == "DELETE REMINDER":
                 if response['parameters']:
                     logger.info("Medicine correctly deleted")
@@ -752,7 +758,7 @@ class PillDora:
 
     def show_current_aidebot_status(self, bot):
         user_id = str(821061948)
-        info=self.get_states(user_id)[0]
+        info="HEy"
         bot.send_message(chat_id=user_id,
                                  text="*_`" + info + "`_*\n",
                                  parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=yes_no_markup)
@@ -771,9 +777,9 @@ class PillDora:
             states={
                 LOGIN: [MessageHandler(Filters.text, self.intr_pwd)],
                 NEW_USER: [MessageHandler(Filters.text, self.new_user)],
-                CHOOSING: [MessageHandler(Filters.regex('^Introduce Prescription'),
+                CHOOSING: [MessageHandler(Filters.regex('^New Prescription'),
                                           self.intr_prescription),
-                           MessageHandler(Filters.regex('^Introduce Medicine'),
+                           MessageHandler(Filters.regex('^New Medicine'),
                                           self.intr_medicine),
                            MessageHandler(Filters.regex('^Calendar'),
                                           self.see_calendar),
