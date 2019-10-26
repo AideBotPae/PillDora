@@ -289,13 +289,14 @@ class DBMethods:
                             WHERE national_code >= '{cn}' and user_id={id}
                             '''.format(cn=cn, id=user_id))
             exp_date = datetime.datetime.strftime(data[0][0], "%Y-%m-%d")
+            
             #get the quantity that is taken in each reminder
             data = db.query('''SELECT quantity
                             FROM aidebot.receipts 
                             WHERE national_code >= '{cn}' and user_id={id}
                             '''.format(cn=cn, id=user_id))
-
             quantity=data[0][0]
+            #substract quantity to med that expires earlier
             db.execute(
                 '''UPDATE aidebot.inventory SET num_of_pills=num_of_pills-{quantity} where user_id={id} and expiracy_date='{exp_date}' and national_code ={cn}'''.format(
                     cn=cn, id=user_id, exp_date=exp_date, quantity=quantity))
