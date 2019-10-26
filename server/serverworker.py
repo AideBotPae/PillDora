@@ -89,7 +89,7 @@ class ServerWorker:
                     total_in_inventory += values[1]
                 days_between=(datetime.datetime.strptime(parsed_string["parameters"]["END_DATE"], "%Y-%m-%d") -datetime.datetime.now()).days
                 total_needed=int(parsed_string["parameters"]["QUANTITY"])*24/int(parsed_string["parameters"]["FREQUENCY"])*days_between
-                self.logger.info("Days between: "+ days_between+ "\t total_in_inv="+ str(total_in_inventory) +"\ttotal needed= "+ str(total_needed))
+                self.logger.info("Days between: "+ str(days_between)+ "\t total_in_inv="+ str(total_in_inventory) +"\ttotal needed= "+ str(total_needed))
 
                 if total_in_inventory>=total_needed:
                     param += ',"inventory":"Enough"'
