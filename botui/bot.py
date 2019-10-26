@@ -62,7 +62,7 @@ MEDICINE_TAGS = ['NAME', 'QUANTITY', 'EXP_DATE']
 reply_keyboard = [
     [u'New Prescription \U0001F4C3', u'New Medicine \U0001F48A'],
     [u'Current Treatments \U0001F3E5', u'Delete reminder \U0001F514'],
-    [u'History \U0001F4D6', u'Inventory \U00002696', u'Show Information \U0001F4AC'],
+    [u'History \U0001F4D6', u'Inventory \U00002696', u'Information \U0001F4AC'],
     [u'Journey \U0000270D', u'Calendar \U0001F4C6',  u'Exit \U0001F6AA']]
 yes_no_reply_keyboard = [['YES', 'NO']]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
@@ -789,7 +789,7 @@ class PillDora:
                                           self.see_history),
                            MessageHandler(Filters.regex('^Inventory'),
                                           self.see_inventory),
-                           MessageHandler(Filters.regex('^Show Information'),
+                           MessageHandler(Filters.regex('^Information'),
                                           self.show_information),
                            MessageHandler(Filters.regex('^Delete reminder'),
                                           self.delete_reminder),
