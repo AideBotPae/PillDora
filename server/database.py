@@ -289,7 +289,7 @@ class DBMethods:
                             WHERE national_code >= '{cn}' and user_id={id}
                             '''.format(cn=cn, id=user_id))
             exp_date = datetime.datetime.strftime(data[0][0], "%Y-%m-%d")
-            
+
             #get the quantity that is taken in each reminder
             data = db.query('''SELECT quantity
                             FROM aidebot.receipts 
@@ -303,4 +303,3 @@ class DBMethods:
 
 if __name__ == "__main__":
     checker = DBMethods()
-    checker.reminder_taken(user_id=821061948, cn=798116)
