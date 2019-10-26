@@ -288,8 +288,7 @@ class DBMethods:
                             FROM aidebot.inventory 
                             WHERE national_code >= '{cn}' and user_id={id}
                             '''.format(cn=cn, id=user_id))
-            exp_date = data[0][0].split()[0]
-
+            exp_date = datetime.datetime.strftime(data[0][0], "%Y-%m-%d")
             #get the quantity that is taken in each reminder
             data = db.query('''SELECT quantity
                             FROM aidebot.receipts 
