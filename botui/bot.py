@@ -1,257 +1,831 @@
-from server.database import DBMethods
-import server.cima as cima
+# !/usr/bin/env
+# -*- coding: utf-8 -*-
+#
+# Simple Bot to reply to Telegram messages
+"""
+Send /start to initiate the conversation.
+Press Ctrl-C on the command line or send a signal to the process to stop the
+bot.
+"""
 import json
-import datetime
 import logging
+import re
+
+import requests
+import telegram
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler
+from telegram.ext.dispatcher import run_async
+from telegram.replykeyboardmarkup import ReplyKeyboardMarkup
+from telegram.replykeyboardremove import ReplyKeyboardRemove
+from threading import Event
+
+import botui.telegramcalendar as telegramcalendar
+from server.serverworker import ServerWorker
+import server.cima as cima
+from imagerecognition.ocr.ocr import TextRecognition
+
+# LOG INFORMATION
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger('AideBot')
+
+# TOKENS FOR THE TELEGRAM BOT
+TOKEN_PROVE = '877926240:AAEuBzlNaqYM_kXbOMxs9lzhFsR7UpoqKWQ'
+TOKEN_AIDEBOT = '902984072:AAFd0KLLAinZIrGhQvVePQwBt3WJ1QQQDGs'
+TOKEN_PILLDORA = '938652990:AAETGF-Xh2_njSdCLn2KibcprZXH1hhqsiI'
+
+# STATES OF THE APP
+LOGIN, NEW_USER, CHOOSING, INTR_PRESCRIPTION, INTR_MEDICINE, SHOW_INFORMATION, CHECK_PRE, CHECK_MED, GET_CN, CHECK_REM, JOURNEY, END, REMINDERS = range(
+    13)
+
+# FUNCTIONS FOR COMMUNICATING WITH DATA BASE
+QUERIES = ['CHECK USER', 'CHECK PASSWORD', 'NEW PASSWORD', 'INTRODUCE PRESCRIPTION', 'INTRODUCE MEDICINE',
+           'TASKS CALENDAR', 'CURRENT TREATMENT', 'JOURNEY', 'HISTORY', 'INVENTORY'
+                                                                        'GET REMINDER', 'DELETE REMINDER']
+
+# MANAGE WHOLE INFORMATION
+aide_bot = {}
+
+# MANAGE THREADS STATES SYNCHRONICITY
+event = Event()
+
+# TAGS TO MANAGE INTRODUCING MEDICINES
+INTR_PRESCRIPTION_MSSGS = ["What is the medicine's name (CN)?\nYou can also send me a photo of the package!",
+                           "How many pills do you have to take each time?",
+                           "How often do you take your pill (in hours)?",
+                           "Which day does treatment end?"]
+PRESCRIPTION_TAGS = ['NAME', 'QUANTITY', 'FREQUENCY', 'END_DATE']
+
+INTR_MEDICINE_MSSGS = ["What is the medicine's name (CN)?\nYou can also send me a photo of the package!",
+                       "How many pills are contained in the box?", "When does the medicine expire?"]
+MEDICINE_TAGS = ['NAME', 'QUANTITY', 'EXP_DATE']
+# KEYBOARD AND MARKUPS
+reply_keyboard = [
+    [u'New Prescription \U0001F4C3', u'New Medicine \U0001F48A'],
+    [u'Current Treatments \U0001F3E5', u'Delete reminder \U0001F514'],
+    [u'History \U0001F4D6', u'Inventory \U00002696', u'Show Information \U0001F4AC'],
+    [u'Journey \U0000270D', u'Calendar \U0001F4C6',  u'Exit \U0001F6AA']]
+yes_no_reply_keyboard = [['YES', 'NO']]
+markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
+yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 
 
-class Reminder(object):
-    def __init__(self, user_id, medicine, hour_of_pill):
-        self.user_id = user_id
-        self.cn = medicine["NATIONAL_CODE"]
-        self.hour = hour_of_pill
+class PillDora:
+    """
+    Telegram bot that serves as an aide to the clients of the product. It has a set of features that help customers
+    to remember to take their pills (how many and when) and manages the customer's receipts and meds provisions.
+    """
 
+    # GETTERS AND SETTERS TO EASY FUNCTIONS
+    def set_state(self, user_id, state):
+        aide_bot[user_id]['states'][1] = aide_bot[user_id]['states'][0]
+        aide_bot[user_id]['states'][0] = state
+        return state
 
-class ServerWorker:
+    # Returns the state of the bot for a specific user_id
 
-    def __init__(self, user_id):
-        self.user_id = user_id
-        self.localhost = "localhost"
-        self.port = 8080
-        self.checker = DBMethods()
-        self.logger = logging.getLogger('ServerWorker')
+    def get_states(self, user_id):
+        return aide_bot[user_id]['states']
 
-    def connectClient(self):
-        # CONNECTION OF THE SERVER WORKER WITH THE MYSQL DATABASE
-        self.checker = DBMethods()
+    def in_end(self, user_id):
+        return aide_bot[user_id]['states'][0] == END
 
-    def handler_query(self, query):
-        parsed_string = json.loads(query)
-        instruction = parsed_string["function"]
-        # CHECKING IF THERE IS ANY USER WITH A CERTAIN USER_ID
-        if instruction == "CHECK USER":
-            user_id = parsed_string["parameters"]["user_id"]
-            print(user_id)
-            user_correct = self.checker.check_user(user_id=user_id)
-            response = self.bot_parser(user_id=user_id, function="CHECK USER") + ' "boolean": "' + str(
-                user_correct) + '"}}'
-            self.logger.info(response)
-            return response
-        # CHECKING IF THE USER IS INTRODUCING THE CORRECT PASSWORD
-        elif instruction == "CHECK PASSWORD":
-            user_id = parsed_string["user_id"]
-            password = parsed_string["parameters"]["password"]
-            pwd_correct = self.checker.check_password(user_id=user_id, password=password)
-            response = self.bot_parser(user_id=user_id, function="CHECK PASSWORD") + ' "boolean": "' + str(
-                pwd_correct) + '"}}'
-            self.logger.info(response)
-            return response
-        # ADDING A NEW USER
-        elif instruction == "NEW PASSWORD":
-            new_user = parsed_string["user_id"]
-            new_password = parsed_string["parameters"]["new_password"]
-            user_added = self.checker.add_user(new_user=new_user, new_password=new_password)
-            while not user_added:
-                user_added = self.checker.add_user(new_user=new_user, new_password=new_password)
-            response = self.bot_parser(user_id=new_user, function="NEW PASSWORD") + ' "boolean": "' + str(
-                user_added) + '"}}'
-            self.logger.info(response)
-            return response
-        # INTRODUCING NEW PRESCRIPTION
-        elif instruction == "INTRODUCE PRESCRIPTION":
-            user_id = parsed_string["user_id"]
-            national_code = parsed_string["parameters"]["NAME"]
-            is_there = self.checker.check_receipt(user_id=user_id, cn=national_code)
-            param = ""
-            if not is_there:
-                #No more prescriptions with same CN
-                self.checker.introd_receipt(user_id=user_id, query_parsed=parsed_string["parameters"],
-                                            date=datetime.date.today().strftime("%Y-%m-%d"))
-                param = ' "Code": "0"'
+    def set_reminder(self, user_id, cn, time):
+        aide_bot[user_id]['reminder']['cn'] == cn
+        aide_bot[user_id]['reminder']['time'] == time
 
-            elif not self.checker.check_medicine_frequency(user_id=user_id, cn=national_code,
-                                                           freq=parsed_string["parameters"]["FREQUENCY"]):
-                #Another prescriptions with same CN different frequency
-                param = '"Code": "1" , "freq_database" : "' + str(self.checker.get_medicine_frequency(user_id=user_id,
-                            cn=national_code)) + '", "freq_introduced" : "' + str(parsed_string["parameters"]["FREQUENCY"]) + '"'
+    def get_reminder(self, user_id):
+        return aide_bot[user_id]['reminder']
 
-            else:
-                #Same prescriptions already in DB
-                param = '"Code" : "2"'
+    # Returns the last prescription associated for a specific user_id
+    def get_prescription(self, user_id):
+        return aide_bot[user_id]['prescription']
 
-            data = self.checker.get_cn_from_inventory(user_id=user_id, cn=national_code)
-            if data is ():
-                #User does not have this medicine in its DB inventory
-                param += ',"inventory":"None"'
-            else:
-                total_in_inventory = 0
-                for values in data:
-                    total_in_inventory += values[1]
-                days_between=(datetime.datetime.strptime(parsed_string["parameters"]["END_DATE"], "%Y-%m-%d") -datetime.datetime.now()).days
-                total_needed=parsed_string["parameters"]["QUANTITY"]*24/parsed_string["parameters"]["FREQUENCY"]*days_between
-                if total_in_inventory>=total_needed:
-                    param += ',"inventory":"Enough"'
+    # Insertion of a prescription for a specific user_id
+    def set_prescription(self, user_id, num, text):
+        aide_bot[user_id]['prescription'][PRESCRIPTION_TAGS[num]] = text
+
+    # Returns the last medicine associated for a specific user_id
+    def get_medicine(self, user_id):
+        return aide_bot[user_id]['medicine']
+
+    # Insertion of a medicine for a specific user_id
+    def set_medicine(self, user_id, num, text):
+        aide_bot[user_id]['medicine'][MEDICINE_TAGS[num]] = text
+
+    # Returns the dates on a journey for a specific user_id
+    def get_dates(self, user_id):
+        return aide_bot[user_id]['journey']
+
+    # Insertion of the date of a journey depending on the text, it is the departure or return for a specific user_id
+    def set_dates(self, user_id, text, date):
+        if text == "departure":
+            aide_bot[user_id]['journey'][0] = date
+        else:
+            aide_bot[user_id]['journey'][1] = date
+
+    # Insertion of the number of medicines associated to a medicine for a specific user_id
+    def set_counter(self, user_id, num):
+        aide_bot[user_id]['intr_prescription_counter'] = num
+
+    # Returns the number of medicines associated to a medicine for a specific user_id
+    def get_counter(self, user_id):
+        return aide_bot[user_id]['intr_prescription_counter']
+
+    # Insertion of the query that the Client sends to the ServerWorker for a specific user_id
+    def set_query(self, user_id, keys, values):
+        # We use a dictionary for the parameters of the query on the JSON string
+        parameters = {}
+        for key in keys:
+            parameters[key] = values[keys.index(key)]
+        aide_bot[user_id]['query'] = parameters
+
+    # Returns the query that that the Client sends to the ServerWorker for a specific user_id
+    def get_query(self, user_id):
+        return aide_bot[user_id]['query']
+
+    # Insertion of the function that the bot is currently on for a specific user_id
+    def set_function(self, user_id, text):
+        aide_bot[user_id]['function'] = text
+
+    # Returns the function that the bot is doing for a specific user_id
+    def get_function(self, user_id):
+        return aide_bot[user_id]['function']
+
+    def send_query(self, user_id, query):
+        """Sends the query to the ServerWorker and returns the JSON query response.
+
+        :param user_id: User unique identifier (login)
+        :param query: Query to be send to the ServerWorker
+        :return: the response to the query from sever
+        """
+        return aide_bot[user_id]['serverworker'].handler_query(query)
+
+    def create_query(self, user_id):
+        """Creates a JSON from the parameters that we have introduced using the Getters and Setters
+
+        :param user_id: User unique identifier (login)
+        :return: query string generated
+        """
+        # We create a pseudo-class to have a template for the JSON
+        query = {
+            'user_id': user_id,
+            'function': self.get_function(user_id),
+            'parameters': self.get_query(user_id)
+        }
+        query = json.dumps(query)
+        logger.info(query)
+        return query
+
+    def start(self, update, context):
+        """Manages /start command initializing a new aide_bot dictionary for the new user. It also manaages a login.
+
+        :param update: Updater for bot token
+        :param context: Handler context
+        :return: the new state to be on
+        """
+        user_id = update.message.from_user.id
+        name = self.get_name(update.message.from_user)
+        aide_bot[user_id] = {'states': [LOGIN, LOGIN], 'intr_prescription_counter': 0,
+                             'prescription': {tag: '' for tag in PRESCRIPTION_TAGS},
+                             'medicine': {tag: '' for tag in MEDICINE_TAGS},
+                             'journey': ['None', 'None'],
+                             'function': 'none', 'query': {},
+                             'reminder': {'cn': "None", 'time':'None'},
+                             'serverworker': ServerWorker(user_id)}
+        logger.info('User ' + name + ' has connected to AideBot: ID is ' + str(user_id))
+        context.bot.send_message(chat_id=user_id, text=("Welcome " + name + " ! My name is AideBot"))
+
+        if self.user_verification(user_id) == "True":
+            update.message.reply_text("Enter your password in order to get Assistance:")
+            return self.set_state(user_id, LOGIN)
+        else:
+            context.bot.send_message(chat_id=update.message.chat_id,
+                                     text=("Welcome to the HealthCare Assistant AideBot!\n"
+                                           "Enter new password for creating your account:"))
+        return self.set_state(user_id, NEW_USER)
+
+    def get_name(self, user):
+        """Resolve message data to a readable name.
+
+        :param user: User identifier
+        :return: first name of the user
+        """
+        try:
+            name = user.first_name
+        except (NameError, AttributeError):
+            logger.info("No username or first name.. wtf")
+            return ""
+        return name
+
+    def user_verification(self, user_id):
+        """Verification of the UserID, if he has account or if it is first visit in AideBot
+
+        :param user_id: User unique identifier
+        :return: a boolean indicating whether the user is registered or not
+        """
+        self.set_function(user_id, 'CHECK USER')
+        self.set_query(user_id, ["user_id"], [str(user_id)])
+        query = self.create_query(user_id)
+        response = self.send_query(user_id, query)
+        return json.loads(response)["parameters"]["boolean"]
+
+    def pwd_verification(self, password, user_id):
+        """ Verification of the password for a UserID in DataBase
+
+        :param password: Password introduced by the user
+        :param user_id: User unique identifier
+        :return: whether the password is the correct one or not
+        """
+        self.set_function(user_id, 'CHECK PASSWORD')
+        self.set_query(user_id, ['password'], [password])
+        query = self.create_query(user_id)
+        response = self.send_query(user_id, query)
+        return json.loads(response)["parameters"]["boolean"]
+
+    @run_async
+    def intr_pwd(self, update, context):
+        """Method used to ask and introduce a password to check the identity of the user
+
+        :param update: Updater for bot token
+        :param context: Handler's context
+        :return: the new state to be on (LOGIN if fails, CHOOSING if succeeds)
+        """
+        password = update.message.text
+        logger.info('Password for user ' + self.get_name(update.message.from_user) + ' is ' + password)
+        if self.pwd_verification(password, update.message.from_user.id) == "False":
+            update.message.reply_text("Wrong Password. Enter correct password again:")
+            return self.set_state(update.message.from_user.id, LOGIN)
+        update.message.reply_text('Welcome ' + self.get_name(update.message.from_user) + '. How can I help you?',
+                                  reply_markup=markup)
+        return self.set_state(update.message.from_user.id, CHOOSING)
+
+    @run_async
+    def new_user(self, update, context):
+        """ Function used to create user account --> associates a UserID with a new password
+
+        :param update: Updater for bot token
+        :param context: Handler's context
+        :return: the new state to be on (NEW_USER if fails, CHOOSING if succeeds)
+        """
+        password = update.message.text
+        logger.info('User introduced new password:  ' + password)
+        user_id = update.message.from_user.id
+
+        # Check for password difficulty:
+        i = 0
+        if re.search("[a-z]", password):
+            i = i + 1
+        if re.search("[0-9]", password):
+            i = i + 1
+        if re.search("[A-Z]", password):
+            i = i + 1
+        if re.search("[$#@]", password):
+            i = i + 1
+        if re.search("\s", password):
+            i = 0
+        if len(password) < 6 or len(password) > 12:
+            i = 0
+
+        if i > 2:
+            update.message.reply_text("Valid Password")
+            # Introduce new UserID-Password to DataBase
+            self.set_function(user_id, 'NEW PASSWORD')
+            self.set_query(user_id, ["new_password"], [password])
+            query = self.create_query(user_id)
+            self.send_query(user_id, query)
+            update.message.reply_text('Welcome ' + self.get_name(update.message.from_user) + '. How can I help you?',
+                                      reply_markup=markup)
+            return self.set_state(update.message.from_user.id, CHOOSING)
+
+        update.message.reply_text(
+            "Not a Valid Password. Enter Password with 6 to 12 characters and minimum 3 of these types of characters: "
+            "uppercase, lowercase, number and $, # or @")
+        return self.set_state(update.message.from_user.id, NEW_USER)
+
+    def manage_response(self, update, context):
+        """Sends a query and gets the response, deciding what to do depending on the response 'function' field
+
+        :param update: Updater for bot token
+        :param context: Handler's context
+        :return: state CHOOSING
+        """
+        user_id = update.message.from_user.id
+        if (self.get_query(user_id) != "None") and (self.get_query(user_id) != {"None": "None"}):
+            query = self.create_query(user_id)
+            response = json.loads(self.send_query(user_id, query))
+            if response['function'] == 'INTRODUCE PRESCRIPTION':
+                if response['parameters']["Code"] == "0":
+                    logger.info("Medicine correctly introduced")
+                elif response['parameters']["Code"] == "1":
+                    logger.info("Medicine already in the database with different frequencies. PROBLEM")
+                    update.message.reply_text("There is already a prescription of same med that has not expire yet. Different frequencies")
+                    update.message.reply_text("In order to introduce this new prescription, please first delete the other reminder.")
+                elif response['parameters']["Code"] == "2":
+                    logger.info("Medicine already in the database with same frequencies. NO PROBLEM")
+                    update.message.reply_text("There is already a prescription of same med with same frequencies")
+                if response['parameters']['inventory'] == "None":
+                    update.message.reply_text("In your inventory we do not have any of this medicine. Please 'Introduce Medicine' after getting the med")
+                elif response['parameters']['inventory'] == "Enough":
+                    update.message.reply_text("In your inventory there is enough of this medicine for this whole treatment. No need to buy it.")
+                elif response['parameters']['inventory'] == "Need to buy":
+                    update.message.reply_text("In your inventory there is some of this medicine but not enough for the whole treatment. Need to buy it.")
+
+            if response['function'] == 'INTRODUCE MEDICINE':
+                if response['parameters']["Code"] == "0":
+                    logger.info("Medicine correctly introduced")
+            if response['function'] == "DELETE REMINDER":
+                if response['parameters']:
+                    logger.info("Medicine correctly deleted")
                 else:
-                    param+=',"inventory":"Need to buy"'
-            response = self.bot_parser(user_id=user_id, function="INTRODUCE PRESCRIPTION") + param + '}}'
-            self.logger.info(response)
-            return response
+                    logger.info("Medicine not deleted as did not exist in the database")
+                    update.message.reply_text("Medicine introduced did not exist in your current Treatment.")
+                    self.delete_reminder()
+                    return self.set_state(update.message.from_user.id, CHOOSING)
+            if response['function'] == "JOURNEY":
+                logger.info("Medicines to take during journey correctly retrieved")
+                update.message.reply_text(
+                    "Medicines to take during journey:\n" + response['parameters']["journey_info"])
 
-        # INTRODUCING NEW MEDICINE BOUGHT:
-        elif instruction == "INTRODUCE MEDICINE":
-            user_id = parsed_string["user_id"]
-            national_code = parsed_string["parameters"]["NAME"]
-            self.checker.intr_inventory(user_id=user_id, query_parsed=parsed_string["parameters"])
-            response = self.bot_parser(user_id=user_id, function="INTRODUCE MEDICINE") + """ "Code": "0"}}"""
-            self.logger.info(response)
-            return response
+        self.set_query(user_id, ["None"], ["None"])
+        self.set_function(user_id, "None")
+        logger.info('User ' + self.get_name(update.message.from_user) + ' in the menu')
+        update.message.reply_text("Is there any other way I can help you?", reply_markup=markup)
+        return self.set_state(update.message.from_user.id, CHOOSING)
 
-        # THE USER WANTS TO PLAN A JOURNEY
-        elif instruction == "JOURNEY":
-            # WE OUTPUT A SERIES OF ACTIONS TO BE DONE FROM A LEAVING DATE TO THE DEPARTURE ONE
-            [user_id, begin, end] = [parsed_string["user_id"], parsed_string["parameters"]["departure_date"],
-                                     parsed_string["parameters"]["arrival_date"]]
-            # IF THE BEGINNING DAT AND THE END DATE CONFLICTS, THE METHOD WILL RETURN A NULL CALENDAR OUTPUT
-            calendar_output = self.checker.get_reminders(user_id=user_id, date=begin, to_date=end)
-            if calendar_output is None:
-                journey_info = "Quantity of meds to take:\\n"
-                for output in list(calendar_output.keys()):
-                    journey_info += "\\t-> " + cima.get_med_name(str(output)) + " : " + str(
-                        calendar_output[output]) + "\\n"
+    @run_async
+    def intr_prescription(self, update, context):
+        """ Method that gets a new medicine to the recipes and starts the form
+
+        :param update: Updater for bot token
+        :param context: Handler's context
+        :return: new state INTR_PRESCRIPTION
+        """
+        logger.info('User introducing new prescription')
+        update.message.reply_text(INTR_PRESCRIPTION_MSSGS[self.get_counter(update.message.from_user.id)])
+        return self.set_state(update.message.from_user.id, INTR_PRESCRIPTION)
+
+    def send_new_prescription(self, update, context):
+        """Asks the user information in order to complete the prescription form, and once completed sets the query ready to
+        be sent.
+
+        :param update: Updater for bot token
+        :param context: Handler's context
+        :return: state INTR_PRESCRIPTION while form not completed, state CHECK_PRE once completed
+        """
+        try:
+            user_id = update.message.from_user.id
+            if self.get_counter(user_id) == 0:  # If we are in the first field of the form
+                if update.message.photo:  # If user sent a photo, we apply
+                    medicine_cn, validation_num = self.handle_pic(update, context, user_id)
+                else:
+                    medicine_cn, validation_num = self.split_code(update.message.text)
+
+                if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
+                    update.message.reply_text(
+                        "An error has occurred, please repeat the photo or manually introduce the CN")
+                    return INTR_PRESCRIPTION
+                else:
+                    self.set_prescription(user_id, self.get_counter(user_id), medicine_cn)
             else:
-                journey_info= "No meds need to be taken as there is no prescription for these dates."
-            response = self.bot_parser(user_id=user_id,
-                                       function="JOURNEY") + '"journey_info" : "' + journey_info + '"}}'
-            self.logger.info(response)
-            return response
+                self.set_prescription(user_id, self.get_counter(user_id), update.message.text)
+        except:
+            user_id = update.callback_query.from_user.id
 
-        # THE USER WANTS INFORMATION ABOUT THE REMINDERS OF A SPECIFIC DATE
-        elif instruction == "TASKS CALENDAR":
-            # WE OUTPUT A SERIES OF ACTIONS TO BE DONE FOR A SPECIFIC DATE
-            [user_id, date_selected] = [parsed_string["user_id"], parsed_string["parameters"]["date"]]
-            calendar_output = self.checker.get_reminders(user_id=user_id, date=date_selected)
-            if calendar_output is not None:
-                journey_info = "Reminders:\\n"
-                for output in calendar_output:
-                    time = str(output[1]).split(',')[1] if len(str(output[1]).split(',')) == 2 else str(output[1])
-                    journey_info += "\\t-> " + cima.get_med_name(str(output[0])) + " : " + time + "\\n"
-            response = self.bot_parser(user_id, "TASKS CALENDAR") + '"tasks" : "' + journey_info + '"}}'
-            self.logger.info(response)
-            return response
-
-        # THE USER WANTS TO DELETE A REMINDER
-        elif instruction == "DELETE REMINDER":
-            # WE CHECK IF A MEDICINE REMINDER IS THERE FIRST
-            [user_id, cn] = [parsed_string["user_id"], parsed_string["parameters"]["CN"]]
-            deleted = self.checker.delete_reminders(user_id=user_id, national_code=cn)
-            response = self.bot_parser(user_id=user_id, function="DELETE REMINDER") + '"boolean" : "' + str(
-                deleted) + '"}}'
-            self.logger.info(response)
-            return response
-
-        # THE USER ASKS FOR THE CURRENT TREATMENT
-        elif instruction == "CURRENT TREATMENT":
-            user_id = parsed_string["parameters"]["user_id"]
-            current_treatment = self.checker.get_currentTreatment(user_id=user_id)
-            if current_treatment is not ():
-                current_treatment_info = "Meds currently being taken :\\n"
-                for output in current_treatment:
-                    current_treatment_info += "\\t-> Taking " + cima.get_med_name(
-                        str(output[0])) + " until the date of " + str(output[1]).split()[0] + "\\n"
+        self.set_counter(user_id, self.get_counter(user_id) + 1)
+        logger.info(self.get_prescription(user_id))
+        if self.get_counter(user_id) != len(INTR_PRESCRIPTION_MSSGS):
+            if self.get_counter(user_id) < 3:
+                update.message.reply_text(INTR_PRESCRIPTION_MSSGS[self.get_counter(user_id)])
+                return INTR_PRESCRIPTION
             else:
-                current_treatment_info = "False"
-            response = self.bot_parser(user_id=user_id,
-                                       function="CURRENT TREATMENT") + '"reminder_info" : "' + current_treatment_info + '"}}'
-            self.logger.info(response)
-            return response
-
-        # THE USER ASKS FOR THE HISTORY OF PILLS TAKEN
-        elif instruction == "HISTORY":
-            user_id = parsed_string["parameters"]["user_id"]
-            history = self.checker.get_history(user_id=user_id)
-            if history is not ():
-                history_info = "History of last meds :\\n"
-                for output in history:
-                    history_info += "\\t-> " + cima.get_med_name(str(output[0])) + " of " + str(output[1])
-                    if output[2]:
-                        history_info += ": taken\\n"
-                    else:
-                        history_info += ": not taken\\n"
-            else:
-                history_info = "False"
-            response = self.bot_parser(user_id=user_id,
-                                       function="HISTORY") + '"history" : "' + history_info + '"}}'
-            self.logger.info(response)
-            return response
-
-            # THE USER ASKS TO INTRODUCE HISTORY OF PILLS TAKEN
-        elif instruction == "INTRODUCE HISTORY":
-            user_id = parsed_string["parameters"]["user_id"]
-            history = self.checker.intr_to_history(user_id=user_id, query_parsed=parsed_string["parameters"])
-            response = self.bot_parser(user_id=user_id,
-                                       function="INTRODUCE HISTORY") + '"boolean" : "' + history + '"}}'
-            self.logger.info(response)
-            return response
-
-            # THE USER ASKS FOR THE HISTORY OF PILLS TAKEN
-        elif instruction == "INVENTORY":
-            user_id = parsed_string["parameters"]["user_id"]
-            inventory = self.checker.get_inventory(user_id=user_id)
-            if inventory is not ():
-                inventory_info = "Your current inventory consists on:\\n"
-                for output in inventory:
-                    print(output)
-                    inventory_info += "\\t-> There are " + str(output[1]) + " of " + cima.get_med_name(
-                        str(output[0])) + " which expire on " + datetime.datetime.strftime(output[2],
-                                                                                           "%Y-%m-%d")
-            else:
-                inventory_info = "False"
-            response = self.bot_parser(user_id=user_id,
-                                       function="INVENTORY") + '"inventory" : "' + inventory_info + '"}}'
-            self.logger.info(response)
-            return response
-
-        # THE USER ASKS FOR THE REMINDERS FOR TODAY ON A SPECIFIC NATIONAL CODE
-        elif instruction == "GET REMINDER":
-            [user_id, national_code] = [parsed_string["user_id"], parsed_string["parameters"]["CN"]]
-            reminder_info = self.checker.get_reminders(user_id=user_id, date=datetime.date.today().strftime("%Y-%m-%d"),
-                                                       cn=national_code)
-            # THIS MEANS THAT WE GOT INFORMATION ABOUT THIS MEDICINE, SO WE ARE PARSING IT
-            if reminder_info != '"False"':
-                reminder_info = '"CN":"' + str(reminder_info[0][0]) + '","frequency":"' + str(
-                    reminder_info[0][1]) + '","end_date":"' + datetime.datetime.strftime(reminder_info[0][2],
-                                                                                         "%Y-%m-%d") + '"'
-            else:
-                # THIS MEANS THAT WE GOT NO INFORMATION ABOUT THIS MEDICINE FOR THE REMINDERS OF TODAY AND WE SEND NONE.
-                reminder_info = '"CN":' + reminder_info
-            response = self.bot_parser(self.user_id,
-                                       function="GET REMINDER") + reminder_info + '}}'
-            self.logger.info(response)
-            return response
-
-        # IF WE SEND A WRONG QUERY, WE SEND THE INFORMATION LIKE THIS
+                context.bot.send_message(chat_id=user_id,
+                                         text=INTR_PRESCRIPTION_MSSGS[self.get_counter(user_id)],
+                                         reply_markup=telegramcalendar.create_calendar())
+                return CHECK_PRE
         else:
-            user_id = parsed_string["user_id"]
-            response = self.bot_parser(user_id=user_id,
-                                       function="ERROR QUERY") + '"content" : "The query ' + instruction + ' is not on the query database"}}'
-            self.logger.info(response)
-            return response
+            self.set_counter(user_id, 0)
+            context.bot.send_message(chat_id=user_id,
+                                     text='Is the medicine correctly introduced? ', reply_markup=yes_no_markup)
+            context.bot.send_message(chat_id=user_id,
+                                     text=self.show_prescription(user_id))
+            self.set_query(user_id, list(self.get_prescription(user_id).keys()),
+                           list(self.get_prescription(user_id).values()))
+            self.set_function(user_id, 'INTRODUCE PRESCRIPTION')
+            return self.set_state(user_id, CHECK_PRE)
 
-    # METHOD USED TO PARSE ALL THE INFORMATION SENT TO THE CLIENT.PY (JSON)
-    def bot_parser(self, user_id, function):
-        return """{"user_id": """ + str(user_id) + ', "function": "' + function + '", "parameters": {'
+    def handle_pic(self, update, context, user_id):  # pic to obtain CN when send_new_prescription
+        file = context.bot.getFile(update.message.photo[-1].file_id)
+        filename = f"/home/paesav/Imágenes/{user_id}.jpg"
+        file.download(filename)
+        medicine_cn, validation_number = self.medicine_search(filename)
+        print('\n', medicine_cn, validation_number, '\n')
+        return medicine_cn, validation_number
 
-    # METHOD USED TO ACTUALIZE THE TABLE OF REMINDERS EVERY DAY! ((((YET TO BE DONE PROPERLY!!!!))))
-    def actualize_daily_table(self, user_id=None):
-        if user_id:
-            today = datetime.date.today().strftime("%Y-%m-%d")
-            reminder_info = self.checker.get_reminders(user_id, today)
-            response = self.bot_parser(self.user_id, "DAILY REMINDER") + '"reminder_info" : "' + reminder_info + '"}}'
-            self.logger.info(response)
-            return response
+    def medicine_search(self, filename):
+        number, validation_number = TextRecognition().init(filename,
+                                                           "/home/paesav/PAET2019/PillDora/imagetextrecognition/frozen_east_text_detection.pb")
+        return number, validation_number
+
+    def split_code(self, cn):
+        if '.' in cn:
+            return cn.split('.')[0], cn.split('.')[-1]
+        elif len(cn) == 7:
+            return cn[:6], cn[6]
         else:
-            today = datetime.date.today().strftime("%Y-%m-%d")
-            reminder_info = self.checker.get_reminders_all(today)
-            response = self.bot_parser("ALL", "DAILY REMINDER") + '"reminder_info" : "' + reminder_info + '"}}'
-            self.logger.info(response)
-            return response
+            return 'error', 'error'
+
+    def verify_code(self, medicine, validation_number):
+        sum1 = 3 * (int(medicine[1]) + int(medicine[3]) + int(medicine[5]))
+        sum2 = int(medicine[0]) + int(medicine[2]) + int(medicine[4])
+        sum3 = sum1 + sum2 + 27
+        res = 10 - (sum3 % 10)
+        return res == int(validation_number)
+
+    def show_prescription(self, user_id):
+        med_param = lambda x: cima.get_med_name(self.get_prescription(user_id)[x]).split(' ')[0] if x == 'NAME' else \
+            self.get_prescription(user_id)[x]
+        return '\n'.join(f"{tag}: {med_param(tag)}" for tag in PRESCRIPTION_TAGS)
+
+    @run_async
+    def intr_medicine(self, update, context):
+        """ Method that gets quantities of new medicine
+
+        :param update: Updater for bot token
+        :param context: Handler's context
+        :return: new state INTR_MEDICINE
+        """
+        logger.info('User introducing new medicine')
+        update.message.reply_text(INTR_MEDICINE_MSSGS[self.get_counter(update.message.from_user.id)])
+        return self.set_state(update.message.from_user.id, INTR_MEDICINE)
+
+    def send_new_medicine(self, update, context):
+        """Asks the user information in order to complete the medicine form, and once completed sets the query ready to
+        be sent.
+
+        :param update: Updater for bot token
+        :param context: Handler's context
+        :return: state INTR_MEDICINE while form not completed, state CHECK_MED once completed
+        """
+        try:
+            user_id = update.message.from_user.id
+            if self.get_counter(user_id) == 0:  # If we are in the first field of the form
+                if update.message.photo:  # If user sent a photo, we apply
+                    medicine_cn, validation_num = self.handle_pic(update, context, user_id)
+                else:
+                    medicine_cn, validation_num = self.split_code(update.message.text)
+
+                if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
+                    update.message.reply_text(
+                        "An error has occurred, please repeat the photo or manually introduce the CN")
+                    return INTR_MEDICINE
+                else:
+                    self.set_medicine(user_id, self.get_counter(user_id), medicine_cn)
+            else:
+                self.set_medicine(user_id, self.get_counter(user_id), update.message.text)
+        except:
+            user_id = update.callback_query.from_user.id
+
+        self.set_counter(user_id, self.get_counter(user_id) + 1)
+        logger.info(self.get_medicine(user_id))
+        if self.get_counter(user_id) != len(INTR_MEDICINE_MSSGS):
+            if (self.get_counter(user_id) < 2):
+                update.message.reply_text(INTR_MEDICINE_MSSGS[self.get_counter(user_id)])
+                return INTR_MEDICINE
+            else:
+                context.bot.send_message(chat_id=user_id,
+                                         text=INTR_MEDICINE_MSSGS[self.get_counter(user_id)],
+                                         reply_markup=telegramcalendar.create_calendar())
+                return CHECK_MED
+        else:
+            self.set_counter(user_id, 0)
+            context.bot.send_message(chat_id=user_id,
+                                     text='Is the medicine correctly introduced? ', reply_markup=yes_no_markup)
+            context.bot.send_message(chat_id=user_id,
+                                     text=self.show_medicine(user_id))
+            self.set_query(user_id, list(self.get_medicine(user_id).keys()), list(self.get_medicine(user_id).values()))
+            self.set_function(user_id, 'INTRODUCE MEDICINE')
+            return self.set_state(user_id, CHECK_MED)
+
+    def show_medicine(self, user_id):
+        med_param = lambda x: cima.get_med_name(self.get_medicine(user_id)[x]).split(' ')[0] if x == 'NAME' else \
+            self.get_medicine(user_id)[x]
+        return '\n'.join(f"{tag}: {med_param(tag)}" for tag in MEDICINE_TAGS)
+
+    @run_async
+    def show_information(self, update, context):
+        logger.info('User ' + self.get_name(update.message.from_user) + '  searching for information')
+        update.message.reply_text("Introduce CN of the Medicine you want information about:")
+        self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
+
+    def show_infoAbout(self, update, context):
+        user_id = update.message.from_user.id
+        if update.message.photo:  # If user sent a photo, we apply
+            medicine_cn, validation_num = self.handle_pic(update, context, user_id)
+        else:
+            medicine_cn, validation_num = self.split_code(update.message.text)
+
+        if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
+            update.message.reply_text(
+                "An error has occurred, please repeat the photo or manually introduce the CN")
+            return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
+        else:
+            info = cima.get_info_about(medicine_cn)
+            name = cima.get_med_name(medicine_cn)
+            update.message.reply_text("Information about medicine " + name + ":\n\t" + info)
+            return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
+
+    @run_async
+    def see_calendar(self, update, context):
+        logger.info('User ' + self.get_name(update.message.from_user) + '  seeing calendar')
+        update.message.reply_text("Please select a date: ",
+                                  reply_markup=telegramcalendar.create_calendar())
+
+    @run_async
+    # Method that handles the situations and depending on the current state, changes the state
+    def inline_handler(self, update, context):
+        selected, date = telegramcalendar.process_calendar_selection(context.bot, update)
+        user_id = update.callback_query.from_user.id
+        if selected:
+            if self.get_states(user_id)[0] == CHOOSING:
+                context.bot.send_message(chat_id=user_id,
+                                         text="You selected %s" % (date.strftime("%Y-%m-%d")),
+                                         reply_markup=ReplyKeyboardRemove())
+            if self.get_states(user_id)[0] == CHOOSING:
+                self.get_calendar_tasks(update, context, date.strftime("%Y-%m-%d"), user_id)
+                self.set_state(user_id, CHOOSING)
+            elif self.get_states(user_id)[0] == JOURNEY:
+                self.set_journey(update, context, date.strftime("%Y-%m-%d"))
+                if self.get_states(user_id)[1] == CHOOSING:
+                    self.set_state(user_id, JOURNEY)
+                elif self.get_states(user_id)[1] == JOURNEY:
+                    self.set_state(user_id, JOURNEY)
+            elif self.get_states(user_id)[0] == INTR_PRESCRIPTION:
+                context.bot.send_message(chat_id=user_id,
+                                         text=date.strftime("%Y-%m-%d"),
+                                         reply_markup=ReplyKeyboardRemove())
+                self.set_prescription(user_id, self.get_counter(user_id), date.strftime("%Y-%m-%d"))
+                self.send_new_prescription(update, context)
+            elif self.get_states(user_id)[0] == INTR_MEDICINE:
+                context.bot.send_message(chat_id=user_id,
+                                         text=date.strftime("%Y-%m-%d"),
+                                         reply_markup=ReplyKeyboardRemove())
+                self.set_medicine(user_id, self.get_counter(user_id), date.strftime("%Y-%m-%d"))
+                self.send_new_medicine(update, context)
+
+    @run_async
+    # Returns all the reminders associated for a specific date and user_id
+    def get_calendar_tasks(self, update, context, date, user_id):
+        logger.info('Tasks for the user on the date ' + date)
+        # connects to DataBase with Date and UserId asking for all the tasks of this date
+        self.set_function(user_id, "TASKS CALENDAR")
+        self.set_query(user_id, ["date"], [date])
+        query = self.create_query(user_id)
+        response = json.loads(self.send_query(user_id, query))
+        context.bot.send_message(chat_id=user_id,
+                                 text="Reminders for " + date + " :\n")
+        context.bot.send_message(chat_id=user_id, text=response['parameters']['tasks'])
+        context.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?",
+                                 reply_markup=markup)
+
+    @run_async
+    # Method that prints systematically the current Treatment for a certain user_id
+    def see_currentTreatment(self, update, context):
+        logger.info('User ' + self.get_name(update.message.from_user) + ' seeing current Treatment')
+        # connects to DataBase with UserId asking for all the medications he is currently taking
+        user_id = update.message.from_user.id
+        self.set_function(user_id, "CURRENT TREATMENT")
+        self.set_query(user_id, ["user_id"], [str(user_id)])
+        query = self.create_query(user_id)
+        response = json.loads(self.send_query(user_id, query))
+        if response['parameters']['reminder_info'] =="False":
+            update.message.reply_text("There is actually no Current Treatment about you in the DataBase")
+        else:
+            update.message.reply_text(
+                "To sum up, you are currently taking these meds:\n" + response['parameters']['reminder_info'])
+        self.set_query(user_id, ["None"], ["None"])
+        return self.manage_response(update, context)
+
+    @run_async
+    # Method that prints systematically the History for a certain user_id
+    def see_history(self, update, context):
+        logger.info('User ' + self.get_name(update.message.from_user) + ' seeing History')
+        # connects to DataBase with UserId asking if user took last reminders
+        user_id = update.message.from_user.id
+        self.set_function(user_id, "HISTORY")
+        self.set_query(user_id, ["user_id"], [str(user_id)])
+        query = self.create_query(user_id)
+        response = json.loads(self.send_query(user_id, query))
+        if response['parameters']['history'] =="False":
+            update.message.reply_text("There is actually no history about you in the DataBase")
+        else:
+            update.message.reply_text(
+                "To sum up, history of your last reminders:\n" + response['parameters']['history'])
+        self.set_query(user_id, ["None"], ["None"])
+        return self.manage_response(update, context)
+
+    @run_async
+    # Method that prints systematically the Inventory for a certain user_id
+    def see_inventory(self, update, context):
+        logger.info('User ' + self.get_name(update.message.from_user) + ' seeing Inventory')
+        # connects to DataBase with UserId asking if user took last reminders
+        user_id = update.message.from_user.id
+        self.set_function(user_id, "INVENTORY")
+        self.set_query(user_id, ["user_id"], [str(user_id)])
+        query = self.create_query(user_id)
+        response = json.loads(self.send_query(user_id, query))
+        if response['parameters']['inventory'] =="False":
+            update.message.reply_text("There is actually no Inventory about you in the DataBase")
+        else:
+            update.message.reply_text(
+                "To sum up, your inventory consists on:\n" + response['parameters']['inventory'])
+        self.set_query(user_id, ["None"], ["None"])
+        return self.manage_response(update, context)
+
+    @run_async
+    # Deletes a reminder using a CN for a certain user_id
+    def delete_reminder(self, update, context):
+        logger.info('User ' + self.get_name(update.message.from_user) + ' deleting reminder')
+        update.message.reply_text('Please Introduce CN of the Medicine you want to delete the reminder:')
+        return self.set_state(update.message.from_user.id, GET_CN)
+
+    # Method that asks for a CN and prints all the information and asks about if it should be removed or not
+    def get_medicine_CN(self, update, context):
+        medicine_CN = update.message.text
+        user_id = update.message.from_user.id
+        # connects to DataBase with UserId and get the current reminder for this medicine_CN.
+        self.set_function(user_id, "GET REMINDER")
+        self.set_query(user_id, ["CN"], [medicine_CN])
+        query = self.create_query(user_id)
+        response = json.loads(self.send_query(user_id, query))
+        reminder_info = response['parameters']
+        if reminder_info['CN'] == "False":
+            update.message.reply_text('CN introduced is wrong, there is not any med with this CN')
+            update.message.reply_text("Is there any other way I can help you?", reply_markup=markup)
+            return self.set_state(user_id, CHOOSING)
+        reminder_info = "Medicine " + cima.get_med_name(response['parameters']['CN']) + " taken with a frequency of " + \
+                        response['parameters']['frequency'] + " hours until the date of " + response['parameters'][
+                            'end_date'] + "."
+        update.message.reply_text('Reminder asked to be removed:\n ->\t' + reminder_info)
+        update.message.reply_text('Is this the reminder you want to remove? ', reply_markup=yes_no_markup)
+        self.set_query(user_id, ["CN"], [response['parameters']['CN']])
+        self.set_function(user_id, 'DELETE REMINDER')
+        return self.set_state(user_id, CHECK_REM)
+
+    # Method that creates a journey to be handled later and asks for the information
+    @run_async
+    def create_journey(self, update, context):
+        boolean = self.get_states(update.message.from_user.id)[0] == CHOOSING
+        self.set_state(update.message.from_user.id, CHOOSING)
+        logger.info('User ' + self.get_name(update.message.from_user) + ' creating journey')
+        self.set_state(update.message.from_user.id, JOURNEY)
+        if boolean:
+            update.message.reply_text("Wow fantastic! So you are going on a trip...\nWhen are you leaving?",
+                                      reply_markup=telegramcalendar.create_calendar())
+        else:
+            update.message.reply_text("No worries. Introduce right departure date:",
+                                      reply_markup=telegramcalendar.create_calendar())
+        return JOURNEY
+
+    # Method that asks for the dates needed for a journey and changes the state of the bot to JOURNEY
+
+    def set_journey(self, update, context, date):
+        user_id = update.callback_query.from_user.id
+        if self.get_states(user_id)[1] == CHOOSING:
+            logger.info("Department date " + date)
+            self.set_dates(user_id, "departure", date)
+            context.bot.send_message(chat_id=user_id,
+                                     text="Alright. I see you are leaving on " + date + ".\nWhen will you come back?",
+                                     reply_markup=telegramcalendar.create_calendar())
+
+        if self.get_states(user_id)[1] == JOURNEY:
+            logger.info("Arrival date " + date)
+            self.set_dates(user_id, "arrival", date)
+            context.bot.send_message(chat_id=user_id,
+                                     text="The arrival Date is on " + date + "\nIs this information correct?",
+                                     reply_markup=yes_no_markup)
+            self.set_query(user_id, ["departure_date", "arrival_date"],
+                           [self.get_dates(user_id)[0], self.get_dates(user_id)[1]])
+            self.set_function(user_id, 'JOURNEY')
+
+    def send_reminders(self, data):
+        for message in data:
+            print(message)
+            self.pilldora.send_reminder(user_id=str(message[2]), cn=str(message[0]), time=str(message[1]))
+
+    # Sends a reminder using parsing
+    def send_reminder(self, update, context, user_id, cn, time):
+            self.set_reminder(user_id, str(cn), str(time))
+            if self.in_end(user_id):
+                reminder = "Remember to take " + cn + " at " + time
+                context.bot.send_message(chat_id=user_id,
+                                 text="*_`" + reminder + "`_*\n",
+                                 parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=yes_no_markup)
+                return self.set_state(user_id, REMINDERS)
+            else:
+                return self.delay_reminder(user_id, cn, time)
+
+    def delay_reminder(self, user_id, cn, time):
+        event.wait()
+        self.send_reminder(user_id, cn, time)
+        event.clear()
+
+
+
+    def intr_history_yes(self, update, context):
+        user_id=update.message.from_user.id
+        self.set_function(user_id, 'CHECK USER')
+        reminder=self.get_reminder(user_id)
+        self.set_query(user_id, ["user_id", "NAME", "DATE", "BOOLEAN"], [str(user_id)], reminder['cn'], reminder['time'], "True")
+        query = self.create_query(user_id)
+        response = self.send_query(user_id, query)
+        self.set_state(user_id, END)
+
+    def intr_history_no(self, update, context):
+        user_id=update.message.from_user.id
+        self.set_function(user_id, 'CHECK USER')
+        reminder=self.get_reminder(user_id)
+        self.set_query(user_id, ["user_id", "NAME", "DATE", "BOOLEAN"], [str(user_id)], reminder['cn'], reminder['time'], "False")
+        query = self.create_query(user_id)
+        response = self.send_query(user_id, query)
+        self.set_state(user_id, END)
+
+    # Ends the communication between the user and the bot
+    def exit(self, update, context):
+        update.message.reply_text("See you next time")
+        logger.info('User ' + self.get_name(update.message.from_user) + ' finish with AideBot')
+        event.set()
+        return self.set_state(update.message.chat_id, END)
+
+    def show_current_aidebot_status(self, bot):
+        user_id = str(821061948)
+        info="HEy"
+        bot.send_message(chat_id=user_id,
+                                 text="*_`" + info + "`_*\n",
+                                 parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=yes_no_markup)
+
+
+    # Main of the Client.py, where the bot is activated and creates the transition to the different functionalities
+    def main(self):
+        # Create the Updater and pass it your bot's token.
+        # Make sure to set use_context=True to use the new context based callbacks
+        updater = Updater(token=TOKEN_PROVE, use_context=True, workers=50)
+        dp = updater.dispatcher
+        conv_handler = ConversationHandler(
+            allow_reentry=True,
+            entry_points=[CommandHandler('start', self.start)],
+
+            states={
+                LOGIN: [MessageHandler(Filters.text, self.intr_pwd)],
+                NEW_USER: [MessageHandler(Filters.text, self.new_user)],
+                CHOOSING: [MessageHandler(Filters.regex('^New Prescription'),
+                                          self.intr_prescription),
+                           MessageHandler(Filters.regex('^New Medicine'),
+                                          self.intr_medicine),
+                           MessageHandler(Filters.regex('^Calendar'),
+                                          self.see_calendar),
+                           MessageHandler(Filters.regex('^Current Treatment'),
+                                          self.see_currentTreatment),
+                           MessageHandler(Filters.regex('^History'),
+                                          self.see_history),
+                           MessageHandler(Filters.regex('^Inventory'),
+                                          self.see_inventory),
+                           MessageHandler(Filters.regex('^Show Information'),
+                                          self.show_information),
+                           MessageHandler(Filters.regex('^Delete reminder'),
+                                          self.delete_reminder),
+                           MessageHandler(Filters.regex('^Journey'),
+                                          self.create_journey),
+                           MessageHandler(Filters.regex('^Exit'), self.exit)
+                           ],
+                INTR_PRESCRIPTION: [MessageHandler(Filters.text | Filters.photo, self.send_new_prescription)],
+                INTR_MEDICINE: [MessageHandler(Filters.text | Filters.photo, self.send_new_medicine)],
+                SHOW_INFORMATION: [MessageHandler(Filters.text | Filters.photo, self.show_infoAbout)],
+                CHECK_PRE: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
+                            MessageHandler(Filters.regex('^NO$'), self.intr_prescription)
+                            ],
+                CHECK_MED: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
+                            MessageHandler(Filters.regex('^NO$'), self.intr_medicine)
+                            ],
+                CHECK_REM: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
+                            MessageHandler(Filters.regex('^NO$'), self.delete_reminder)
+                            ],
+                GET_CN: [MessageHandler(Filters.text, self.get_medicine_CN)],
+                JOURNEY: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
+                          MessageHandler(Filters.regex('^NO$'), self.create_journey)
+                          ],
+                END: [MessageHandler(Filters.regex('^YES$'), self.intr_history_yes),
+                      MessageHandler(Filters.regex('^NO$'), self.intr_history_no)
+                      ]
+            },
+            fallbacks=[MessageHandler(Filters.regex('^Exit$'), self.exit)]
+        )
+
+        dp.add_handler(conv_handler)
+        dp.add_handler(CallbackQueryHandler(self.inline_handler))
+        updater.start_polling()
+        updater.idle()
+
+
+if __name__ == '__main__':
+    pilldora = PillDora()
+    pilldora.main()
