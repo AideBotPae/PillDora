@@ -294,7 +294,7 @@ class DBMethods:
             #there is the possibility of more than one columns of one CN
             data = db.query('''SELECT expiracy_date
                             FROM aidebot.inventory 
-                            WHERE cn >= '{cn}' and user_id={id}
+                            WHERE national_code >= '{cn}' and user_id={id}
                             '''.format(cn=cn, id=user_id))
             print(data)
             #db.execute('''UPDATE aidebot.inventory ''')
