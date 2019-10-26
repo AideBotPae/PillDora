@@ -194,6 +194,14 @@ class DBMethods:
                 '''.format(id=user_id))
             return data
 
+    def get_cn_from_inventory(self, user_id, cn):
+        with Database() as db:
+            data = db.query(''' SELECT national_code, num_of_pills, expiracy_date
+                FROM aidebot.inventory 
+                WHERE user_id={id} and national_code={cn}
+                '''.format(id=user_id, cn=cn))
+            return data
+
     def intr_inventory(self, user_id, query_parsed):
         # Quantity es la cantidad que ha de tomarse, no las pastillas que hay
         with Database() as db:
