@@ -87,8 +87,8 @@ class ServerWorker:
                 total_in_inventory = 0
                 for values in data:
                     total_in_inventory += values[1]
-                days_between=(datetime.datetime.strptime(parsed_string["parameters"]["end_date"], "%Y-%m-%d") -datetime.datetime.now()).days
-                total_needed=parsed_string["parameters"]["quantity"]*24/parsed_string["parameters"]["frequency"]*days_between
+                days_between=(datetime.datetime.strptime(parsed_string["parameters"]["END_DATE"], "%Y-%m-%d") -datetime.datetime.now()).days
+                total_needed=parsed_string["parameters"]["QUANTITY"]*24/parsed_string["parameters"]["FREQUENCY"]*days_between
                 if total_in_inventory>=total_needed:
                     param += ',"inventory":"Enough"'
                 else:
