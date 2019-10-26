@@ -64,7 +64,6 @@ class DBMethods:
                 print("User registered\n")
                 return True
 
-
     def add_user(self, new_user, new_password):
         with Database() as db:
             db.execute(
@@ -91,7 +90,6 @@ class DBMethods:
                 print('Correct password')
                 return True
 
-
     def introd_receipt(self, query_parsed, user_id, date):
         with Database() as db:
             exists = self.check_receipt(user_id=user_id, cn=query_parsed['NAME'])
@@ -110,7 +108,6 @@ class DBMethods:
                 # TODO: Añadir cantidad de pastillas?
                 return False
 
-
     def check_receipt(self, cn, user_id):
         with Database() as db:
             data = db.query('''SELECT count(*) FROM aidebot.receipts WHERE user_id={id} and national_code={med}
@@ -120,7 +117,6 @@ class DBMethods:
             else:
                 return True
 
-
     def get_receipts(self, user_id, cn):
         with Database() as db:
             data = db.query(''' SELECT national_code, frequency, end_date
@@ -129,7 +125,6 @@ class DBMethods:
                '''.format(cn=cn, id=user_id
                           ))
             return data
-
 
     def get_medicine_frequency(self, user_id, cn):
         with Database() as db:
@@ -158,7 +153,6 @@ class DBMethods:
                        ))
             return data
 
-
     def get_currentTreatment(self, user_id):
         with Database() as db:
             data = db.query(''' SELECT national_code, end_date
@@ -171,12 +165,12 @@ class DBMethods:
         with Database() as db:
             db.execute('''INSERT INTO aidebot.history (user_id, national_code, last_taken_pill, taken)
                                    values ({id},{cn},'{date}', '{boolean}')'''.format(id=user_id,
-                                                                                       cn=query_parsed['NAME'],
-                                                                                       date=query_parsed[
-                                                                                           'DATE'],
-                                                                                       boolean=query_parsed[
-                                                                                           'BOOLEAN'],
-                                                                                       ))
+                                                                                      cn=query_parsed['NAME'],
+                                                                                      date=query_parsed[
+                                                                                          'DATE'],
+                                                                                      boolean=query_parsed[
+                                                                                          'BOOLEAN'],
+                                                                                      ))
 
     def get_history(self, user_id):
         with Database() as db:
@@ -211,7 +205,6 @@ class DBMethods:
                                                                                quantity=query_parsed['QUANTITY'],
                                                                                exp_date=query_parsed['EXP_DATE']
                                                                                ))
-
 
     def get_reminders(self, user_id, date, to_date=None, cn=None):
         with Database() as db:
@@ -288,16 +281,26 @@ class DBMethods:
                                                                                            time=time
                                                                                            ))
 
-
     def reminder_taken(self, user_id, cn):
         with Database() as db:
-            #there is the possibility of more than one columns of one CN
-            data = db.query('''SELECT expiracy_date
+            # there is the possibility of more than one columns of one CN
+            data = db.query('''SELECT MIN(expiracy_date)
                             FROM aidebot.inventory 
                             WHERE national_code >= '{cn}' and user_id={id}
                             '''.format(cn=cn, id=user_id))
-            print(data)
-            #db.execute('''UPDATE aidebot.inventory ''')
+            exp_date = data[0][0]
+
+            #get the quantity that is taken in each reminder
+            data = db.query('''SELECT quantity
+                            FROM aidebot.receipts 
+                            WHERE national_code >= '{cn}' and user_id={id}
+                            '''.format(cn=cn, id=user_id))
+            
+            quantity=data[0][0]
+            db.execute(
+                '''UPDATE aidebot.inventory SET num_of_pills=num_of_pills-{quantity} where user_id={id} and expiracy_date={exp_date} and national_code ={cn}'''.format(
+                    cn=cn, id=user_id, exp_date=exp_date, quantity=quantity))
+
 if __name__ == "__main__":
     checker = DBMethods()
     checker.reminder_taken(user_id=821061948, cn=798116)
