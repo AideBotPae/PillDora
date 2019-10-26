@@ -73,7 +73,7 @@ class ServerWorker:
                                                            freq=parsed_string["parameters"]["FREQUENCY"]):
                 #Another prescriptions with same CN different frequency
                 param = '"Code": "1" , "freq_database" : "' + str(self.checker.get_medicine_frequency(user_id=user_id,
-                            cn=national_code)) + '", "freq_introduced" : "' + str(parsed_string["parameters"]["FREQUENCY"]) + '"'
+                            cn=national_code)) + '", "freq_introduced" : "' + str(parsed_string["parameters"]["FREQUENCY"][0][0]) + '"'
 
             else:
                 #Same prescriptions already in DB
@@ -87,10 +87,8 @@ class ServerWorker:
                 total_in_inventory = 0
                 for values in data:
                     total_in_inventory += values[1]
-                days_between=(datetime.datetime.strptime(parsed_string["parameters"]["END_DATE"], "%Y-%m-%d") -datetime.datetime.now()).days
+                days_between=(datetime.datetime.strptime(parsed_string["parameters"]["END_DATE"], "%Y-%m-%d") -datetime.datetime.now()).days+2
                 total_needed=int(parsed_string["parameters"]["QUANTITY"])*24/int(parsed_string["parameters"]["FREQUENCY"])*days_between
-                self.logger.info("Days between: "+ str(days_between)+ "\t total_in_inv="+ str(total_in_inventory) +"\ttotal needed= "+ str(total_needed))
-
                 if total_in_inventory>=total_needed:
                     param += ',"inventory":"Enough"'
                 else:
