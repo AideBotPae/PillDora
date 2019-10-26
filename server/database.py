@@ -289,5 +289,15 @@ class DBMethods:
                                                                                            ))
 
 
+    def reminder_taken(self, user_id, cn):
+        with Database() as db:
+            #there is the possibility of more than one columns of one CN
+            data = db.query('''SELECT expiracy_date
+                            FROM aidebot.inventory 
+                            WHERE cn >= '{cn}' and user_id={id}
+                            '''.format(cn=cn, id=user_id))
+            print(data)
+            #db.execute('''UPDATE aidebot.inventory ''')
 if __name__ == "__main__":
     checker = DBMethods()
+    checker.reminder_taken(user_id=821061948, cn=798116)
