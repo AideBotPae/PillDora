@@ -41,10 +41,6 @@ LOGIN, NEW_USER, CHOOSING, INTR_PRESCRIPTION, INTR_MEDICINE, SHOW_INFORMATION, C
 QUERIES = ['CHECK USER', 'CHECK PASSWORD', 'NEW PASSWORD', 'INTRODUCE PRESCRIPTION', 'INTRODUCE MEDICINE',
            'TASKS CALENDAR', 'CURRENT TREATMENT', 'JOURNEY', 'HISTORY', 'INVENTORY'
                                                                         'GET REMINDER', 'DELETE REMINDER']
-
-# MANAGE WHOLE INFORMATION
-aide_bot = {}
-
 # MANAGE THREADS STATES SYNCHRONICITY
 event = Event()
 
@@ -71,7 +67,7 @@ yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=Tru
 
 class PillDora:
     def __init__(self):
-        self.aide_bot=aide_bot
+        self.aide_bot={}
     """
     Telegram bot that serves as an aide to the clients of the product. It has a set of features that help customers
     to remember to take their pills (how many and when) and manages the customer's receipts and meds provisions.
