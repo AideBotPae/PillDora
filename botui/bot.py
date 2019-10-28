@@ -760,7 +760,7 @@ class PillDora:
         user_id = 821061948
         info=self.get_states(user_id)[0]
         bot.send_message(chat_id=user_id,
-                                 text="*_`" + info + "`_*\n",
+                                 text="*_`" + str(info) + "`_*\n",
                                  parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=yes_no_markup)
 
 
