@@ -755,6 +755,9 @@ class PillDora:
         self.set_query(user_id, ["user_id", "NAME", "DATE", "BOOLEAN"], [str(user_id), reminder['cn'], reminder['time'], "True"])
         query = self.create_query(user_id)
         response = self.send_query(user_id, query)
+        if response == "False":
+            update.message.reply_text("There is no Inventory for this medicine. Please introduce Medication or buy it if not done")
+            self.show_location(user_id)
         self.event.set()
         self.set_state(user_id, END)
 
