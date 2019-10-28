@@ -710,7 +710,7 @@ class PillDora:
     def send_reminders(self, data):
         for message in data:
             print(message)
-            self.send_reminder(user_id=str(message[2]), cn=str(message[0]), time=str(message[1]))
+            self.send_reminder(user_id=message[2], cn=str(message[0]), time=str(message[1]))
 
     # Sends a reminder using parsing
     def send_reminder(self, user_id, cn, time):
