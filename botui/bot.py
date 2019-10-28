@@ -41,8 +41,7 @@ LOGIN, NEW_USER, CHOOSING, INTR_PRESCRIPTION, INTR_MEDICINE, SHOW_INFORMATION, C
 QUERIES = ['CHECK USER', 'CHECK PASSWORD', 'NEW PASSWORD', 'INTRODUCE PRESCRIPTION', 'INTRODUCE MEDICINE',
            'TASKS CALENDAR', 'CURRENT TREATMENT', 'JOURNEY', 'HISTORY', 'INVENTORY'
                                                                         'GET REMINDER', 'DELETE REMINDER']
-# MANAGE THREADS STATES SYNCHRONICITY
-event = Event()
+
 
 # TAGS TO MANAGE INTRODUCING MEDICINES
 INTR_PRESCRIPTION_MSSGS = ["What is the medicine's name (CN)?\nYou can also send me a photo of the package!",
@@ -67,6 +66,9 @@ yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=Tru
 
 class PillDora:
     aide_bot = {}
+    bot = telegram.Bot(TOKEN_PROVE)
+    # MANAGE THREADS STATES SYNCHRONICITY
+    event = Event()
 
     """
     Telegram bot that serves as an aide to the clients of the product. It has a set of features that help customers
@@ -711,12 +713,12 @@ class PillDora:
             self.pilldora.send_reminder(user_id=str(message[2]), cn=str(message[0]), time=str(message[1]))
 
     # Sends a reminder using parsing
-    def send_reminder(self, update, context, user_id, cn, time):
+    def send_reminder(self, user_id, cn, time):
         print(self.get_states(user_id)[0])
         self.set_reminder(user_id, str(cn), str(time))
         if self.in_end(user_id):
             reminder = "Remember to take " + cn + " at " + time
-            context.bot.send_message(chat_id=user_id,
+            self.bot.send_message(chat_id=user_id,
                              text="*_`" + reminder + "`_*\n",
                              parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=yes_no_markup)
             return self.set_state(user_id, REMINDERS)
@@ -724,35 +726,43 @@ class PillDora:
             return self.delay_reminder(user_id, cn, time)
 
     def delay_reminder(self, user_id, cn, time):
-        event.wait()
+        self.event.wait()
         self.send_reminder(user_id, cn, time)
-        event.clear()
+        self.event.clear()
 
 
 
     def intr_history_yes(self, update, context):
+        print("YES")
         user_id=update.message.from_user.id
+        '''
         self.set_function(user_id, 'CHECK USER')
         reminder=self.get_reminder(user_id)
         self.set_query(user_id, ["user_id", "NAME", "DATE", "BOOLEAN"], [str(user_id)], reminder['cn'], reminder['time'], "True")
         query = self.create_query(user_id)
         response = self.send_query(user_id, query)
+        '''
         self.set_state(user_id, END)
+        
 
     def intr_history_no(self, update, context):
+        print("NO")
         user_id=update.message.from_user.id
+        '''
         self.set_function(user_id, 'CHECK USER')
         reminder=self.get_reminder(user_id)
         self.set_query(user_id, ["user_id", "NAME", "DATE", "BOOLEAN"], [str(user_id)], reminder['cn'], reminder['time'], "False")
         query = self.create_query(user_id)
         response = self.send_query(user_id, query)
+        '''
         self.set_state(user_id, END)
+        
 
     # Ends the communication between the user and the bot
     def exit(self, update, context):
         update.message.reply_text("See you next time")
         logger.info('User ' + self.get_name(update.message.from_user) + ' finish with AideBot')
-        event.set()
+        self.event.set()
         return self.set_state(update.message.chat_id, END)
 
     def show_current_aidebot_status(self, bot):
