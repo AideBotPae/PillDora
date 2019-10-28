@@ -2,7 +2,6 @@ from server.database import Database
 import datetime
 import schedule
 import time
-import telegram
 
 
 # THIS CLASS IS THE ONE THAT HAS THE TASK OF ACTUALIZING THE DAILY TABLE EVERY DAY WITH THE REMINDERS!
