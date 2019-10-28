@@ -171,6 +171,7 @@ class DBMethods:
                                                                                       boolean=query_parsed[
                                                                                           'BOOLEAN'],
                                                                                       ))
+            return "True"
 
     def get_history(self, user_id):
         with Database() as db:
