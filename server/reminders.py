@@ -24,7 +24,7 @@ class Reminder:
 
     # Delete all reminders which has expired by end_date < today
     def test(self):
-        data = [["1234", "08:00:00", 821061948], ["4567", "10:00:00", 821061948], ["8910", "10:00:00", 821061948]]
+        data = [["798116", "08:00:00", 821061948], ["664029", "10:00:00", 821061948], ["798116", "10:00:00", 821061948]]
         self.client.send_reminders(data)
 
     def checking_expirations(self):
