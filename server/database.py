@@ -155,6 +155,10 @@ class DBMethods:
             return data
 
     def intr_to_history(self, user_id, query_parsed):
+        data = self.get_cn_from_inventory(user_id, query_parsed['NAME'])
+        if query_parsed['BOOLEAN'] == "True" and data is ():
+            return "False"
+
         with Database() as db:
             db.execute('''INSERT INTO aidebot.history (user_id, national_code, last_taken_pill, taken)
                                    values ({id},{cn},'{date}', {boolean})'''.format(id=user_id,
@@ -165,6 +169,7 @@ class DBMethods:
                                                                                           'BOOLEAN'],
                                                                                       ))
             return "True"
+
 
     def get_history(self, user_id):
         with Database() as db:
