@@ -58,10 +58,8 @@ class DBMethods:
             data = db.query("SELECT id FROM aidebot.users where id={id}".format(id=user_id))
 
             if not data:
-                print("User isn't registered\n")
                 return False
             else:
-                print("User registered\n")
                 return True
 
     def add_user(self, new_user, new_password):
@@ -72,22 +70,17 @@ class DBMethods:
             data = db.query("SELECT id FROM aidebot.users where id={id}".format(id=new_user))
 
             if not data:
-                print("User not added\n")
                 return False
             else:
-                print('User added\n')
                 return True
 
     def check_password(self, user_id, password):
 
         with Database() as db:
             data = db.query("SELECT password FROM aidebot.users where id={id}".format(id=user_id))
-            print(data)
             if password != data[0][0]:
-                print('Wrong password')
                 return False
             else:
-                print('Correct password')
                 return True
 
     def introd_receipt(self, query_parsed, user_id, date):
