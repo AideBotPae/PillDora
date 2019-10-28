@@ -31,7 +31,6 @@ class ServerWorker:
         # CHECKING IF THERE IS ANY USER WITH A CERTAIN USER_ID
         if instruction == "CHECK USER":
             user_id = parsed_string["parameters"]["user_id"]
-            print(user_id)
             user_correct = self.checker.check_user(user_id=user_id)
             response = self.bot_parser(user_id=user_id, function="CHECK USER") + ' "boolean": "' + str(
                 user_correct) + '"}}'
@@ -198,12 +197,11 @@ class ServerWorker:
             user_id = parsed_string["parameters"]["user_id"]
             inventory = self.checker.get_inventory(user_id=user_id)
             if inventory is not ():
-                inventory_info = "Your current inventory consists on:\\n"
+                inventory_info = "Your current inventory consists on:"
                 for output in inventory:
-                    print(output)
-                    inventory_info += "\\t-> There are " + str(output[1]) + " of " + cima.get_med_name(
+                    inventory_info += "\\n\\t-> There are " + str(output[1]) + " of " + cima.get_med_name(
                         str(output[0])) + " which expire on " + datetime.datetime.strftime(output[2],
-                                                                                           "%Y-%m-%d")+"\\n"
+                                                                                           "%Y-%m-%d")
             else:
                 inventory_info = "False"
             response = self.bot_parser(user_id=user_id,
