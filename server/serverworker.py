@@ -190,7 +190,7 @@ class ServerWorker:
             if parsed_string["parameters"]["BOOLEAN"]== "True":
                 self.checker.reminder_taken(user_id=user_id, cn=parsed_string["parameters"]["NAME"])
             response = self.bot_parser(user_id=user_id,
-                                       function="INTRODUCE HISTORY") + '"boolean" : "' + history + '"}}'
+                                       function="INTRODUCE HISTORY") + '"boolean" : "' + str(history) + '"}}'
             self.logger.info(response)
             return response
 
