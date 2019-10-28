@@ -11,7 +11,6 @@ import json
 import logging
 import re
 
-import requests
 import telegram
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler
 from telegram.ext.dispatcher import run_async
@@ -65,7 +64,9 @@ yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=Tru
 
 
 class PillDora:
+    # MANAGE WHOLE BOT INFORMATION
     aide_bot = {}
+    # BOT WE COMMUNICATE TO
     bot = telegram.Bot(TOKEN_PROVE)
     # MANAGE THREADS STATES SYNCHRONICITY
     event = Event()
@@ -82,7 +83,6 @@ class PillDora:
         return state
 
     # Returns the state of the bot for a specific user_id
-
     def get_states(self, user_id):
         return self.aide_bot[user_id]['states']
 
@@ -440,7 +440,7 @@ class PillDora:
         return res == int(validation_number)
 
     def show_prescription(self, user_id):
-        med_param = lambda x: cima.get_med_name(self.get_prescription(user_id)[x]).split(' ')[0] if x == 'NAME' else \
+        med_param = lambda x: cima.get_med_name(self.get_prescription(user_id)[x]).split(' ')[0] if x == 'NAME'  else \
             self.get_prescription(user_id)[x]
         return '\n'.join(f"{tag}: {med_param(tag)}" for tag in PRESCRIPTION_TAGS)
 
@@ -723,7 +723,7 @@ class PillDora:
     def send_reminder(self, user_id, cn, time):
         if self.in_end(user_id):
             self.set_reminder(user_id, str(cn), str(time))
-            reminder = "Remember to take " + cn + " at " + time
+            reminder = "Remember to take " + cima.get_med_name(cn) + " at " + time
             self.bot.send_message(chat_id=user_id,
                              text="*`" + reminder + "`*\n",
                              parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=yes_no_markup)
