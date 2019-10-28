@@ -40,7 +40,7 @@ def get_num_pills(CN):
 
 
 def get_info_about(CN):
-    return get_json(CN)
+    return json.dump(get_json(CN))
 
 
 if __name__ == '__main__':
