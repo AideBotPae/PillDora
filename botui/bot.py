@@ -737,7 +737,7 @@ class PillDora:
         user_id=update.message.from_user.id
         self.set_function(user_id, "INTRODUCE HISTORY")
         reminder=self.get_reminder(user_id)
-        self.set_query(user_id, ["user_id", "NAME", "DATE", "BOOLEAN"], [str(user_id)], reminder['cn'], reminder['time'], "True")
+        self.set_query(user_id, ["user_id", "NAME", "DATE", "BOOLEAN"], [str(user_id), reminder['cn'], reminder['time'], "True"])
         query = self.create_query(user_id)
         response = self.send_query(user_id, query)
         self.event.set()
@@ -749,7 +749,7 @@ class PillDora:
         user_id=update.message.from_user.id
         self.set_function(user_id, "INTRODUCE HISTORY")
         reminder=self.get_reminder(user_id)
-        self.set_query(user_id, ["user_id", "NAME", "DATE", "BOOLEAN"], [str(user_id)], reminder['cn'], reminder['time'], "False")
+        self.set_query(user_id, ["user_id", "NAME", "DATE", "BOOLEAN"], [str(user_id), reminder['cn'], reminder['time'], "False"])
         query = self.create_query(user_id)
         response = self.send_query(user_id, query)
         self.event.set()
