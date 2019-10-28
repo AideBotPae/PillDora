@@ -417,7 +417,6 @@ class PillDora:
         filename = f"/home/paesav/Imágenes/{user_id}.jpg"
         file.download(filename)
         medicine_cn, validation_number = self.medicine_search(filename)
-        print('\n', medicine_cn, validation_number, '\n')
         return medicine_cn, validation_number
 
     def medicine_search(self, filename):
@@ -708,14 +707,12 @@ class PillDora:
 
     def send_reminders(self, data):
         for message in data:
-            print(message)
             self.send_reminder(user_id=message[2], cn=str(message[0]), time=str(message[1]))
 
     # Sends a reminder using parsing
     def send_reminder(self, user_id, cn, time):
-        print(self.get_states(user_id)[0])
-        self.set_reminder(user_id, str(cn), str(time))
         if self.in_end(user_id):
+            self.set_reminder(user_id, str(cn), str(time))
             reminder = "Remember to take " + cn + " at " + time
             self.bot.send_message(chat_id=user_id,
                              text="*`" + reminder + "`*\n",
@@ -733,7 +730,6 @@ class PillDora:
 
 
     def intr_history_yes(self, update, context):
-        print("YES")
         user_id=update.message.from_user.id
         self.set_function(user_id, "INTRODUCE HISTORY")
         reminder=self.get_reminder(user_id)
@@ -745,7 +741,6 @@ class PillDora:
 
 
     def intr_history_no(self, update, context):
-        print("NO")
         user_id=update.message.from_user.id
         self.set_function(user_id, "INTRODUCE HISTORY")
         reminder=self.get_reminder(user_id)
@@ -762,15 +757,6 @@ class PillDora:
         logger.info('User ' + self.get_name(update.message.from_user) + ' finish with AideBot')
         self.event.set()
         return self.set_state(update.message.chat_id, END)
-
-    def show_current_aidebot_status(self, bot):
-        print(self.aide_bot)
-        user_id = 821061948
-        info=self.get_states(user_id)[0]
-        bot.send_message(chat_id=user_id,
-                                 text="*_`" + str(info) + "`_*\n",
-                                 parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=yes_no_markup)
-
 
     # Main of the Client.py, where the bot is activated and creates the transition to the different functionalities
     def main(self):
