@@ -710,7 +710,7 @@ class PillDora:
     def send_reminders(self, data):
         for message in data:
             print(message)
-            self.pilldora.send_reminder(user_id=str(message[2]), cn=str(message[0]), time=str(message[1]))
+            self.send_reminder(user_id=str(message[2]), cn=str(message[0]), time=str(message[1]))
 
     # Sends a reminder using parsing
     def send_reminder(self, user_id, cn, time):
@@ -743,7 +743,7 @@ class PillDora:
         response = self.send_query(user_id, query)
         '''
         self.set_state(user_id, END)
-        
+
 
     def intr_history_no(self, update, context):
         print("NO")
@@ -756,7 +756,7 @@ class PillDora:
         response = self.send_query(user_id, query)
         '''
         self.set_state(user_id, END)
-        
+
 
     # Ends the communication between the user and the bot
     def exit(self, update, context):
