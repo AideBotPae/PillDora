@@ -4,6 +4,7 @@ import json
 import datetime
 import logging
 
+MAX_DATE = "2036-12-31"
 class ServerWorker:
 
     def __init__(self, user_id):
@@ -17,7 +18,7 @@ class ServerWorker:
         parsed_string = json.loads(query)
         instruction = parsed_string["function"]
         user_id = parsed_string["user_id"]
-        
+
         # CHECKING IF THERE IS ANY USER WITH A CERTAIN USER_ID
         if instruction == "CHECK USER":
             user_correct = self.checker.check_user(user_id=user_id)
@@ -126,7 +127,7 @@ class ServerWorker:
                 current_treatment_info = "Meds currently being taken :\\n"
                 for output in current_treatment:
                     date_str = str(output[1]).split()[0]
-                    if date_str == "2036-12-31":
+                    if date_str == MAX_DATE:
                         current_treatment_info += "\\t-> Taking " + cima.get_med_name(
                             str(output[0])) + " chronically \\n"
                     else:
@@ -183,7 +184,7 @@ class ServerWorker:
             # THIS MEANS THAT WE GOT INFORMATION ABOUT THIS MEDICINE, SO WE ARE PARSING IT
             if reminder_info != '"False"':
                 date_str=datetime.datetime.strftime(reminder_info[0][2], "%Y-%m-%d")
-                if date_str == "2036-12-31":
+                if date_str == MAX_DATE:
                     date_str ="Chronic"
                 reminder_info = '"CN":"' + str(reminder_info[0][0]) + '","frequency":"' + str(
                     reminder_info[0][1]) + '","end_date":"' + date_str + '"'
@@ -192,7 +193,7 @@ class ServerWorker:
                 reminder_info = '"CN":' + reminder_info
             response = self.bot_parser(self.user_id,
                                        function="GET REMINDER") + reminder_info + '}}'
- 
+
         # IF WE SEND A WRONG QUERY, WE SEND THE INFORMATION LIKE THIS
         else:
             response = self.bot_parser(user_id=user_id,
