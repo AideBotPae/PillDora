@@ -10,6 +10,7 @@ def get_json(CN):
     return r.json()
 
 def get_med_name(CN):
+    '''
     # data = .get_json(CN)
     # return data['principiosActivos'][0]['nombre']
     data = get_json(CN)
@@ -21,6 +22,8 @@ def get_med_name(CN):
         if matches:
             break
     return matches[0]
+    '''
+    return CN
 
 def get_num_pills(CN):
     data = get_json(CN)
