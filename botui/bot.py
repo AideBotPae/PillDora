@@ -542,11 +542,14 @@ class PillDora:
     # Method that handles the situations and depending on the current state, changes the state
     def inline_handler(self, update, context):
         selected, date = telegramcalendar.process_calendar_selection(context.bot, update)
+        date_str=date.strftime("%Y-%m-%d")
+        if date_str =="2036-12-31":
+            date_str ="CHRONIC"
         user_id = update.callback_query.from_user.id
         if selected:
             if self.get_states(user_id)[0] == CHOOSING:
                 context.bot.send_message(chat_id=user_id,
-                                         text="You selected %s" % (date.strftime("%Y-%m-%d")),
+                                         text="You selected %s" % (date_str),
                                          reply_markup=ReplyKeyboardRemove())
             if self.get_states(user_id)[0] == CHOOSING:
                 self.get_calendar_tasks(update, context, date.strftime("%Y-%m-%d"), user_id)
@@ -559,13 +562,13 @@ class PillDora:
                     self.set_state(user_id, JOURNEY)
             elif self.get_states(user_id)[0] == INTR_PRESCRIPTION:
                 context.bot.send_message(chat_id=user_id,
-                                         text=date.strftime("%Y-%m-%d"),
+                                         text=date_str,
                                          reply_markup=ReplyKeyboardRemove())
                 self.set_prescription(user_id, self.get_counter(user_id), date.strftime("%Y-%m-%d"))
                 self.send_new_prescription(update, context)
             elif self.get_states(user_id)[0] == INTR_MEDICINE:
                 context.bot.send_message(chat_id=user_id,
-                                         text=date.strftime("%Y-%m-%d"),
+                                         text=date_str,
                                          reply_markup=ReplyKeyboardRemove())
                 self.set_medicine(user_id, self.get_counter(user_id), date.strftime("%Y-%m-%d"))
                 self.send_new_medicine(update, context)
@@ -573,14 +576,16 @@ class PillDora:
     @run_async
     # Returns all the reminders associated for a specific date and user_id
     def get_calendar_tasks(self, update, context, date, user_id):
-        logger.info('Tasks for the user on the date ' + date)
+        date_str=date
+        if date_str =="2036-12-31":
+            date_str ="CHRONIC"
         # connects to DataBase with Date and UserId asking for all the tasks of this date
         self.set_function(user_id, "TASKS CALENDAR")
         self.set_query(user_id, ["date"], [date])
         query = self.create_query(user_id)
         response = json.loads(self.send_query(user_id, query))
         context.bot.send_message(chat_id=user_id,
-                                 text="Reminders for " + date + " :\n")
+                                 text="Reminders for " + date_str + " :\n")
         context.bot.send_message(chat_id=user_id, text=response['parameters']['tasks'])
         context.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?",
                                  reply_markup=markup)
@@ -660,9 +665,13 @@ class PillDora:
             update.message.reply_text('CN introduced is wrong, there is not any med with this CN')
             update.message.reply_text("Is there any other way I can help you?", reply_markup=markup)
             return self.set_state(user_id, CHOOSING)
-        reminder_info = "Medicine " + cima.get_med_name(response['parameters']['CN']) + " taken with a frequency of " + \
-                        response['parameters']['frequency'] + " hours until the date of " + response['parameters'][
-                            'end_date'] + "."
+        end_date=response['parameters']['end_date']
+        if end_date == "2036-12-31":
+            reminder_info = "Medicine " + cima.get_med_name(response['parameters']['CN']) + " taken with a frequency of " + \
+                            response['parameters']['frequency'] + " hours chronically."
+        else:
+            reminder_info = "Medicine " + cima.get_med_name(response['parameters']['CN']) + " taken with a frequency of " + \
+                            response['parameters']['frequency'] + " hours until the date of " + end_date + "."
         update.message.reply_text('Reminder asked to be removed:\n ->\t' + reminder_info)
         update.message.reply_text('Is this the reminder you want to remove? ', reply_markup=yes_no_markup)
         self.set_query(user_id, ["CN"], [response['parameters']['CN']])
@@ -687,19 +696,20 @@ class PillDora:
     # Method that asks for the dates needed for a journey and changes the state of the bot to JOURNEY
 
     def set_journey(self, update, context, date):
+        date_str=date
+        if date == "2036-12-31":
+            date_str = "CHRONIC"
         user_id = update.callback_query.from_user.id
         if self.get_states(user_id)[1] == CHOOSING:
-            logger.info("Department date " + date)
             self.set_dates(user_id, "departure", date)
             context.bot.send_message(chat_id=user_id,
-                                     text="Alright. I see you are leaving on " + date + ".\nWhen will you come back?",
+                                     text="Alright. I see you are leaving on " + date_str + ".\nWhen will you come back?",
                                      reply_markup=telegramcalendar.create_calendar())
 
         if self.get_states(user_id)[1] == JOURNEY:
-            logger.info("Arrival date " + date)
             self.set_dates(user_id, "arrival", date)
             context.bot.send_message(chat_id=user_id,
-                                     text="The arrival Date is on " + date + "\nIs this information correct?",
+                                     text="The arrival Date is on " + date_str + "\nIs this information correct?",
                                      reply_markup=yes_no_markup)
             self.set_query(user_id, ["departure_date", "arrival_date"],
                            [self.get_dates(user_id)[0], self.get_dates(user_id)[1]])
