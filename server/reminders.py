@@ -15,7 +15,7 @@ class Reminder:
         schedule.every().day.at("01:00").do(self.checking_expirations)
         schedule.every().day.at("02:00").do(self.delete_history)
         schedule.every().hour.do(self.remind_information)
-        time.sleep(10)
+        time.sleep(20)
         self.test()
         while True:
             schedule.run_pending()
