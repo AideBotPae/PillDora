@@ -16,6 +16,8 @@ class Reminder:
         schedule.every().day.at("01:00").do(self.checking_expirations)
         schedule.every().day.at("02:00").do(self.delete_history)
         schedule.every().hour.do(self.remind_information)
+        time.sleep(20)
+        self.test()
         while True:
             schedule.run_pending()
             # Sleeps for half an hour
@@ -25,7 +27,6 @@ class Reminder:
     def test(self):
         bot = telegram.Bot('877926240:AAEuBzlNaqYM_kXbOMxs9lzhFsR7UpoqKWQ')
         print("Inside")
-        
         self.pilldora.show_current_aidebot_status(bot)
 
     def checking_expirations(self):
