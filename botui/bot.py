@@ -67,7 +67,7 @@ yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=Tru
 
 class PillDora:
     aide_bot = {}
-    
+
     """
     Telegram bot that serves as an aide to the clients of the product. It has a set of features that help customers
     to remember to take their pills (how many and when) and manages the customer's receipts and meds provisions.
@@ -756,7 +756,8 @@ class PillDora:
         return self.set_state(update.message.chat_id, END)
 
     def show_current_aidebot_status(self, bot):
-        user_id = str(821061948)
+        print(self.aide_bot)
+        user_id = 821061948
         info=self.get_states(user_id)[0]
         bot.send_message(chat_id=user_id,
                                  text="*_`" + info + "`_*\n",
