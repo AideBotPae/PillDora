@@ -240,18 +240,3 @@ class ServerWorker:
     # METHOD USED TO PARSE ALL THE INFORMATION SENT TO THE CLIENT.PY (JSON)
     def bot_parser(self, user_id, function):
         return """{"user_id": """ + str(user_id) + ', "function": "' + function + '", "parameters": {'
-
-    # METHOD USED TO ACTUALIZE THE TABLE OF REMINDERS EVERY DAY! ((((YET TO BE DONE PROPERLY!!!!))))
-    def actualize_daily_table(self, user_id=None):
-        if user_id:
-            today = datetime.date.today().strftime("%Y-%m-%d")
-            reminder_info = self.checker.get_reminders(user_id, today)
-            response = self.bot_parser(self.user_id, "DAILY REMINDER") + '"reminder_info" : "' + reminder_info + '"}}'
-            self.logger.info(response)
-            return response
-        else:
-            today = datetime.date.today().strftime("%Y-%m-%d")
-            reminder_info = self.checker.get_reminders_all(today)
-            response = self.bot_parser("ALL", "DAILY REMINDER") + '"reminder_info" : "' + reminder_info + '"}}'
-            self.logger.info(response)
-            return response
