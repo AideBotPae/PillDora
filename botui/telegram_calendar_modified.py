@@ -100,7 +100,7 @@ def process_calendar_selection(bot,update):
                               chat_id=query.message.chat_id,
                               message_id=query.message.message_id
                               )
-        ret_data = True, datetime.datetime(99, 99, 99)
+        ret_data = True, datetime.datetime(31, 12, 9999)
     else:
         bot.answer_callback_query(callback_query_id= query.id,text="Something went wrong!")
         # UNKNOWN
