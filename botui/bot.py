@@ -36,6 +36,9 @@ TOKEN_PILLDORA = '938652990:AAETGF-Xh2_njSdCLn2KibcprZXH1hhqsiI'
 LOGIN, NEW_USER, CHOOSING, INTR_PRESCRIPTION, INTR_MEDICINE, SHOW_INFORMATION, CHECK_PRE, CHECK_MED, GET_CN, CHECK_REM, JOURNEY, END, REMINDERS = range(
     13)
 
+#MAX_DATE FORBID BY MYSQL:
+MAX_DATE= "2036-12-31"
+
 # FUNCTIONS FOR COMMUNICATING WITH DATA BASE
 QUERIES = ['CHECK USER', 'CHECK PASSWORD', 'NEW PASSWORD', 'INTRODUCE PRESCRIPTION', 'INTRODUCE MEDICINE',
            'TASKS CALENDAR', 'CURRENT TREATMENT', 'JOURNEY', 'HISTORY', 'INVENTORY'
@@ -324,10 +327,12 @@ class PillDora:
                     update.message.reply_text("There is already a prescription of same med with same frequencies")
                 if response['parameters']['inventory'] == "None":
                     update.message.reply_text("In your inventory we do not have any of this medicine. Please 'Introduce Medicine' after getting the med")
+                    self.show_location()
                 elif response['parameters']['inventory'] == "Enough":
                     update.message.reply_text("In your inventory there is enough of this medicine for this whole treatment. No need to buy it.")
                 elif response['parameters']['inventory'] == "Need to buy":
                     update.message.reply_text("In your inventory there is some of this medicine but not enough for the whole treatment. Need to buy it.")
+                    self.show_location()
 
             if response['function'] == 'INTRODUCE MEDICINE':
                 if response['parameters']["Code"] == "0":
@@ -531,6 +536,10 @@ class PillDora:
             name = cima.get_med_name(medicine_cn)
             update.message.reply_text("Information about medicine " + name + ":\n\t" + info)
             return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
+        
+    def show_location(self, user_id):
+        self.bot.send_location(user_id=user_id,latitude=12, longitude=43)
+        return
 
     @run_async
     def see_calendar(self, update, context):
@@ -543,7 +552,7 @@ class PillDora:
     def inline_handler(self, update, context):
         selected, date = telegramcalendar.process_calendar_selection(context.bot, update)
         date_str=date.strftime("%Y-%m-%d")
-        if date_str =="2036-12-31":
+        if date_str ==MAX_DATE:
             date_str ="CHRONIC"
         user_id = update.callback_query.from_user.id
         if selected:
@@ -577,7 +586,7 @@ class PillDora:
     # Returns all the reminders associated for a specific date and user_id
     def get_calendar_tasks(self, update, context, date, user_id):
         date_str=date
-        if date_str =="2036-12-31":
+        if date_str ==MAX_DATE:
             date_str ="CHRONIC"
         # connects to DataBase with Date and UserId asking for all the tasks of this date
         self.set_function(user_id, "TASKS CALENDAR")
@@ -666,7 +675,7 @@ class PillDora:
             update.message.reply_text("Is there any other way I can help you?", reply_markup=markup)
             return self.set_state(user_id, CHOOSING)
         end_date=response['parameters']['end_date']
-        if end_date == "2036-12-31":
+        if end_date == MAX_DATE:
             reminder_info = "Medicine " + cima.get_med_name(response['parameters']['CN']) + " taken with a frequency of " + \
                             response['parameters']['frequency'] + " hours chronically."
         else:
@@ -697,7 +706,7 @@ class PillDora:
 
     def set_journey(self, update, context, date):
         date_str=date
-        if date == "2036-12-31":
+        if date == MAX_DATE:
             date_str = "CHRONIC"
         user_id = update.callback_query.from_user.id
         if self.get_states(user_id)[1] == CHOOSING:
