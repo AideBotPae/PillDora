@@ -66,7 +66,8 @@ yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=Tru
 
 
 class PillDora:
-    aide_bot={}
+    aide_bot = {}
+    
     """
     Telegram bot that serves as an aide to the clients of the product. It has a set of features that help customers
     to remember to take their pills (how many and when) and manages the customer's receipts and meds provisions.
