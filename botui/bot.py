@@ -444,7 +444,7 @@ class PillDora:
     def show_prescription(self, user_id):
         med_param = lambda x: cima.get_med_name(self.get_prescription(user_id)[x]).split(' ')[0] if x == 'NAME' else \
             self.get_prescription(user_id)[x]
-        return '\n'.join(f"{tag}: {med_param(tag)}" for tag in PRESCRIPTION_TAGS)
+        return '\\n'.join(f"{tag}: {med_param(tag)}" for tag in PRESCRIPTION_TAGS)
 
     @run_async
     def intr_medicine(self, update, context):
@@ -509,7 +509,7 @@ class PillDora:
     def show_medicine(self, user_id):
         med_param = lambda x: cima.get_med_name(self.get_medicine(user_id)[x]).split(' ')[0] if x == 'NAME' else \
             self.get_medicine(user_id)[x]
-        return '\n'.join(f"{tag}: {med_param(tag)}" for tag in MEDICINE_TAGS)
+        return '\\n'.join(f"{tag}: {med_param(tag)}" for tag in MEDICINE_TAGS)
 
     @run_async
     def show_information(self, update, context):
