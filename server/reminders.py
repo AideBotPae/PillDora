@@ -14,9 +14,7 @@ class Reminder:
         # Every day at 01:00 the system will proceed to check if any reminder needs to be removed as expired
         schedule.every().day.at("01:00").do(self.checking_expirations)
         schedule.every().day.at("02:00").do(self.delete_history)
-        schedule.every().hour.do(self.remind_information)
-        time.sleep(20)
-        self.test()
+        schedule.every(30).minutes.do(self.remind_information)
         while True:
             schedule.run_pending()
             # Sleeps for half an hour
@@ -37,7 +35,7 @@ class Reminder:
     def remind_information(self):
         with Database() as db:
             now = datetime.datetime.now()
-            before_now = now - datetime.timedelta(hours=1)
+            before_now = now - datetime.timedelta(minutes=30)
             now = now.strftime('%H:%M:%S')
             before_now = before_now.strftime('%H:%M:%S')
             # this will be extract afterwards
