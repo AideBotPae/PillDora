@@ -70,6 +70,8 @@ yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=Tru
 
 
 class PillDora:
+    def __init__(self):
+        self.aide_bot=self.aide_bot
     """
     Telegram bot that serves as an aide to the clients of the product. It has a set of features that help customers
     to remember to take their pills (how many and when) and manages the customer's receipts and meds provisions.
@@ -77,59 +79,59 @@ class PillDora:
 
     # GETTERS AND SETTERS TO EASY FUNCTIONS
     def set_state(self, user_id, state):
-        aide_bot[user_id]['states'][1] = aide_bot[user_id]['states'][0]
-        aide_bot[user_id]['states'][0] = state
+        self.aide_bot[user_id]['states'][1] = self.aide_bot[user_id]['states'][0]
+        self.aide_bot[user_id]['states'][0] = state
         return state
 
     # Returns the state of the bot for a specific user_id
 
     def get_states(self, user_id):
-        return aide_bot[user_id]['states']
+        return self.aide_bot[user_id]['states']
 
     def in_end(self, user_id):
-        return aide_bot[user_id]['states'][0] == END
+        return self.aide_bot[user_id]['states'][0] == END
 
     def set_reminder(self, user_id, cn, time):
-        aide_bot[user_id]['reminder']['cn'] == cn
-        aide_bot[user_id]['reminder']['time'] == time
+        self.aide_bot[user_id]['reminder']['cn'] == cn
+        self.aide_bot[user_id]['reminder']['time'] == time
 
     def get_reminder(self, user_id):
-        return aide_bot[user_id]['reminder']
+        return self.aide_bot[user_id]['reminder']
 
     # Returns the last prescription associated for a specific user_id
     def get_prescription(self, user_id):
-        return aide_bot[user_id]['prescription']
+        return self.aide_bot[user_id]['prescription']
 
     # Insertion of a prescription for a specific user_id
     def set_prescription(self, user_id, num, text):
-        aide_bot[user_id]['prescription'][PRESCRIPTION_TAGS[num]] = text
+        self.aide_bot[user_id]['prescription'][PRESCRIPTION_TAGS[num]] = text
 
     # Returns the last medicine associated for a specific user_id
     def get_medicine(self, user_id):
-        return aide_bot[user_id]['medicine']
+        return self.aide_bot[user_id]['medicine']
 
     # Insertion of a medicine for a specific user_id
     def set_medicine(self, user_id, num, text):
-        aide_bot[user_id]['medicine'][MEDICINE_TAGS[num]] = text
+        self.aide_bot[user_id]['medicine'][MEDICINE_TAGS[num]] = text
 
     # Returns the dates on a journey for a specific user_id
     def get_dates(self, user_id):
-        return aide_bot[user_id]['journey']
+        return self.aide_bot[user_id]['journey']
 
     # Insertion of the date of a journey depending on the text, it is the departure or return for a specific user_id
     def set_dates(self, user_id, text, date):
         if text == "departure":
-            aide_bot[user_id]['journey'][0] = date
+            self.aide_bot[user_id]['journey'][0] = date
         else:
-            aide_bot[user_id]['journey'][1] = date
+            self.aide_bot[user_id]['journey'][1] = date
 
     # Insertion of the number of medicines associated to a medicine for a specific user_id
     def set_counter(self, user_id, num):
-        aide_bot[user_id]['intr_prescription_counter'] = num
+        self.aide_bot[user_id]['intr_prescription_counter'] = num
 
     # Returns the number of medicines associated to a medicine for a specific user_id
     def get_counter(self, user_id):
-        return aide_bot[user_id]['intr_prescription_counter']
+        return self.aide_bot[user_id]['intr_prescription_counter']
 
     # Insertion of the query that the Client sends to the ServerWorker for a specific user_id
     def set_query(self, user_id, keys, values):
@@ -137,19 +139,19 @@ class PillDora:
         parameters = {}
         for key in keys:
             parameters[key] = values[keys.index(key)]
-        aide_bot[user_id]['query'] = parameters
+        self.aide_bot[user_id]['query'] = parameters
 
     # Returns the query that that the Client sends to the ServerWorker for a specific user_id
     def get_query(self, user_id):
-        return aide_bot[user_id]['query']
+        return self.aide_bot[user_id]['query']
 
     # Insertion of the function that the bot is currently on for a specific user_id
     def set_function(self, user_id, text):
-        aide_bot[user_id]['function'] = text
+        self.aide_bot[user_id]['function'] = text
 
     # Returns the function that the bot is doing for a specific user_id
     def get_function(self, user_id):
-        return aide_bot[user_id]['function']
+        return self.aide_bot[user_id]['function']
 
     def send_query(self, user_id, query):
         """Sends the query to the ServerWorker and returns the JSON query response.
@@ -158,7 +160,7 @@ class PillDora:
         :param query: Query to be send to the ServerWorker
         :return: the response to the query from sever
         """
-        return aide_bot[user_id]['serverworker'].handler_query(query)
+        return self.aide_bot[user_id]['serverworker'].handler_query(query)
 
     def create_query(self, user_id):
         """Creates a JSON from the parameters that we have introduced using the Getters and Setters
@@ -177,7 +179,7 @@ class PillDora:
         return query
 
     def start(self, update, context):
-        """Manages /start command initializing a new aide_bot dictionary for the new user. It also manaages a login.
+        """Manages /start command initializing a new self.aide_bot dictionary for the new user. It also manaages a login.
 
         :param update: Updater for bot token
         :param context: Handler context
@@ -185,7 +187,7 @@ class PillDora:
         """
         user_id = update.message.from_user.id
         name = self.get_name(update.message.from_user)
-        aide_bot[user_id] = {'states': [LOGIN, LOGIN], 'intr_prescription_counter': 0,
+        self.aide_bot[user_id] = {'states': [LOGIN, LOGIN], 'intr_prescription_counter': 0,
                              'prescription': {tag: '' for tag in PRESCRIPTION_TAGS},
                              'medicine': {tag: '' for tag in MEDICINE_TAGS},
                              'journey': ['None', 'None'],
@@ -714,15 +716,16 @@ class PillDora:
 
     # Sends a reminder using parsing
     def send_reminder(self, update, context, user_id, cn, time):
-            self.set_reminder(user_id, str(cn), str(time))
-            if self.in_end(user_id):
-                reminder = "Remember to take " + cn + " at " + time
-                context.bot.send_message(chat_id=user_id,
-                                 text="*_`" + reminder + "`_*\n",
-                                 parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=yes_no_markup)
-                return self.set_state(user_id, REMINDERS)
-            else:
-                return self.delay_reminder(user_id, cn, time)
+        print(self.get_states(user_id)[0])
+        self.set_reminder(user_id, str(cn), str(time))
+        if self.in_end(user_id):
+            reminder = "Remember to take " + cn + " at " + time
+            context.bot.send_message(chat_id=user_id,
+                             text="*_`" + reminder + "`_*\n",
+                             parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=yes_no_markup)
+            return self.set_state(user_id, REMINDERS)
+        else:
+            return self.delay_reminder(user_id, cn, time)
 
     def delay_reminder(self, user_id, cn, time):
         event.wait()
@@ -758,7 +761,7 @@ class PillDora:
 
     def show_current_aidebot_status(self, bot):
         user_id = str(821061948)
-        info="HEy"
+        info=self.get_states(user_id)[0]
         bot.send_message(chat_id=user_id,
                                  text="*_`" + info + "`_*\n",
                                  parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=yes_no_markup)
