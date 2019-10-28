@@ -720,6 +720,7 @@ class PillDora:
             self.bot.send_message(chat_id=user_id,
                              text="*`" + reminder + "`*\n",
                              parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=yes_no_markup)
+            self.event.clear()
             return self.set_state(user_id, REMINDERS)
         else:
             return self.delay_reminder(user_id, cn, time)
