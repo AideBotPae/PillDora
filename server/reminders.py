@@ -24,9 +24,8 @@ class Reminder:
 
     # Delete all reminders which has expired by end_date < today
     def test(self):
-        bot = telegram.Bot('877926240:AAEuBzlNaqYM_kXbOMxs9lzhFsR7UpoqKWQ')
-        print("Inside")
-        self.client.show_current_aidebot_status(bot)
+        data = [["1234", "08:00:00", 821061948], ["4567", "10:00:00", 821061948], ["8910", "10:00:00", 821061948]]
+        self.client.send_reminders(data)
 
     def checking_expirations(self):
         with Database() as db:
