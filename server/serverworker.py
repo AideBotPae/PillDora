@@ -155,8 +155,13 @@ class ServerWorker:
             if current_treatment is not ():
                 current_treatment_info = "Meds currently being taken :\\n"
                 for output in current_treatment:
-                    current_treatment_info += "\\t-> Taking " + cima.get_med_name(
-                        str(output[0])) + " until the date of " + str(output[1]).split()[0] + "\\n"
+                    date_str = str(output[1]).split()[0]
+                    if date_str == "2036-12-31":
+                        current_treatment_info += "\\t-> Taking " + cima.get_med_name(
+                            str(output[0])) + " chronically \\n"
+                    else:
+                        current_treatment_info += "\\t-> Taking " + cima.get_med_name(
+                            str(output[0])) + " until the date of " + date_str + "\\n"
             else:
                 current_treatment_info = "False"
             response = self.bot_parser(user_id=user_id,
@@ -218,9 +223,11 @@ class ServerWorker:
                                                        cn=national_code)
             # THIS MEANS THAT WE GOT INFORMATION ABOUT THIS MEDICINE, SO WE ARE PARSING IT
             if reminder_info != '"False"':
+                date_str=datetime.datetime.strftime(reminder_info[0][2], "%Y-%m-%d")
+                if date_str == "2036-12-31":
+                    date_str ="Chronic"
                 reminder_info = '"CN":"' + str(reminder_info[0][0]) + '","frequency":"' + str(
-                    reminder_info[0][1]) + '","end_date":"' + datetime.datetime.strftime(reminder_info[0][2],
-                                                                                         "%Y-%m-%d") + '"'
+                    reminder_info[0][1]) + '","end_date":"' + date_str + '"'
             else:
                 # THIS MEANS THAT WE GOT NO INFORMATION ABOUT THIS MEDICINE FOR THE REMINDERS OF TODAY AND WE SEND NONE.
                 reminder_info = '"CN":' + reminder_info
