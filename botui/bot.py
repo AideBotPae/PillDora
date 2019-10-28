@@ -382,7 +382,7 @@ class PillDora:
                 if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
                     update.message.reply_text(
                         "An error has occurred, please repeat the photo or manually introduce the CN")
-                    return self.set_state(user_id, INTR_PRESCRIPTION)
+                    return INTR_PRESCRIPTION
                 else:
                     self.set_prescription(user_id, self.get_counter(user_id), medicine_cn)
             else:
@@ -395,12 +395,12 @@ class PillDora:
         if self.get_counter(user_id) != len(INTR_PRESCRIPTION_MSSGS):
             if self.get_counter(user_id) < 3:
                 update.message.reply_text(INTR_PRESCRIPTION_MSSGS[self.get_counter(user_id)])
-                return self.set_state(user_id, INTR_PRESCRIPTION)
+                return INTR_PRESCRIPTION
             else:
                 context.bot.send_message(chat_id=user_id,
                                          text=INTR_PRESCRIPTION_MSSGS[self.get_counter(user_id)],
                                          reply_markup=telegramcalendar.create_calendar())
-                return self.set_state(user_id, CHECK_PRE)
+                return CHECK_PRE
         else:
             self.set_counter(user_id, 0)
             context.bot.send_message(chat_id=user_id,
@@ -443,7 +443,7 @@ class PillDora:
     def show_prescription(self, user_id):
         med_param = lambda x: cima.get_med_name(self.get_prescription(user_id)[x]).split(' ')[0] if x == 'NAME' else \
             self.get_prescription(user_id)[x]
-        return '\n'.join(f"{tag}: {med_param(tag)}" for tag in PRESCRIPTION_TAGS)
+        return '\\n'.join(f"{tag}: {med_param(tag)}" for tag in PRESCRIPTION_TAGS)
 
     @run_async
     def intr_medicine(self, update, context):
