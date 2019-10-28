@@ -5,18 +5,17 @@ import time
 import telegram
 
 
-
 # THIS CLASS IS THE ONE THAT HAS THE TASK OF ACTUALIZING THE DAILY TABLE EVERY DAY WITH THE REMINDERS!
 class Reminder:
-    def __init__(self, pilldora):
-        self.pilldora=pilldora
+    def __init__(self, arg):
+        self.client = arg
 
     def daily_actualizations(self):
         # Every day at 01:00 the system will proceed to check if any reminder needs to be removed as expired
         schedule.every().day.at("01:00").do(self.checking_expirations)
         schedule.every().day.at("02:00").do(self.delete_history)
         schedule.every().hour.do(self.remind_information)
-        time.sleep(20)
+        time.sleep(10)
         self.test()
         while True:
             schedule.run_pending()
@@ -27,7 +26,7 @@ class Reminder:
     def test(self):
         bot = telegram.Bot('877926240:AAEuBzlNaqYM_kXbOMxs9lzhFsR7UpoqKWQ')
         print("Inside")
-        self.pilldora.show_current_aidebot_status(bot)
+        self.client.show_current_aidebot_status(bot)
 
     def checking_expirations(self):
         with Database() as db:
@@ -54,7 +53,7 @@ class Reminder:
                                        FROM aidebot.daily_reminders 
                                        WHERE time >= '{before_now}' and time<='{now}'
                                        '''.format(before_now=before_now, now=now))
-            self.pilldora.send_reminders(data)
+            self.client.send_reminders(data)
 
     # Delete information older than 3 days from history table
     def delete_history(self):
