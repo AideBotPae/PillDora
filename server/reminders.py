@@ -1,7 +1,9 @@
-from server.database import Database
 import datetime
-import schedule
 import time
+
+import schedule
+
+from server.database import Database
 
 
 # THIS CLASS IS THE ONE THAT HAS THE TASK OF ACTUALIZING THE DAILY TABLE EVERY DAY WITH THE REMINDERS!
@@ -21,7 +23,8 @@ class Reminder:
 
     # Delete all reminders which has expired by end_date < today
     def test(self):
-        data = [["798116", "2019-10-28 08:00:00", 821061948], ["664029", "2019-10-28 10:00:00", 821061948], ["798116", "2019-10-28 10:00:00", 821061948]]
+        data = [["798116", "2019-10-28 08:00:00", 821061948], ["664029", "2019-10-28 10:00:00", 821061948],
+                ["798116", "2019-10-28 10:00:00", 821061948]]
         self.client.send_reminders(data)
 
     def checking_expirations(self):
@@ -37,17 +40,9 @@ class Reminder:
             before_now = now - datetime.timedelta(minutes=30)
             now = now.strftime('%H:%M:%S')
             before_now = before_now.strftime('%H:%M:%S')
-            # this will be extract afterwards
-            query = '''SELECT national_code, time, user_id
-                                       FROM aidebot.daily_reminders 
-                                       WHERE time >= '{before_now}' and time>='{now}'
-                                       '''.format(before_now=before_now, now=now)
-            print(query)
-            # till here
-
             data = db.query('''SELECT national_code, time, user_id
                                        FROM aidebot.daily_reminders 
-                                       WHERE time >= '{before_now}' and time<='{now}'
+                                       WHERE time >= '{before_now}' and time<='{now}' and taken=0
                                        '''.format(before_now=before_now, now=now))
             self.client.send_reminders(data)
 
