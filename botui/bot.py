@@ -10,18 +10,18 @@ bot.
 import json
 import logging
 import re
+from threading import Event
 
 import telegram
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler
 from telegram.ext.dispatcher import run_async
 from telegram.replykeyboardmarkup import ReplyKeyboardMarkup
 from telegram.replykeyboardremove import ReplyKeyboardRemove
-from threading import Event
 
 import botui.telegramcalendar as telegramcalendar
-from server.serverworker import ServerWorker
 import server.cima as cima
 from imagerecognition.ocr.ocr import TextRecognition
+from server.serverworker import ServerWorker
 
 # LOG INFORMATION
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -36,14 +36,13 @@ TOKEN_PILLDORA = '938652990:AAETGF-Xh2_njSdCLn2KibcprZXH1hhqsiI'
 LOGIN, NEW_USER, CHOOSING, INTR_PRESCRIPTION, INTR_MEDICINE, SHOW_INFORMATION, CHECK_PRE, CHECK_MED, GET_CN, CHECK_REM, JOURNEY, END, REMINDERS = range(
     13)
 
-#MAX_DATE FORBID BY MYSQL:
-MAX_DATE= "2036-12-31"
+# MAX_DATE FORBID BY MYSQL:
+MAX_DATE = "2036-12-31"
 
 # FUNCTIONS FOR COMMUNICATING WITH DATA BASE
 QUERIES = ['CHECK USER', 'CHECK PASSWORD', 'NEW PASSWORD', 'INTRODUCE PRESCRIPTION', 'INTRODUCE MEDICINE',
            'TASKS CALENDAR', 'CURRENT TREATMENT', 'JOURNEY', 'HISTORY', 'INVENTORY'
                                                                         'GET REMINDER', 'DELETE REMINDER']
-
 
 # TAGS TO MANAGE INTRODUCING MEDICINES
 INTR_PRESCRIPTION_MSSGS = ["What is the medicine's name (CN)?\nYou can also send me a photo of the package!",
@@ -60,7 +59,7 @@ reply_keyboard = [
     [u'New Prescription \U0001F4C3', u'New Medicine \U0001F48A'],
     [u'Current Treatments \U0001F3E5', u'Delete reminder \U0001F514'],
     [u'History \U0001F4D6', u'Inventory \U00002696', u'Information \U0001F4AC'],
-    [u'Journey \U0000270D', u'Calendar \U0001F4C6',  u'Exit \U0001F6AA']]
+    [u'Journey \U0000270D', u'Calendar \U0001F4C6', u'Exit \U0001F6AA']]
 yes_no_reply_keyboard = [['YES', 'NO']]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
@@ -189,12 +188,12 @@ class PillDora:
         user_id = update.message.from_user.id
         name = self.get_name(update.message.from_user)
         self.aide_bot[user_id] = {'states': [LOGIN, LOGIN], 'intr_prescription_counter': 0,
-                             'prescription': {tag: '' for tag in PRESCRIPTION_TAGS},
-                             'medicine': {tag: '' for tag in MEDICINE_TAGS},
-                             'journey': ['None', 'None'],
-                             'function': 'none', 'query': {},
-                             'reminder': {'cn': "None", 'time':'None'},
-                             'serverworker': ServerWorker(user_id)}
+                                  'prescription': {tag: '' for tag in PRESCRIPTION_TAGS},
+                                  'medicine': {tag: '' for tag in MEDICINE_TAGS},
+                                  'journey': ['None', 'None'],
+                                  'function': 'none', 'query': {},
+                                  'reminder': {'cn': "None", 'time': 'None'},
+                                  'serverworker': ServerWorker(user_id)}
         logger.info('User ' + name + ' has connected to AideBot: ID is ' + str(user_id))
         context.bot.send_message(chat_id=user_id, text=("Welcome " + name + " ! My name is AideBot"))
 
@@ -320,18 +319,23 @@ class PillDora:
                     logger.info("Medicine correctly introduced")
                 elif response['parameters']["Code"] == "1":
                     logger.info("Medicine already in the database with different frequencies. PROBLEM")
-                    update.message.reply_text("There is already a prescription of same med that has not expire yet. Different frequencies")
-                    update.message.reply_text("In order to introduce this new prescription, please first delete the other reminder.")
+                    update.message.reply_text(
+                        "There is already a prescription of same med that has not expire yet. Different frequencies")
+                    update.message.reply_text(
+                        "In order to introduce this new prescription, please first delete the other reminder.")
                 elif response['parameters']["Code"] == "2":
                     logger.info("Medicine already in the database with same frequencies. NO PROBLEM")
                     update.message.reply_text("There is already a prescription of same med with same frequencies")
                 if response['parameters']['inventory'] == "None":
-                    update.message.reply_text("In your inventory we do not have any of this medicine. Please 'Introduce Medicine' after getting the med")
+                    update.message.reply_text(
+                        "In your inventory we do not have any of this medicine. Please 'Introduce Medicine' after getting the med")
                     self.show_location()
                 elif response['parameters']['inventory'] == "Enough":
-                    update.message.reply_text("In your inventory there is enough of this medicine for this whole treatment. No need to buy it.")
+                    update.message.reply_text(
+                        "In your inventory there is enough of this medicine for this whole treatment. No need to buy it.")
                 elif response['parameters']['inventory'] == "Need to buy":
-                    update.message.reply_text("In your inventory there is some of this medicine but not enough for the whole treatment. Need to buy it.")
+                    update.message.reply_text(
+                        "In your inventory there is some of this medicine but not enough for the whole treatment. Need to buy it.")
                     self.show_location()
 
             if response['function'] == 'INTRODUCE MEDICINE':
@@ -445,7 +449,7 @@ class PillDora:
         return res == int(validation_number)
 
     def show_prescription(self, user_id):
-        med_param = lambda x: cima.get_med_name(self.get_prescription(user_id)[x]).split(' ')[0] if x == 'NAME'  else \
+        med_param = lambda x: cima.get_med_name(self.get_prescription(user_id)[x]).split(' ')[0] if x == 'NAME' else \
             self.get_prescription(user_id)[x]
         return '\n'.join(f"{tag}: {med_param(tag)}" for tag in PRESCRIPTION_TAGS)
 
@@ -536,9 +540,9 @@ class PillDora:
             name = cima.get_med_name(medicine_cn)
             update.message.reply_text("Information about medicine " + name + ":\n\t" + info)
             return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
-        
+
     def show_location(self, user_id):
-        self.bot.send_location(user_id=user_id,latitude=12, longitude=43)
+        self.bot.send_location(user_id=user_id, latitude=12, longitude=43)
         return
 
     @run_async
@@ -551,9 +555,9 @@ class PillDora:
     # Method that handles the situations and depending on the current state, changes the state
     def inline_handler(self, update, context):
         selected, date = telegramcalendar.process_calendar_selection(context.bot, update)
-        date_str=date.strftime("%Y-%m-%d")
-        if date_str ==MAX_DATE:
-            date_str ="CHRONIC"
+        date_str = date.strftime("%Y-%m-%d")
+        if date_str == MAX_DATE:
+            date_str = "CHRONIC"
         user_id = update.callback_query.from_user.id
         if selected:
             if self.get_states(user_id)[0] == CHOOSING:
@@ -585,9 +589,9 @@ class PillDora:
     @run_async
     # Returns all the reminders associated for a specific date and user_id
     def get_calendar_tasks(self, update, context, date, user_id):
-        date_str=date
-        if date_str ==MAX_DATE:
-            date_str ="CHRONIC"
+        date_str = date
+        if date_str == MAX_DATE:
+            date_str = "CHRONIC"
         # connects to DataBase with Date and UserId asking for all the tasks of this date
         self.set_function(user_id, "TASKS CALENDAR")
         self.set_query(user_id, ["date"], [date])
@@ -609,7 +613,7 @@ class PillDora:
         self.set_query(user_id, ["user_id"], [str(user_id)])
         query = self.create_query(user_id)
         response = json.loads(self.send_query(user_id, query))
-        if response['parameters']['reminder_info'] =="False":
+        if response['parameters']['reminder_info'] == "False":
             update.message.reply_text("There is actually no Current Treatment about you in the DataBase")
         else:
             update.message.reply_text(
@@ -627,7 +631,7 @@ class PillDora:
         self.set_query(user_id, ["user_id"], [str(user_id)])
         query = self.create_query(user_id)
         response = json.loads(self.send_query(user_id, query))
-        if response['parameters']['history'] =="False":
+        if response['parameters']['history'] == "False":
             update.message.reply_text("There is actually no history about you in the DataBase")
         else:
             update.message.reply_text(
@@ -645,7 +649,7 @@ class PillDora:
         self.set_query(user_id, ["user_id"], [str(user_id)])
         query = self.create_query(user_id)
         response = json.loads(self.send_query(user_id, query))
-        if response['parameters']['inventory'] =="False":
+        if response['parameters']['inventory'] == "False":
             update.message.reply_text("There is actually no Inventory about you in the DataBase")
         else:
             update.message.reply_text(
@@ -674,12 +678,14 @@ class PillDora:
             update.message.reply_text('CN introduced is wrong, there is not any med with this CN')
             update.message.reply_text("Is there any other way I can help you?", reply_markup=markup)
             return self.set_state(user_id, CHOOSING)
-        end_date=response['parameters']['end_date']
+        end_date = response['parameters']['end_date']
         if end_date == MAX_DATE:
-            reminder_info = "Medicine " + cima.get_med_name(response['parameters']['CN']) + " taken with a frequency of " + \
+            reminder_info = "Medicine " + cima.get_med_name(
+                response['parameters']['CN']) + " taken with a frequency of " + \
                             response['parameters']['frequency'] + " hours chronically."
         else:
-            reminder_info = "Medicine " + cima.get_med_name(response['parameters']['CN']) + " taken with a frequency of " + \
+            reminder_info = "Medicine " + cima.get_med_name(
+                response['parameters']['CN']) + " taken with a frequency of " + \
                             response['parameters']['frequency'] + " hours until the date of " + end_date + "."
         update.message.reply_text('Reminder asked to be removed:\n ->\t' + reminder_info)
         update.message.reply_text('Is this the reminder you want to remove? ', reply_markup=yes_no_markup)
@@ -705,7 +711,7 @@ class PillDora:
     # Method that asks for the dates needed for a journey and changes the state of the bot to JOURNEY
 
     def set_journey(self, update, context, date):
-        date_str=date
+        date_str = date
         if date == MAX_DATE:
             date_str = "CHRONIC"
         user_id = update.callback_query.from_user.id
@@ -734,8 +740,8 @@ class PillDora:
             self.set_reminder(user_id, str(cn), str(time))
             reminder = "Remember to take " + cima.get_med_name(cn) + " at " + time
             self.bot.send_message(chat_id=user_id,
-                             text="*`" + reminder + "`*\n",
-                             parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=yes_no_markup)
+                                  text="*`" + reminder + "`*\n",
+                                  parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=yes_no_markup)
             self.event.clear()
             return self.set_state(user_id, REMINDERS)
         else:
@@ -746,32 +752,31 @@ class PillDora:
         self.send_reminder(user_id, cn, time)
         self.event.clear()
 
-
-
     def intr_history_yes(self, update, context):
-        user_id=update.message.from_user.id
+        user_id = update.message.from_user.id
         self.set_function(user_id, "INTRODUCE HISTORY")
-        reminder=self.get_reminder(user_id)
-        self.set_query(user_id, ["user_id", "NAME", "DATE", "BOOLEAN"], [str(user_id), reminder['cn'], reminder['time'], "True"])
+        reminder = self.get_reminder(user_id)
+        self.set_query(user_id, ["user_id", "NAME", "DATE", "BOOLEAN"],
+                       [str(user_id), reminder['cn'], reminder['time'], "True"])
         query = self.create_query(user_id)
         response = self.send_query(user_id, query)
         if response == "False":
-            update.message.reply_text("There is no Inventory for this medicine. Please introduce Medication or buy it if not done")
+            update.message.reply_text(
+                "There is no Inventory for this medicine. Please introduce Medication or buy it if not done")
             self.show_location(user_id)
         self.event.set()
         self.set_state(user_id, END)
 
-
     def intr_history_no(self, update, context):
-        user_id=update.message.from_user.id
+        user_id = update.message.from_user.id
         self.set_function(user_id, "INTRODUCE HISTORY")
-        reminder=self.get_reminder(user_id)
-        self.set_query(user_id, ["user_id", "NAME", "DATE", "BOOLEAN"], [str(user_id), reminder['cn'], reminder['time'], "False"])
+        reminder = self.get_reminder(user_id)
+        self.set_query(user_id, ["user_id", "NAME", "DATE", "BOOLEAN"],
+                       [str(user_id), reminder['cn'], reminder['time'], "False"])
         query = self.create_query(user_id)
         response = self.send_query(user_id, query)
         self.event.set()
         self.set_state(user_id, END)
-
 
     # Ends the communication between the user and the bot
     def exit(self, update, context):
