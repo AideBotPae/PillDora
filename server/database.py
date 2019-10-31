@@ -1,4 +1,5 @@
 import datetime
+
 import pymysql
 
 
@@ -154,22 +155,67 @@ class DBMethods:
                 '''.format(id=user_id))
             return data
 
+    def intr_taken_pill(self, user_id, query_parsed):
+        query_parsed['DATE'] = datetime.datetime.now()
+        query_parsed['BOOLEAN'] = "True"
+        time = datetime.datetime.now().strftime("%H:%M:%S")
+        with Database() as db:
+            db.execute('''INSERT INTO aidebot.history (user_id, national_code, last_taken_pill, taken)
+                                          values ({id},{cn},'{date}', {boolean})'''.format(id=user_id,
+                                                                                           cn=query_parsed['NAME'],
+                                                                                           date=query_parsed[
+                                                                                               'DATE'],
+                                                                                           boolean=query_parsed[
+                                                                                               'BOOLEAN'],
+                                                                                           ))
+        # verify if user has any daily reminder of this med. If so, mark next reminder as taken
+        min_time = db.query(
+            '''select min(time) from aidebot.daily_reminders where time >= '{time}' and user_id = {id} and national_code = {cn}'''.format(
+                id=user_id, time=time, cn=query_parsed['NAME']))
+        print(min_time)
+        db.execute(
+            '''update aidebot.daily_reminders set Taken = 3 where time = '{time}' and user_id = {id} and national_code = {cn}'''.format(
+                id=user_id, time=min_time[0][0], cn=query_parsed['NAME']))
+
+        data = self.get_cn_from_inventory(user_id, query_parsed['NAME'])
+        if data is ():
+            return "0"
+        return "1"
+
+    def postpone_or_check_reminder(self, user_id, time, cn, condition):
+        with Database() as db:
+            if condition=="True":
+                num=3
+            else:
+                data=db.query(''' SELECT Taken FROM aidebot.daily_reminders
+                WHERE user_id={id} and national_code={cn} and time={time}
+                '''.format(id=user_id), cn=cn, time=time)
+                num=data[0][0]+1
+
+            db.execute(
+                '''update aidebot.daily_reminders set Taken = {Num} where time = '{time}' and user_id = {id} and national_code = {cn}'''.format(
+                    id=user_id, time=time, cn=cn, Num=num))
+
+            return num
+
     def intr_to_history(self, user_id, query_parsed):
         data = self.get_cn_from_inventory(user_id, query_parsed['NAME'])
         if query_parsed['BOOLEAN'] == "True" and data is ():
             return "False"
 
-        with Database() as db:
-            db.execute('''INSERT INTO aidebot.history (user_id, national_code, last_taken_pill, taken)
-                                   values ({id},{cn},'{date}', {boolean})'''.format(id=user_id,
-                                                                                      cn=query_parsed['NAME'],
-                                                                                      date=query_parsed[
-                                                                                          'DATE'],
-                                                                                      boolean=query_parsed[
-                                                                                          'BOOLEAN'],
-                                                                                      ))
+        num = self.postpone_or_check_reminder(user_id=user_id, time=query_parsed['DATE'].split(" ")[1], cn=query_parsed['NAME'],
+                               condition=query_parsed['BOOLEAN'], )
+        if num==3:
+            with Database() as db:
+                db.execute('''INSERT INTO aidebot.history (user_id, national_code, last_taken_pill, taken)
+                                       values ({id},{cn},'{date}', {boolean})'''.format(id=user_id,
+                                                                                        cn=query_parsed['NAME'],
+                                                                                        date=query_parsed[
+                                                                                            'DATE'],
+                                                                                        boolean=query_parsed[
+                                                                                            'BOOLEAN'],
+                                                                                        ))
             return "True"
-
 
     def get_history(self, user_id):
         with Database() as db:
@@ -207,7 +253,7 @@ class DBMethods:
 
     def get_reminders(self, user_id, date, to_date=None, cn=None):
         with Database() as db:
-            # Journey state: checking remined for some days
+            # Journey state: checking reminder for some days
             if to_date:
                 date_list = self.get_array_dates(init_date=date, end_date=to_date)
                 journey_info = {}
@@ -290,16 +336,17 @@ class DBMethods:
             if data is not ():
                 exp_date = datetime.datetime.strftime(data[0][0], "%Y-%m-%d")
 
-                #get the quantity that is taken in each reminder
+                # get the quantity that is taken in each reminder
                 data = db.query('''SELECT quantity
                                 FROM aidebot.receipts 
                                 WHERE national_code >= '{cn}' and user_id={id}
                                 '''.format(cn=cn, id=user_id))
-                quantity=data[0][0]
-                #substract quantity to med that expires earlier
+                quantity = data[0][0]
+                # substract quantity to med that expires earlier
                 db.execute(
                     '''UPDATE aidebot.inventory SET num_of_pills=num_of_pills-{quantity} where user_id={id} and expiracy_date='{exp_date}' and national_code ={cn}'''.format(
                         cn=cn, id=user_id, exp_date=exp_date, quantity=quantity))
+
 
 if __name__ == "__main__":
     checker = DBMethods()
