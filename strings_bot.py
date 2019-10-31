@@ -44,8 +44,8 @@ yes_no_reply_keyboard = {
 
 #Usar eval() o to_do '', ALOMEJOR HAY QUE INCLUIR MENSAJE DONDE PREGUNTAR POR IDIOMA AQUI
 STR_START_WELCOME =  {
-    'eng': "Welcome " + name + " ! My name is AideBot",
-    'esp': "Bienvenido "+ name+ " ! Mi nombre es AideBot"
+    'eng': "'Welcome ' + name + ' ! My name is AideBot'",
+    'esp': "'Bienvenido '+ name+ ' ! Mi nombre es AideBot'"
 }
 
 STR_START_ENTERPASSWORD = {
@@ -65,8 +65,8 @@ STR_INTR_PWD_WRONGPASS = {
 }
 
 STR_INTR_PWD_WELCOME = {
-'eng': 'Welcome ' + self.get_name(update.message.from_user) + '. How can I help you?',reply_markup=markup,
-'esp': 'Bienvenido ' self.get_name(update.message.from_user) + '. ¿Cómo te puedo ayudar?',reply_markup=markup
+'eng': "'Welcome ' + self.get_name(update.message.from_user) + '. How can I help you?',reply_markup=markup",
+'esp': "'Bienvenido ' self.get_name(update.message.from_user) + '. ¿Cómo te puedo ayudar?',reply_markup=markup"
 }
 
 
@@ -79,5 +79,3 @@ STR_NEW_USER_WELCOME = {
     'eng': "'Welcome ' + self.get_name(update.message.from_user) + '. How can I help you?', reply_markup = markup",
     'esp': "'Bienvenido '+self.get_name(update.message.from_user) + '. ¿Cómo te puedo ayudar?', reply_markup = markup"
 }
-
-STR_NEW

@@ -22,7 +22,7 @@ import botui.telegramcalendar as telegramcalendar
 import server.cima as cima
 from imagerecognition.ocr.ocr import TextRecognition
 from server.serverworker import ServerWorker
-import strings_bot as st
+
 # LOG INFORMATION
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger('AideBot')
@@ -86,14 +86,6 @@ class PillDora:
     # Returns the state of the bot for a specific user_id
     def get_states(self, user_id):
         return self.aide_bot[user_id]['states']
-
-    # Sets the language desired by the user
-    def set_counter(self, user_id, language):
-        self.aide_bot[user_id]['language'] = language
-
-    # Returns the language desired by an specific user_id
-    def get_language(self, user_id):
-        return self.aide_bot[user_id]['language']
 
     def in_end(self, user_id):
         return self.aide_bot[user_id]['states'][0] == END
@@ -199,10 +191,9 @@ class PillDora:
                                   'function': 'none',
                                   'query': {},
                                   'reminder': {'cn': "None", 'time': 'None'},
-                                  'serverworker': ServerWorker(user_id),
-                                  'language': 'eng'}
+                                  'serverworker': ServerWorker(user_id)}
         logger.info('User ' + name + ' has connected to AideBot: ID is ' + str(user_id))
-        context.bot.send_message(chat_id=user_id, text=(eval(st.STR_START_WELCOME[self.get_language(user_id)])))
+        context.bot.send_message(chat_id=user_id, text=("Welcome " + name + " ! My name is AideBot"))
 
         if self.user_verification(user_id) == "True":
             update.message.reply_text("Enter your password in order to get Assistance:")
@@ -540,7 +531,7 @@ class PillDora:
     def show_information(self, update, context):
         logger.info('User ' + self.get_name(update.message.from_user) + '  searching for information')
         update.message.reply_text("Introduce CN of the Medicine you want information about:")
-        return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
+        self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
 
     def show_infoAbout(self, update, context):
         user_id = update.message.from_user.id
@@ -554,9 +545,9 @@ class PillDora:
                 "An error has occurred, please repeat the photo or manually introduce the CN")
             return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
         else:
-            update.message.reply_text(cima.get_info_about(medicine_cn))
-            update.message.reply_text(chat_id=user_id, text="Is there any other way I can help you?",
-                                     reply_markup=markup)
+            info = cima.get_info_about(medicine_cn)
+            name = cima.get_med_name(medicine_cn)
+            update.message.reply_text("Information about medicine " + name + ":\n\t" + info)
             return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
 
     def show_location(self, user_id):
@@ -806,7 +797,7 @@ class PillDora:
     def main(self):
         # Create the Updater and pass it your bot's token.
         # Make sure to set use_context=True to use the new context based callbacks
-        updater = Updater(token=TOKEN_PILLDORA, use_context=True, workers=50)
+        updater = Updater(token=TOKEN_PROVE, use_context=True, workers=50)
         dp = updater.dispatcher
         conv_handler = ConversationHandler(
             allow_reentry=True,
