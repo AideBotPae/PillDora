@@ -532,7 +532,7 @@ class PillDora:
         logger.info('User ' + self.get_name(update.message.from_user) + '  searching for information')
         update.message.reply_text("Introduce CN of the Medicine you want information about:")
         self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
-
+        return SHOW_INFORMATION
     def show_infoAbout(self, update, context):
         user_id = update.message.from_user.id
         if update.message.photo:  # If user sent a photo, we apply
@@ -545,9 +545,8 @@ class PillDora:
                 "An error has occurred, please repeat the photo or manually introduce the CN")
             return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
         else:
-            info = cima.get_info_about(medicine_cn)
-            name = cima.get_med_name(medicine_cn)
-            update.message.reply_text("Information about medicine " + name + ":\n\t" + info)
+            update.message.reply_text(cima.get_info_about(medicine_cn))
+            update.message.reply_text("Is there any other way I can help you?", reply_markup=markup)
             return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
 
     def show_location(self, user_id):
@@ -846,7 +845,7 @@ class PillDora:
                       MessageHandler(Filters.regex('^NO$'), self.intr_history_no)
                       ]
             },
-            fallbacks=[MessageHandler(Filters.regex('^Exit$'), self.exit)]
+            fallbacks=[MessageHandler(Filters.regex('^Exit'), self.exit)]
         )
 
         dp.add_handler(conv_handler)
