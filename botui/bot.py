@@ -531,7 +531,7 @@ class PillDora:
     def show_information(self, update, context):
         logger.info('User ' + self.get_name(update.message.from_user) + '  searching for information')
         update.message.reply_text("Introduce CN of the Medicine you want information about:")
-        self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
+        return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
 
     def show_infoAbout(self, update, context):
         user_id = update.message.from_user.id
@@ -545,9 +545,9 @@ class PillDora:
                 "An error has occurred, please repeat the photo or manually introduce the CN")
             return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
         else:
-            info = cima.get_info_about(medicine_cn)
-            name = cima.get_med_name(medicine_cn)
-            update.message.reply_text("Information about medicine " + name + ":\n\t" + info)
+            update.message.reply_text(cima.get_info_about(medicine_cn))
+            update.message.reply_text(chat_id=user_id, text="Is there any other way I can help you?",
+                                     reply_markup=markup)
             return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
 
     def show_location(self, user_id):
