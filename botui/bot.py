@@ -191,7 +191,8 @@ class PillDora:
                                   'function': 'none',
                                   'query': {},
                                   'reminder': {'cn': "None", 'time': 'None'},
-                                  'serverworker': ServerWorker(user_id)}
+                                  'serverworker': ServerWorker(user_id),
+                                  'language': 'eng'}
         logger.info('User ' + name + ' has connected to AideBot: ID is ' + str(user_id))
         context.bot.send_message(chat_id=user_id, text=("Welcome " + name + " ! My name is AideBot"))
 
