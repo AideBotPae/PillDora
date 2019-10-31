@@ -551,7 +551,7 @@ class PillDora:
             return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
 
     def show_location(self, user_id):
-        self.bot.send_location(user_id=user_id, latitude=12, longitude=43)
+        self.bot.send_location(chat_id=user_id, latitude=41.389725, longitude=2.112245)
         return
 
     @run_async
