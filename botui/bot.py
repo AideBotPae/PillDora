@@ -135,7 +135,7 @@ class PillDora:
     # Insertion of the query that the Client sends to the ServerWorker for a specific user_id
     def set_query(self, user_id, keys, values):
         # We use a dictionary for the parameters of the query on the JSON string
-        parameters = {key: values[i] for key, i in enumerate(keys)}
+        parameters = {key: value for key, value in zip(keys, values)}
         self.aide_bot[user_id]['query'] = parameters
 
     # Returns the query that that the Client sends to the ServerWorker for a specific user_id
