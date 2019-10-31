@@ -358,7 +358,7 @@ class PillDora:
             elif response['function'] == 'INTRODUCE MEDICINE':
                 if response['parameters']["Code"] == "0":
                     logger.info("Medicine correctly introduced")
-                    
+
             elif response['function'] == "DELETE REMINDER":
                 if response['parameters']:
                     logger.info("Medicine correctly deleted")
@@ -367,12 +367,12 @@ class PillDora:
                     update.message.reply_text("Medicine introduced did not exist in your current Treatment.")
                     self.delete_reminder()
                     return self.set_state(update.message.from_user.id, CHOOSING)
-                
+
             elif response['function'] == "JOURNEY":
                 logger.info("Medicines to take during journey correctly retrieved")
                 update.message.reply_text(
                     "Medicines to take during journey:\n" + response['parameters']["journey_info"])
-                
+
             elif response['function'] == "TAKE PILL":
                 logger.info("Pills taken correctly introduced to history")
                 if response['parameters']["Code"] == "0":
@@ -559,7 +559,7 @@ class PillDora:
     @run_async
     def take_pill(self, update, context):
         """ Method that introduce pill take.
-  
+
         :param update: Updater for bot token
         :param context: Handler's context
         :return: new state TAKE_PILL
@@ -571,7 +571,7 @@ class PillDora:
     def send_new_pill(self, update, context):
         """Asks the user information in order to complete the medicine form, and once completed sets the query ready to
         be sent.
-  
+
         :param update: Updater for bot token
         :param context: Handler's context
         :return: state TAKE_PILL while form not completed, state CHECK_PILL once completed
@@ -620,15 +620,15 @@ class PillDora:
         context.bot.send_message(chat_id=user_id,
                                  text='Please introduce photo of the pills you proceed to take. If you can not do so, click on NO', reply_markup=yes_no_markup)
         return self.set_state(user_id, CHECK_PILL_PHOTO)
-    
-    def verify_pill_taken(self, update, context):
+
+    def verificate_pill(self, update, context):
         user_id = update.message.from_user.id
         photo = update.message.photo
         #code checking photos
-        
+
         return self.manage_response(update, context)
-        
-        
+
+
     @run_async
     def show_information(self, update, context):
         logger.info('User ' + self.get_name(update.message.from_user) + '  searching for information')
@@ -848,7 +848,7 @@ class PillDora:
     def send_reminder(self, user_id, cn, time):
         if self.in_end(user_id):
             self.set_reminder(user_id, str(cn), str(time))
-            reminder = "Remember to take " + cima.get_med_name(cn) + " at " + time
+            reminder = "Remember to take " + cima.get_med_name(cn) + " at " + str(time)
             self.bot.send_message(chat_id=user_id,
                                   text="*`" + reminder + "`*\n",
                                   parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=yes_no_markup)
@@ -932,6 +932,7 @@ class PillDora:
                            ],
                 INTR_PRESCRIPTION: [MessageHandler(Filters.text | Filters.photo, self.send_new_prescription)],
                 INTR_MEDICINE: [MessageHandler(Filters.text | Filters.photo, self.send_new_medicine)],
+                TAKE_PILL: [MessageHandler(Filters.text | Filters.photo, self.send_new_pill)],
                 SHOW_INFORMATION: [MessageHandler(Filters.text | Filters.photo, self.show_infoAbout)],
                 CHECK_PRE: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
                             MessageHandler(Filters.regex('^NO$'), self.intr_prescription)
