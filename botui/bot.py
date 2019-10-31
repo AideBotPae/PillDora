@@ -328,14 +328,14 @@ class PillDora:
                 if response['parameters']['inventory'] == "None":
                     update.message.reply_text(
                         "In your inventory we do not have any of this medicine. Please 'Introduce Medicine' after getting the med")
-                    self.show_location()
+                    self.show_location(user_id)
                 elif response['parameters']['inventory'] == "Enough":
                     update.message.reply_text(
                         "In your inventory there is enough of this medicine for this whole treatment. No need to buy it.")
                 elif response['parameters']['inventory'] == "Need to buy":
                     update.message.reply_text(
                         "In your inventory there is some of this medicine but not enough for the whole treatment. Need to buy it.")
-                    self.show_location()
+                    self.show_location(user_id)
 
             if response['function'] == 'INTRODUCE MEDICINE':
                 if response['parameters']["Code"] == "0":
@@ -571,7 +571,7 @@ class PillDora:
         if selected:
             if self.get_states(user_id)[0] == CHOOSING:
                 context.bot.send_message(chat_id=user_id,
-                                         text="You selected %s" % (date_str),
+                                         text="You selected %s" % date_str,
                                          reply_markup=ReplyKeyboardRemove())
             if self.get_states(user_id)[0] == CHOOSING:
                 self.get_calendar_tasks(update, context, date.strftime("%Y-%m-%d"), user_id)
