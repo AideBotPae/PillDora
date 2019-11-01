@@ -338,7 +338,7 @@ class DBMethods:
                             FROM aidebot.inventory 
                             WHERE national_code >= '{cn}' and user_id={id}
                             '''.format(cn=cn, id=user_id))
-            if data is not ():
+            if data[0][0] is not None:
                 exp_date = datetime.datetime.strftime(data[0][0], "%Y-%m-%d")
 
                 # get the quantity that is taken in each reminder
