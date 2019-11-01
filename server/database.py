@@ -169,6 +169,10 @@ class DBMethods:
                                                                                                'BOOLEAN'],
                                                                                            ))
         # verify if user has any daily reminder of this med. If so, mark next reminder as taken
+        query='''select min(time) from aidebot.daily_reminders where time >= '{time}' and user_id = {id} and 
+            national_code = {cn}'''.format(
+                id=user_id, time=time, cn=query_parsed['NAME'])
+        print(query)
         min_time = db.query(
             '''select min(time) from aidebot.daily_reminders where time >= '{time}' and user_id = {id} and 
             national_code = {cn}'''.format(
