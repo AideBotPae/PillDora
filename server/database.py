@@ -181,6 +181,7 @@ class DBMethods:
                         id=user_id, time=min_time[0][0], cn=query_parsed['NAME']))
 
             data = self.get_cn_from_inventory(user_id, query_parsed['NAME'])
+            print(data)
             if data is ():
                 return "0"
             return "1"
