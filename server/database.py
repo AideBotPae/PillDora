@@ -174,7 +174,7 @@ class DBMethods:
                 national_code = {cn}'''.format(
                     id=user_id, time=time, cn=query_parsed['NAME']))
             print(min_time)
-            if min_time is not ():
+            if min_time[0][0] is not None:
                 db.execute(
                     '''update aidebot.daily_reminders set Taken = 3 where time = '{time}' and user_id = {id} and 
                     national_code = {cn}'''.format(
