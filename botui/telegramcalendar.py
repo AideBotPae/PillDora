@@ -55,7 +55,7 @@ def create_calendar(year=None,month=None):
     #Last row - Buttons
     row=[]
     row.append(InlineKeyboardButton("<",callback_data=create_callback_data("PREV-MONTH",year,month,day)))
-    row.append(InlineKeyboardButton(" ",callback_data=data_ignore))
+    row.append(InlineKeyboardButton("CHRONIC",callback_data=create_callback_data("CHRONIC", year, month, day)))
     row.append(InlineKeyboardButton(">",callback_data=create_callback_data("NEXT-MONTH",year,month,day)))
     keyboard.append(row)
 
@@ -95,6 +95,13 @@ def process_calendar_selection(bot,update):
             chat_id=query.message.chat_id,
             message_id=query.message.message_id,
             reply_markup=create_calendar(int(ne.year),int(ne.month)))
+    elif action == "CHRONIC":
+        bot.edit_message_text(text=query.message.text,
+                              chat_id=query.message.chat_id,
+                              message_id=query.message.message_id
+                              )
+        #max accepted in TimeStamp in Mysql as largest date
+        ret_data = True, datetime.datetime(day=31, month=12, year=2036)
     else:
         bot.answer_callback_query(callback_query_id= query.id,text="Something went wrong!")
         # UNKNOWN
