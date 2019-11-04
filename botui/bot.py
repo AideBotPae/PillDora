@@ -69,9 +69,11 @@ reply_keyboard = [
     [u'History \U0001F4D6', u'Inventory \U00002696', u'Information \U0001F4AC'],
     [u'Journey \U0000270D', u'Calendar \U0001F4C6', u'Exit \U0001F6AA']]
 yes_no_reply_keyboard = [['YES', 'NO']]
+taken_pill_keyboard = [['TAKEN', 'POSPONE']]
+
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
-
+taken_pill_markup = ReplyKeyboardMarkup(taken_pill_keyboard, one_time_keyboard=True, resize_keyboard=True)
 
 class PillDora:
     """
@@ -851,7 +853,7 @@ class PillDora:
             reminder = "Remember to take " + cima.get_med_name(cn) + " at " + str(time)
             self.bot.send_message(chat_id=user_id,
                                   text="*`" + reminder + "`*\n",
-                                  parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=yes_no_markup)
+                                  parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=taken_pill_markup)
             self.event.clear()
             return self.set_state(user_id, REMINDERS)
         else:
@@ -957,8 +959,8 @@ class PillDora:
                 JOURNEY: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
                           MessageHandler(Filters.regex('^NO$'), self.create_journey)
                           ],
-                END: [MessageHandler(Filters.regex('^YES$'), self.intr_history_yes),
-                      MessageHandler(Filters.regex('^NO$'), self.intr_history_no)
+                END: [MessageHandler(Filters.regex('^TAKEN'), self.intr_history_yes),
+                      MessageHandler(Filters.regex('^POSPONE'), self.intr_history_no)
                       ]
             },
             fallbacks=[MessageHandler(Filters.regex('^Exit$'), self.exit)]
