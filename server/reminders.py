@@ -56,7 +56,7 @@ class Reminder:
     # Delete information older than 3 days from history table
     def delete_history(self):
         with Database() as db:
-            db.execute('''DELETE FROM aidebot.history WHERE last_taken_pill<'{date}')'''.format(
+            db.execute('''DELETE FROM aidebot.history WHERE (last_taken_pill<'{date}')'''.format(
                 date=datetime.datetime.now() - datetime.timedelta(days=3)))
 
 
