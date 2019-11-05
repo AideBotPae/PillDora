@@ -560,7 +560,7 @@ class PillDora:
         med_str = "You have to take *" + self.get_medicine(user_id)['QUANTITY'] + "* pills of medicine *" + \
                   cima.get_med_name(self.get_medicine(user_id)['NAME']).split(' ')[0] + "* each *" + \
                   self.get_medicine(user_id)['FREQUENCY']
-        
+
         date_str=self.get_medicine(user_id)['END_DATE']
         if date_str == MAX_DATE:
             med_str+="* chronically*!"
