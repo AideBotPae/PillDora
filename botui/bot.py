@@ -75,6 +75,7 @@ markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyb
 yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 taken_pill_markup = ReplyKeyboardMarkup(taken_pill_keyboard, one_time_keyboard=True, resize_keyboard=True)
 
+
 class PillDora:
     """
     Telegram bot that serves as an aide to the clients of the product. It has a set of features that help customers
@@ -382,7 +383,8 @@ class PillDora:
                     self.bot.send_message(chat_id=user_id, text="Pills taken correctly introduced in the history")
                 elif response['parameters']["Code"] == "0":
                     logger.info("Pill taken correctly introduced. However, no inventory for these pills.")
-                    self.bot.send_message(chat_id=user_id, text="Pills taken correctly introduced in the history. However, there is no record of these pills in the inventory. Please introduce them")
+                    self.bot.send_message(chat_id=user_id,
+                                          text="Pills taken correctly introduced in the history. However, there is no record of these pills in the inventory. Please introduce them")
 
         self.set_query(user_id, ["None"], ["None"])
         self.set_function(user_id, "None")
@@ -554,422 +556,455 @@ class PillDora:
             return self.set_state(user_id, CHECK_MED)
 
     def show_medicine(self, user_id):
-        med_param = lambda x: cima.get_med_name(self.get_medicine(user_id)[x]).split(' ')[0] if x == 'NAME' else \
-            self.get_medicine(user_id)[x]
-        return '\n'.join(f"{tag}: {med_param(tag)}" for tag in MEDICINE_TAGS)
 
-    @run_async
-    def take_pill(self, update, context):
-        """ Method that introduce pill take.
+        med_str = "You have to take *" + self.get_medicine(user_id)['QUANTITY'] + "* pills of medicine *" + \
+                  cima.get_med_name(self.get_medicine(user_id)['NAME']).split(' ')[0] + "* each *" + \
+                  self.get_medicine(user_id)['FREQUENCY']
+        
+        date_str=self.get_medicine(user_id)['END_DATE']
+        if date_str == MAX_DATE:
+            med_str+="* chronically*!"
+        else:
+            med_str+="* until the end date of *"+ date_str+"* !"
 
-        :param update: Updater for bot token
-        :param context: Handler's context
-        :return: new state TAKE_PILL
-        """
-        logger.info('User introducing new pill taken')
-        update.message.reply_text(INTR_PILL_MSSGS[self.get_counter(update.message.from_user.id)])
-        return self.set_state(update.message.from_user.id, TAKE_PILL)
 
-    def send_new_pill(self, update, context):
-        """Asks the user information in order to complete the medicine form, and once completed sets the query ready to
-        be sent.
+@run_async
+def take_pill(self, update, context):
+    """ Method that introduce pill take.
 
-        :param update: Updater for bot token
-        :param context: Handler's context
-        :return: state TAKE_PILL while form not completed, state CHECK_PILL once completed
-        """
-        try:
-            user_id = update.message.from_user.id
-            if self.get_counter(user_id) == 0:  # If we are in the first field of the form
-                if update.message.photo:  # If user sent a photo, we apply
-                    medicine_cn, validation_num = self.handle_pic(update, context, user_id)
-                else:
-                    medicine_cn, validation_num = self.split_code(update.message.text)
+    :param update: Updater for bot token
+    :param context: Handler's context
+    :return: new state TAKE_PILL
+    """
+    logger.info('User introducing new pill taken')
+    update.message.reply_text(INTR_PILL_MSSGS[self.get_counter(update.message.from_user.id)])
+    return self.set_state(update.message.from_user.id, TAKE_PILL)
 
-                if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
-                    update.message.reply_text(
-                        "An error has occurred, please repeat the photo or manually introduce the CN")
-                    return TAKE_PILL
-                else:
-                    self.set_pill(user_id, self.get_counter(user_id), medicine_cn)
+
+def send_new_pill(self, update, context):
+    """Asks the user information in order to complete the medicine form, and once completed sets the query ready to
+    be sent.
+
+    :param update: Updater for bot token
+    :param context: Handler's context
+    :return: state TAKE_PILL while form not completed, state CHECK_PILL once completed
+    """
+    try:
+        user_id = update.message.from_user.id
+        if self.get_counter(user_id) == 0:  # If we are in the first field of the form
+            if update.message.photo:  # If user sent a photo, we apply
+                medicine_cn, validation_num = self.handle_pic(update, context, user_id)
             else:
-                self.set_pill(user_id, self.get_counter(user_id), update.message.text)
-        except:
-            user_id = update.callback_query.from_user.id
+                medicine_cn, validation_num = self.split_code(update.message.text)
 
-        self.set_counter(user_id, self.get_counter(user_id) + 1)
-        logger.info(self.get_pill(user_id))
-        if self.get_counter(user_id) != len(INTR_PILL_MSSGS):
-                update.message.reply_text(INTR_PILL_MSSGS[self.get_counter(user_id)])
+            if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
+                update.message.reply_text(
+                    "An error has occurred, please repeat the photo or manually introduce the CN")
                 return TAKE_PILL
+            else:
+                self.set_pill(user_id, self.get_counter(user_id), medicine_cn)
         else:
-            self.set_counter(user_id, 0)
-            context.bot.send_message(chat_id=user_id,
-                                     text='Is the pill taken correctly introduced? ', reply_markup=yes_no_markup)
-            context.bot.send_message(chat_id=user_id,
-                                     text=self.show_pill(user_id))
-            self.set_query(user_id, list(self.get_pill(user_id).keys()), list(self.get_pill(user_id).values()))
-            self.set_function(user_id, 'TAKE PILL')
-            return self.set_state(user_id, CHECK_PILL)
+            self.set_pill(user_id, self.get_counter(user_id), update.message.text)
+    except:
+        user_id = update.callback_query.from_user.id
 
-    def show_pill(self, user_id):
-        med_param = lambda x: cima.get_med_name(self.get_pill(user_id)[x]).split(' ')[0] if x == 'NAME' else \
-            self.get_pill(user_id)[x]
-        return '\n'.join(f"{tag}: {med_param(tag)}" for tag in PILL_TAGS)
-
-    def check_pill(self, update, context):
-        user_id = update.message.from_user.id
+    self.set_counter(user_id, self.get_counter(user_id) + 1)
+    logger.info(self.get_pill(user_id))
+    if self.get_counter(user_id) != len(INTR_PILL_MSSGS):
+        update.message.reply_text(INTR_PILL_MSSGS[self.get_counter(user_id)])
+        return TAKE_PILL
+    else:
+        self.set_counter(user_id, 0)
         context.bot.send_message(chat_id=user_id,
-                                 text='Please introduce photo of the pills you proceed to take. If you can not do so, click on NO', reply_markup=yes_no_markup)
-        return self.set_state(user_id, CHECK_PILL_PHOTO)
-
-    def verificate_pill(self, update, context):
-        user_id = update.message.from_user.id
-        photo = update.message.photo
-        #code checking photos
-
-        return self.manage_response(update, context)
+                                 text='Is the pill taken correctly introduced? ', reply_markup=yes_no_markup)
+        context.bot.send_message(chat_id=user_id,
+                                 text=self.show_pill(user_id))
+        self.set_query(user_id, list(self.get_pill(user_id).keys()), list(self.get_pill(user_id).values()))
+        self.set_function(user_id, 'TAKE PILL')
+        return self.set_state(user_id, CHECK_PILL)
 
 
-    @run_async
-    def show_information(self, update, context):
-        logger.info('User ' + self.get_name(update.message.from_user) + '  searching for information')
-        update.message.reply_text("Introduce CN of the Medicine you want information about:")
+def show_pill(self, user_id):
+    med_param = lambda x: cima.get_med_name(self.get_pill(user_id)[x]).split(' ')[0] if x == 'NAME' else \
+        self.get_pill(user_id)[x]
+    return '\n'.join(f"{tag}: {med_param(tag)}" for tag in PILL_TAGS)
+
+
+def check_pill(self, update, context):
+    user_id = update.message.from_user.id
+    context.bot.send_message(chat_id=user_id,
+                             text='Please introduce photo of the pills you proceed to take. If you can not do so, click on NO',
+                             reply_markup=yes_no_markup)
+    return self.set_state(user_id, CHECK_PILL_PHOTO)
+
+
+def verificate_pill(self, update, context):
+    user_id = update.message.from_user.id
+    photo = update.message.photo
+    # code checking photos
+
+    return self.manage_response(update, context)
+
+
+@run_async
+def show_information(self, update, context):
+    logger.info('User ' + self.get_name(update.message.from_user) + '  searching for information')
+    update.message.reply_text("Introduce CN of the Medicine you want information about:")
+    return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
+
+
+def show_infoAbout(self, update, context):
+    user_id = update.message.from_user.id
+    if update.message.photo:  # If user sent a photo, we apply
+        medicine_cn, validation_num = self.handle_pic(update, context, user_id)
+    else:
+        medicine_cn, validation_num = self.split_code(update.message.text)
+
+    if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
+        update.message.reply_text(
+            "An error has occurred, please repeat the photo or manually introduce the CN")
         return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
+    else:
+        update.message.reply_text(cima.get_info_about(medicine_cn))
+        update.message.reply_text(chat_id=user_id, text="Is there any other way I can help you?",
+                                  reply_markup=markup)
+        return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
 
-    def show_infoAbout(self, update, context):
-        user_id = update.message.from_user.id
-        if update.message.photo:  # If user sent a photo, we apply
-            medicine_cn, validation_num = self.handle_pic(update, context, user_id)
-        else:
-            medicine_cn, validation_num = self.split_code(update.message.text)
 
-        if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
-            update.message.reply_text(
-                "An error has occurred, please repeat the photo or manually introduce the CN")
-            return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
-        else:
-            update.message.reply_text(cima.get_info_about(medicine_cn))
-            update.message.reply_text(chat_id=user_id, text="Is there any other way I can help you?",
-                                      reply_markup=markup)
-            return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
+def show_location(self, user_id):
+    self.bot.send_location(chat_id=user_id, latitude=41.389725, longitude=2.112245)
+    return
 
-    def show_location(self, user_id):
-        self.bot.send_location(chat_id=user_id, latitude=41.389725, longitude=2.112245)
-        return
 
-    @run_async
-    def see_calendar(self, update, context):
-        logger.info('User ' + self.get_name(update.message.from_user) + '  seeing calendar')
-        update.message.reply_text("Please select a date: ",
+@run_async
+def see_calendar(self, update, context):
+    logger.info('User ' + self.get_name(update.message.from_user) + '  seeing calendar')
+    update.message.reply_text("Please select a date: ",
+                              reply_markup=telegramcalendar.create_calendar())
+
+
+@run_async
+# Method that handles the situations and depending on the current state, changes the state
+def inline_handler(self, update, context):
+    selected, date = telegramcalendar.process_calendar_selection(context.bot, update)
+    date_str = date.strftime("%Y-%m-%d")
+    if date_str == MAX_DATE:
+        date_str = "CHRONIC"
+    user_id = update.callback_query.from_user.id
+    if selected:
+        if self.get_states(user_id)[0] == CHOOSING:
+            context.bot.send_message(chat_id=user_id,
+                                     text="You selected %s" % date_str,
+                                     reply_markup=ReplyKeyboardRemove())
+        if self.get_states(user_id)[0] == CHOOSING:
+            self.get_calendar_tasks(update, context, date.strftime("%Y-%m-%d"), user_id)
+            self.set_state(user_id, CHOOSING)
+        elif self.get_states(user_id)[0] == JOURNEY:
+            self.set_journey(update, context, date.strftime("%Y-%m-%d"))
+            if self.get_states(user_id)[1] == CHOOSING:
+                self.set_state(user_id, JOURNEY)
+            elif self.get_states(user_id)[1] == JOURNEY:
+                self.set_state(user_id, JOURNEY)
+        elif self.get_states(user_id)[0] == INTR_PRESCRIPTION:
+            context.bot.send_message(chat_id=user_id,
+                                     text=date_str,
+                                     reply_markup=ReplyKeyboardRemove())
+            self.set_prescription(user_id, self.get_counter(user_id), date.strftime("%Y-%m-%d"))
+            self.send_new_prescription(update, context)
+        elif self.get_states(user_id)[0] == INTR_MEDICINE:
+            context.bot.send_message(chat_id=user_id,
+                                     text=date_str,
+                                     reply_markup=ReplyKeyboardRemove())
+            self.set_medicine(user_id, self.get_counter(user_id), date.strftime("%Y-%m-%d"))
+            self.send_new_medicine(update, context)
+
+
+@run_async
+# Returns all the reminders associated for a specific date and user_id
+def get_calendar_tasks(self, update, context, date, user_id):
+    date_str = date
+    if date_str == MAX_DATE:
+        date_str = "CHRONIC"
+    # connects to DataBase with Date and UserId asking for all the tasks of this date
+    self.set_function(user_id, "TASKS CALENDAR")
+    self.set_query(user_id, ["date"], [date])
+    query = self.create_query(user_id)
+    response = json.loads(self.send_query(user_id, query))
+    context.bot.send_message(chat_id=user_id,
+                             text="Reminders for " + date_str + " :\n")
+    context.bot.send_message(chat_id=user_id, text=response['parameters']['tasks'])
+    context.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?",
+                             reply_markup=markup)
+
+
+@run_async
+# Method that prints systematically the current Treatment for a certain user_id
+def see_currentTreatment(self, update, context):
+    logger.info('User ' + self.get_name(update.message.from_user) + ' seeing current Treatment')
+    # connects to DataBase with UserId asking for all the medications he is currently taking
+    user_id = update.message.from_user.id
+    self.set_function(user_id, "CURRENT TREATMENT")
+    self.set_query(user_id, ["user_id"], [str(user_id)])
+    query = self.create_query(user_id)
+    response = json.loads(self.send_query(user_id, query))
+    if response['parameters']['reminder_info'] == "False":
+        update.message.reply_text("There is actually no Current Treatment about you in the DataBase")
+    else:
+        update.message.reply_text(
+            "To sum up, you are currently taking these meds:\n" + response['parameters']['reminder_info'])
+    self.set_query(user_id, ["None"], ["None"])
+    return self.manage_response(update, context)
+
+
+@run_async
+# Method that prints systematically the History for a certain user_id
+def see_history(self, update, context):
+    logger.info('User ' + self.get_name(update.message.from_user) + ' seeing History')
+    # connects to DataBase with UserId asking if user took last reminders
+    user_id = update.message.from_user.id
+    self.set_function(user_id, "HISTORY")
+    self.set_query(user_id, ["user_id"], [str(user_id)])
+    query = self.create_query(user_id)
+    response = json.loads(self.send_query(user_id, query))
+    if response['parameters']['history'] == "False":
+        update.message.reply_text("There is actually no history about you in the DataBase")
+    else:
+        update.message.reply_text(
+            "To sum up, history of your last reminders:\n" + response['parameters']['history'])
+    self.set_query(user_id, ["None"], ["None"])
+    return self.manage_response(update, context)
+
+
+@run_async
+# Method that prints systematically the Inventory for a certain user_id
+def see_inventory(self, update, context):
+    logger.info('User ' + self.get_name(update.message.from_user) + ' seeing Inventory')
+    # connects to DataBase with UserId asking if user took last reminders
+    user_id = update.message.from_user.id
+    self.set_function(user_id, "INVENTORY")
+    self.set_query(user_id, ["user_id"], [str(user_id)])
+    query = self.create_query(user_id)
+    response = json.loads(self.send_query(user_id, query))
+    if response['parameters']['inventory'] == "False":
+        update.message.reply_text("There is actually no Inventory about you in the DataBase")
+    else:
+        update.message.reply_text(
+            "To sum up, your inventory consists on:\n" + response['parameters']['inventory'])
+    self.set_query(user_id, ["None"], ["None"])
+    return self.manage_response(update, context)
+
+
+@run_async
+# Deletes a reminder using a CN for a certain user_id
+def delete_reminder(self, update, context):
+    logger.info('User ' + self.get_name(update.message.from_user) + ' deleting reminder')
+    update.message.reply_text('Please Introduce CN of the Medicine you want to delete the reminder:')
+    return self.set_state(update.message.from_user.id, GET_CN)
+
+
+# Method that asks for a CN and prints all the information and asks about if it should be removed or not
+def get_medicine_CN(self, update, context):
+    medicine_CN = update.message.text
+    user_id = update.message.from_user.id
+    # connects to DataBase with UserId and get the current reminder for this medicine_CN.
+    self.set_function(user_id, "GET REMINDER")
+    self.set_query(user_id, ["CN"], [medicine_CN])
+    query = self.create_query(user_id)
+    response = json.loads(self.send_query(user_id, query))
+    reminder_info = response['parameters']
+    if reminder_info['CN'] == "False":
+        update.message.reply_text('CN introduced is wrong, there is not any med with this CN')
+        update.message.reply_text("Is there any other way I can help you?", reply_markup=markup)
+        return self.set_state(user_id, CHOOSING)
+    end_date = response['parameters']['end_date']
+    if end_date == MAX_DATE:
+        reminder_info = "Medicine " + cima.get_med_name(
+            response['parameters']['CN']) + " taken with a frequency of " + \
+                        response['parameters']['frequency'] + " hours chronically."
+    else:
+        reminder_info = "Medicine " + cima.get_med_name(
+            response['parameters']['CN']) + " taken with a frequency of " + \
+                        response['parameters']['frequency'] + " hours until the date of " + end_date + "."
+    update.message.reply_text('Reminder asked to be removed:\n ->\t' + reminder_info)
+    update.message.reply_text('Is this the reminder you want to remove? ', reply_markup=yes_no_markup)
+    self.set_query(user_id, ["CN"], [response['parameters']['CN']])
+    self.set_function(user_id, 'DELETE REMINDER')
+    return self.set_state(user_id, CHECK_REM)
+
+
+# Method that creates a journey to be handled later and asks for the information
+@run_async
+def create_journey(self, update, context):
+    boolean = self.get_states(update.message.from_user.id)[0] == CHOOSING
+    self.set_state(update.message.from_user.id, CHOOSING)
+    logger.info('User ' + self.get_name(update.message.from_user) + ' creating journey')
+    self.set_state(update.message.from_user.id, JOURNEY)
+    if boolean:
+        update.message.reply_text("Wow fantastic! So you are going on a trip...\nWhen are you leaving?",
                                   reply_markup=telegramcalendar.create_calendar())
+    else:
+        update.message.reply_text("No worries. Introduce right departure date:",
+                                  reply_markup=telegramcalendar.create_calendar())
+    return JOURNEY
 
-    @run_async
-    # Method that handles the situations and depending on the current state, changes the state
-    def inline_handler(self, update, context):
-        selected, date = telegramcalendar.process_calendar_selection(context.bot, update)
-        date_str = date.strftime("%Y-%m-%d")
-        if date_str == MAX_DATE:
-            date_str = "CHRONIC"
-        user_id = update.callback_query.from_user.id
-        if selected:
-            if self.get_states(user_id)[0] == CHOOSING:
-                context.bot.send_message(chat_id=user_id,
-                                         text="You selected %s" % date_str,
-                                         reply_markup=ReplyKeyboardRemove())
-            if self.get_states(user_id)[0] == CHOOSING:
-                self.get_calendar_tasks(update, context, date.strftime("%Y-%m-%d"), user_id)
-                self.set_state(user_id, CHOOSING)
-            elif self.get_states(user_id)[0] == JOURNEY:
-                self.set_journey(update, context, date.strftime("%Y-%m-%d"))
-                if self.get_states(user_id)[1] == CHOOSING:
-                    self.set_state(user_id, JOURNEY)
-                elif self.get_states(user_id)[1] == JOURNEY:
-                    self.set_state(user_id, JOURNEY)
-            elif self.get_states(user_id)[0] == INTR_PRESCRIPTION:
-                context.bot.send_message(chat_id=user_id,
-                                         text=date_str,
-                                         reply_markup=ReplyKeyboardRemove())
-                self.set_prescription(user_id, self.get_counter(user_id), date.strftime("%Y-%m-%d"))
-                self.send_new_prescription(update, context)
-            elif self.get_states(user_id)[0] == INTR_MEDICINE:
-                context.bot.send_message(chat_id=user_id,
-                                         text=date_str,
-                                         reply_markup=ReplyKeyboardRemove())
-                self.set_medicine(user_id, self.get_counter(user_id), date.strftime("%Y-%m-%d"))
-                self.send_new_medicine(update, context)
 
-    @run_async
-    # Returns all the reminders associated for a specific date and user_id
-    def get_calendar_tasks(self, update, context, date, user_id):
-        date_str = date
-        if date_str == MAX_DATE:
-            date_str = "CHRONIC"
-        # connects to DataBase with Date and UserId asking for all the tasks of this date
-        self.set_function(user_id, "TASKS CALENDAR")
-        self.set_query(user_id, ["date"], [date])
-        query = self.create_query(user_id)
-        response = json.loads(self.send_query(user_id, query))
+# Method that asks for the dates needed for a journey and changes the state of the bot to JOURNEY
+def set_journey(self, update, context, date):
+    date_str = date
+    if date == MAX_DATE:
+        date_str = "CHRONIC"
+    user_id = update.callback_query.from_user.id
+    if self.get_states(user_id)[1] == CHOOSING:
+        self.set_dates(user_id, "departure", date)
         context.bot.send_message(chat_id=user_id,
-                                 text="Reminders for " + date_str + " :\n")
-        context.bot.send_message(chat_id=user_id, text=response['parameters']['tasks'])
-        context.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?",
-                                 reply_markup=markup)
+                                 text="Alright. I see you are leaving on " + date_str + ".\n When will you come back?",
+                                 reply_markup=telegramcalendar.create_calendar())
 
-    @run_async
-    # Method that prints systematically the current Treatment for a certain user_id
-    def see_currentTreatment(self, update, context):
-        logger.info('User ' + self.get_name(update.message.from_user) + ' seeing current Treatment')
-        # connects to DataBase with UserId asking for all the medications he is currently taking
-        user_id = update.message.from_user.id
-        self.set_function(user_id, "CURRENT TREATMENT")
-        self.set_query(user_id, ["user_id"], [str(user_id)])
-        query = self.create_query(user_id)
-        response = json.loads(self.send_query(user_id, query))
-        if response['parameters']['reminder_info'] == "False":
-            update.message.reply_text("There is actually no Current Treatment about you in the DataBase")
-        else:
-            update.message.reply_text(
-                "To sum up, you are currently taking these meds:\n" + response['parameters']['reminder_info'])
-        self.set_query(user_id, ["None"], ["None"])
-        return self.manage_response(update, context)
+    if self.get_states(user_id)[1] == JOURNEY:
+        self.set_dates(user_id, "arrival", date)
+        context.bot.send_message(chat_id=user_id,
+                                 text="The arrival Date is on " + date_str + "\nIs this information correct?",
+                                 reply_markup=yes_no_markup)
+        self.set_query(user_id, ["departure_date", "arrival_date"],
+                       [self.get_dates(user_id)[0], self.get_dates(user_id)[1]])
+        self.set_function(user_id, 'JOURNEY')
 
-    @run_async
-    # Method that prints systematically the History for a certain user_id
-    def see_history(self, update, context):
-        logger.info('User ' + self.get_name(update.message.from_user) + ' seeing History')
-        # connects to DataBase with UserId asking if user took last reminders
-        user_id = update.message.from_user.id
-        self.set_function(user_id, "HISTORY")
-        self.set_query(user_id, ["user_id"], [str(user_id)])
-        query = self.create_query(user_id)
-        response = json.loads(self.send_query(user_id, query))
-        if response['parameters']['history'] == "False":
-            update.message.reply_text("There is actually no history about you in the DataBase")
-        else:
-            update.message.reply_text(
-                "To sum up, history of your last reminders:\n" + response['parameters']['history'])
-        self.set_query(user_id, ["None"], ["None"])
-        return self.manage_response(update, context)
 
-    @run_async
-    # Method that prints systematically the Inventory for a certain user_id
-    def see_inventory(self, update, context):
-        logger.info('User ' + self.get_name(update.message.from_user) + ' seeing Inventory')
-        # connects to DataBase with UserId asking if user took last reminders
-        user_id = update.message.from_user.id
-        self.set_function(user_id, "INVENTORY")
-        self.set_query(user_id, ["user_id"], [str(user_id)])
-        query = self.create_query(user_id)
-        response = json.loads(self.send_query(user_id, query))
-        if response['parameters']['inventory'] == "False":
-            update.message.reply_text("There is actually no Inventory about you in the DataBase")
-        else:
-            update.message.reply_text(
-                "To sum up, your inventory consists on:\n" + response['parameters']['inventory'])
-        self.set_query(user_id, ["None"], ["None"])
-        return self.manage_response(update, context)
+def send_reminders(self, data):
+    for message in data:
+        self.send_reminder(user_id=message[2], cn=str(message[0]), time=str(message[1]))
 
-    @run_async
-    # Deletes a reminder using a CN for a certain user_id
-    def delete_reminder(self, update, context):
-        logger.info('User ' + self.get_name(update.message.from_user) + ' deleting reminder')
-        update.message.reply_text('Please Introduce CN of the Medicine you want to delete the reminder:')
-        return self.set_state(update.message.from_user.id, GET_CN)
 
-    # Method that asks for a CN and prints all the information and asks about if it should be removed or not
-    def get_medicine_CN(self, update, context):
-        medicine_CN = update.message.text
-        user_id = update.message.from_user.id
-        # connects to DataBase with UserId and get the current reminder for this medicine_CN.
-        self.set_function(user_id, "GET REMINDER")
-        self.set_query(user_id, ["CN"], [medicine_CN])
-        query = self.create_query(user_id)
-        response = json.loads(self.send_query(user_id, query))
-        reminder_info = response['parameters']
-        if reminder_info['CN'] == "False":
-            update.message.reply_text('CN introduced is wrong, there is not any med with this CN')
-            update.message.reply_text("Is there any other way I can help you?", reply_markup=markup)
-            return self.set_state(user_id, CHOOSING)
-        end_date = response['parameters']['end_date']
-        if end_date == MAX_DATE:
-            reminder_info = "Medicine " + cima.get_med_name(
-                response['parameters']['CN']) + " taken with a frequency of " + \
-                            response['parameters']['frequency'] + " hours chronically."
-        else:
-            reminder_info = "Medicine " + cima.get_med_name(
-                response['parameters']['CN']) + " taken with a frequency of " + \
-                            response['parameters']['frequency'] + " hours until the date of " + end_date + "."
-        update.message.reply_text('Reminder asked to be removed:\n ->\t' + reminder_info)
-        update.message.reply_text('Is this the reminder you want to remove? ', reply_markup=yes_no_markup)
-        self.set_query(user_id, ["CN"], [response['parameters']['CN']])
-        self.set_function(user_id, 'DELETE REMINDER')
-        return self.set_state(user_id, CHECK_REM)
-
-    # Method that creates a journey to be handled later and asks for the information
-    @run_async
-    def create_journey(self, update, context):
-        boolean = self.get_states(update.message.from_user.id)[0] == CHOOSING
-        self.set_state(update.message.from_user.id, CHOOSING)
-        logger.info('User ' + self.get_name(update.message.from_user) + ' creating journey')
-        self.set_state(update.message.from_user.id, JOURNEY)
-        if boolean:
-            update.message.reply_text("Wow fantastic! So you are going on a trip...\nWhen are you leaving?",
-                                      reply_markup=telegramcalendar.create_calendar())
-        else:
-            update.message.reply_text("No worries. Introduce right departure date:",
-                                      reply_markup=telegramcalendar.create_calendar())
-        return JOURNEY
-
-    # Method that asks for the dates needed for a journey and changes the state of the bot to JOURNEY
-    def set_journey(self, update, context, date):
-        date_str = date
-        if date == MAX_DATE:
-            date_str = "CHRONIC"
-        user_id = update.callback_query.from_user.id
-        if self.get_states(user_id)[1] == CHOOSING:
-            self.set_dates(user_id, "departure", date)
-            context.bot.send_message(chat_id=user_id,
-                                     text="Alright. I see you are leaving on " + date_str + ".\n When will you come back?",
-                                     reply_markup=telegramcalendar.create_calendar())
-
-        if self.get_states(user_id)[1] == JOURNEY:
-            self.set_dates(user_id, "arrival", date)
-            context.bot.send_message(chat_id=user_id,
-                                     text="The arrival Date is on " + date_str + "\nIs this information correct?",
-                                     reply_markup=yes_no_markup)
-            self.set_query(user_id, ["departure_date", "arrival_date"],
-                           [self.get_dates(user_id)[0], self.get_dates(user_id)[1]])
-            self.set_function(user_id, 'JOURNEY')
-
-    def send_reminders(self, data):
-        for message in data:
-            self.send_reminder(user_id=message[2], cn=str(message[0]), time=str(message[1]))
-
-    # Sends a reminder using parsing
-    def send_reminder(self, user_id, cn, time):
-        if self.in_end(user_id):
-            self.set_reminder(user_id, str(cn), str(time))
-            reminder = "Remember to take " + cima.get_med_name(cn) + " at " + str(time)
-            self.bot.send_message(chat_id=user_id,
-                                  text="*`" + reminder + "`*\n",
-                                  parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=taken_pill_markup)
-            self.event.clear()
-            return self.set_state(user_id, REMINDERS)
-        else:
-            return self.delay_reminder(user_id, cn, time)
-
-    def delay_reminder(self, user_id, cn, time):
-        self.event.wait()
-        self.send_reminder(user_id, cn, time)
+# Sends a reminder using parsing
+def send_reminder(self, user_id, cn, time):
+    if self.in_end(user_id):
+        self.set_reminder(user_id, str(cn), str(time))
+        reminder = "Remember to take " + cima.get_med_name(cn) + " at " + str(time)
+        self.bot.send_message(chat_id=user_id,
+                              text="*`" + reminder + "`*\n",
+                              parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=taken_pill_markup)
         self.event.clear()
+        return self.set_state(user_id, REMINDERS)
+    else:
+        return self.delay_reminder(user_id, cn, time)
 
-    def intr_history_yes(self, update, context):
-        user_id = update.message.from_user.id
-        self.set_function(user_id, "INTRODUCE HISTORY")
-        reminder = self.get_reminder(user_id)
-        self.set_query(user_id, ["user_id", "NAME", "DATE", "BOOLEAN"],
-                       [str(user_id), reminder['cn'], reminder['time'], "True"])
-        query = self.create_query(user_id)
-        response = json.loads(self.send_query(user_id, query))
-        if response['parameters']['boolean'] == "False":
-            update.message.reply_text(
-                "There is no Inventory for this medicine. Please introduce Medication or buy it if not done")
-            self.show_location(user_id)
-        if response['parameters']['remind'] == "Remind to buy":
-            update.message.reply_text(
-                "Alert! You will actually run out of pills of "+cima.get_med_name(reminder['cn'])+". Please buy it and introduce to your Inventory")
-            self.show_location(user_id)
-        self.event.set()
-        self.set_state(user_id, END)
 
-    def intr_history_no(self, update, context):
-        user_id = update.message.from_user.id
-        self.set_function(user_id, "INTRODUCE HISTORY")
-        reminder = self.get_reminder(user_id)
-        self.set_query(user_id, ["user_id", "NAME", "DATE", "BOOLEAN"],
-                       [str(user_id), reminder['cn'], reminder['time'], "False"])
-        query = self.create_query(user_id)
-        response = self.send_query(user_id, query)
-        self.event.set()
-        self.set_state(user_id, END)
+def delay_reminder(self, user_id, cn, time):
+    self.event.wait()
+    self.send_reminder(user_id, cn, time)
+    self.event.clear()
 
-    # Ends the communication between the user and the bot
-    def exit(self, update, context):
-        update.message.reply_text("See you next time")
-        logger.info('User ' + self.get_name(update.message.from_user) + ' finish with AideBot')
-        self.event.set()
-        return self.set_state(update.message.chat_id, END)
 
-    # Main of the Client.py, where the bot is activated and creates the transition to the different functionalities
-    def main(self):
-        # Create the Updater and pass it your bot's token.
-        # Make sure to set use_context=True to use the new context based callbacks
-        updater = Updater(token=TOKEN_PROVE, use_context=True, workers=50)
-        dp = updater.dispatcher
-        conv_handler = ConversationHandler(
-            allow_reentry=True,
-            entry_points=[CommandHandler('start', self.start)],
+def intr_history_yes(self, update, context):
+    user_id = update.message.from_user.id
+    self.set_function(user_id, "INTRODUCE HISTORY")
+    reminder = self.get_reminder(user_id)
+    self.set_query(user_id, ["user_id", "NAME", "DATE", "BOOLEAN"],
+                   [str(user_id), reminder['cn'], reminder['time'], "True"])
+    query = self.create_query(user_id)
+    response = json.loads(self.send_query(user_id, query))
+    if response['parameters']['boolean'] == "False":
+        update.message.reply_text(
+            "There is no Inventory for this medicine. Please introduce Medication or buy it if not done")
+        self.show_location(user_id)
+    if response['parameters']['remind'] == "Remind to buy":
+        update.message.reply_text(
+            "Alert! You will actually run out of pills of " + cima.get_med_name(
+                reminder['cn']) + ". Please buy it and introduce to your Inventory")
+        self.show_location(user_id)
+    self.event.set()
+    self.set_state(user_id, END)
 
-            states={
-                LOGIN: [MessageHandler(Filters.text, self.intr_pwd)],
-                NEW_USER: [MessageHandler(Filters.text, self.new_user)],
-                CHOOSING: [MessageHandler(Filters.regex('^New Prescription'),
-                                          self.intr_prescription),
-                           MessageHandler(Filters.regex('^New Medicine'),
-                                          self.intr_medicine),
-                           MessageHandler(Filters.regex('^Take Pill'),
-                                          self.take_pill),
-                           MessageHandler(Filters.regex('^Calendar'),
-                                          self.see_calendar),
-                           MessageHandler(Filters.regex('^Current Treatment'),
-                                          self.see_currentTreatment),
-                           MessageHandler(Filters.regex('^History'),
-                                          self.see_history),
-                           MessageHandler(Filters.regex('^Inventory'),
-                                          self.see_inventory),
-                           MessageHandler(Filters.regex('^Information'),
-                                          self.show_information),
-                           MessageHandler(Filters.regex('^Delete reminder'),
-                                          self.delete_reminder),
-                           MessageHandler(Filters.regex('^Journey'),
-                                          self.create_journey),
-                           MessageHandler(Filters.regex('^Exit'), self.exit)
-                           ],
-                INTR_PRESCRIPTION: [MessageHandler(Filters.text | Filters.photo, self.send_new_prescription)],
-                INTR_MEDICINE: [MessageHandler(Filters.text | Filters.photo, self.send_new_medicine)],
-                TAKE_PILL: [MessageHandler(Filters.text | Filters.photo, self.send_new_pill)],
-                SHOW_INFORMATION: [MessageHandler(Filters.text | Filters.photo, self.show_infoAbout)],
-                CHECK_PRE: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
-                            MessageHandler(Filters.regex('^NO$'), self.intr_prescription)
-                            ],
-                CHECK_MED: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
-                            MessageHandler(Filters.regex('^NO$'), self.intr_medicine)
-                            ],
-                CHECK_REM: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
-                            MessageHandler(Filters.regex('^NO$'), self.delete_reminder)
-                            ],
-                CHECK_PILL: [MessageHandler(Filters.regex('^YES$'), self.verificate_pill),
-                             MessageHandler(Filters.regex('^NO$'), self.take_pill)
-                             ],
-                CHECK_PILL_PHOTO: [MessageHandler(Filters.photo, self.manage_response),
-                                    MessageHandler(Filters.regex('^NO$'), self.delete_reminder)
-                                   ],
-                GET_CN: [MessageHandler(Filters.text, self.get_medicine_CN)],
-                JOURNEY: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
-                          MessageHandler(Filters.regex('^NO$'), self.create_journey)
-                          ],
-                END: [MessageHandler(Filters.regex('^TAKEN'), self.intr_history_yes),
-                      MessageHandler(Filters.regex('^POSPONE'), self.intr_history_no)
-                      ]
-            },
-            fallbacks=[MessageHandler(Filters.regex('^Exit$'), self.exit)]
-        )
 
-        dp.add_handler(conv_handler)
-        dp.add_handler(CallbackQueryHandler(self.inline_handler))
-        updater.start_polling()
-        updater.idle()
+def intr_history_no(self, update, context):
+    user_id = update.message.from_user.id
+    self.set_function(user_id, "INTRODUCE HISTORY")
+    reminder = self.get_reminder(user_id)
+    self.set_query(user_id, ["user_id", "NAME", "DATE", "BOOLEAN"],
+                   [str(user_id), reminder['cn'], reminder['time'], "False"])
+    query = self.create_query(user_id)
+    response = self.send_query(user_id, query)
+    self.event.set()
+    self.set_state(user_id, END)
+
+
+# Ends the communication between the user and the bot
+def exit(self, update, context):
+    update.message.reply_text("See you next time")
+    logger.info('User ' + self.get_name(update.message.from_user) + ' finish with AideBot')
+    self.event.set()
+    return self.set_state(update.message.chat_id, END)
+
+
+# Main of the Client.py, where the bot is activated and creates the transition to the different functionalities
+def main(self):
+    # Create the Updater and pass it your bot's token.
+    # Make sure to set use_context=True to use the new context based callbacks
+    updater = Updater(token=TOKEN_PROVE, use_context=True, workers=50)
+    dp = updater.dispatcher
+    conv_handler = ConversationHandler(
+        allow_reentry=True,
+        entry_points=[CommandHandler('start', self.start)],
+
+        states={
+            LOGIN: [MessageHandler(Filters.text, self.intr_pwd)],
+            NEW_USER: [MessageHandler(Filters.text, self.new_user)],
+            CHOOSING: [MessageHandler(Filters.regex('^New Prescription'),
+                                      self.intr_prescription),
+                       MessageHandler(Filters.regex('^New Medicine'),
+                                      self.intr_medicine),
+                       MessageHandler(Filters.regex('^Take Pill'),
+                                      self.take_pill),
+                       MessageHandler(Filters.regex('^Calendar'),
+                                      self.see_calendar),
+                       MessageHandler(Filters.regex('^Current Treatment'),
+                                      self.see_currentTreatment),
+                       MessageHandler(Filters.regex('^History'),
+                                      self.see_history),
+                       MessageHandler(Filters.regex('^Inventory'),
+                                      self.see_inventory),
+                       MessageHandler(Filters.regex('^Information'),
+                                      self.show_information),
+                       MessageHandler(Filters.regex('^Delete reminder'),
+                                      self.delete_reminder),
+                       MessageHandler(Filters.regex('^Journey'),
+                                      self.create_journey),
+                       MessageHandler(Filters.regex('^Exit'), self.exit)
+                       ],
+            INTR_PRESCRIPTION: [MessageHandler(Filters.text | Filters.photo, self.send_new_prescription)],
+            INTR_MEDICINE: [MessageHandler(Filters.text | Filters.photo, self.send_new_medicine)],
+            TAKE_PILL: [MessageHandler(Filters.text | Filters.photo, self.send_new_pill)],
+            SHOW_INFORMATION: [MessageHandler(Filters.text | Filters.photo, self.show_infoAbout)],
+            CHECK_PRE: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
+                        MessageHandler(Filters.regex('^NO$'), self.intr_prescription)
+                        ],
+            CHECK_MED: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
+                        MessageHandler(Filters.regex('^NO$'), self.intr_medicine)
+                        ],
+            CHECK_REM: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
+                        MessageHandler(Filters.regex('^NO$'), self.delete_reminder)
+                        ],
+            CHECK_PILL: [MessageHandler(Filters.regex('^YES$'), self.verificate_pill),
+                         MessageHandler(Filters.regex('^NO$'), self.take_pill)
+                         ],
+            CHECK_PILL_PHOTO: [MessageHandler(Filters.photo, self.manage_response),
+                               MessageHandler(Filters.regex('^NO$'), self.delete_reminder)
+                               ],
+            GET_CN: [MessageHandler(Filters.text, self.get_medicine_CN)],
+            JOURNEY: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
+                      MessageHandler(Filters.regex('^NO$'), self.create_journey)
+                      ],
+            END: [MessageHandler(Filters.regex('^TAKEN'), self.intr_history_yes),
+                  MessageHandler(Filters.regex('^POSPONE'), self.intr_history_no)
+                  ]
+        },
+        fallbacks=[MessageHandler(Filters.regex('^Exit$'), self.exit)]
+    )
+
+    dp.add_handler(conv_handler)
+    dp.add_handler(CallbackQueryHandler(self.inline_handler))
+    updater.start_polling()
+    updater.idle()
 
 
 if __name__ == '__main__':
