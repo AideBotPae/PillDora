@@ -209,6 +209,7 @@ class DBMethods:
                                               cn=query_parsed['NAME'],
                                               condition=query_parsed['BOOLEAN'], )
         if num == 3:
+            date=datetime.datetime.now().strftime("%Y-%m-%d") + " " + query_parsed["DATE"]
             with Database() as db:
                 db.execute('''INSERT INTO aidebot.history (user_id, national_code, last_taken_pill, taken)
                                        values ({id},{cn},'{date}', {boolean})'''.format(id=user_id,
