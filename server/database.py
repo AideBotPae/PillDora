@@ -180,7 +180,6 @@ class DBMethods:
                         id=user_id, time=min_time[0][0], cn=query_parsed['NAME']))
 
             data = self.get_cn_from_inventory(user_id, query_parsed['NAME'])
-            print(data)
             if data is ():
                 return "0"
             return "1"
@@ -190,10 +189,6 @@ class DBMethods:
             if condition == "True":
                 num = 3
             else:
-                print(''' SELECT Taken FROM aidebot.daily_reminders
-                WHERE user_id={id} and national_code={cn} and time='{time}'
-                '''.format(id=user_id, cn=cn, time=time))
-
                 data = db.query(''' SELECT Taken FROM aidebot.daily_reminders
                 WHERE user_id={id} and national_code={cn} and time='{time}'
                 '''.format(id=user_id, cn=cn, time=time))
