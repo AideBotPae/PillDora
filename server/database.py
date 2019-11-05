@@ -206,7 +206,7 @@ class DBMethods:
         if query_parsed['BOOLEAN'] == "True" and data is ():
             return "False"
 
-        num = self.postpone_or_check_reminder(user_id=user_id, time=query_parsed['DATE'].split(" ")[1],
+        num = self.postpone_or_check_reminder(user_id=user_id, time=query_parsed['DATE'],
                                               cn=query_parsed['NAME'],
                                               condition=query_parsed['BOOLEAN'], )
         if num == 3:
