@@ -33,8 +33,8 @@ TOKEN_AIDEBOT = '902984072:AAFd0KLLAinZIrGhQvVePQwBt3WJ1QQQDGs'
 TOKEN_PILLDORA = '938652990:AAETGF-Xh2_njSdCLn2KibcprZXH1hhqsiI'
 
 # STATES OF THE APP
-LOGIN, NEW_USER, CHOOSING, INTR_PRESCRIPTION, INTR_MEDICINE, TAKE_PILL, SHOW_INFORMATION, CHECK_PRE, CHECK_MED, CHECK_PILL, CHECK_PILL_PHOTO, GET_CN, CHECK_REM, JOURNEY, END, REMINDERS = range(
-    16)
+LOGIN, NEW_USER, CHOOSING, INTR_PRESCRIPTION, INTR_MEDICINE, TAKE_PILL, LOCATION, SHOW_INFORMATION, CHECK_PRE, CHECK_MED, CHECK_PILL, CHECK_PILL_PHOTO, GET_CN, CHECK_REM, JOURNEY, END, REMINDERS = range(
+    17)
 
 # MAX_DATE FORBID BY MYSQL:
 MAX_DATE = "2036-12-31"
@@ -67,7 +67,7 @@ reply_keyboard = [
     [u'New Prescription \U0001F4C3', u'New Medicine \U0001F48A'],
     [u'Current Treatments \U0001F3E5', u'Delete reminder \U0001F514', u'Take Pill \U0001F48A'],
     [u'History \U0001F4D6', u'Inventory \U00002696', u'Information \U0001F4AC'],
-    [u'Journey \U0000270D', u'Calendar \U0001F4C6', u'Exit \U0001F6AA']]
+    [u'Journey \U0000270D', u'Calendar \U0001F4C6', u'Location \U0001F5FE', u'Exit \U0001F6AA']]
 yes_no_reply_keyboard = [['YES', 'NO']]
 taken_pill_keyboard = [['TAKEN', 'POSPONE']]
 
@@ -683,7 +683,7 @@ class PillDora:
 
     def show_location(self, user_id):
         self.bot.send_location(chat_id=user_id, latitude=41.389725, longitude=2.112245)
-        return
+        return self.set_state(user_id, LOCATION)
 
 
     @run_async
@@ -979,6 +979,8 @@ class PillDora:
                                           self.delete_reminder),
                            MessageHandler(Filters.regex('^Journey'),
                                           self.create_journey),
+                           MessageHandler(Filters.regex('^Location'),
+                                          self.show_location),
                            MessageHandler(Filters.regex('^Exit'), self.exit)
                            ],
                 INTR_PRESCRIPTION: [MessageHandler(Filters.text | Filters.photo, self.send_new_prescription)],
