@@ -350,7 +350,7 @@ class PillDora:
                     update.message.reply_text(
                         "In your inventory we do not have any of this medicine. Please 'Introduce Medicine' after "
                         "getting the med")
-                    self.show_location(user_id)
+                    self.show_location(user_id=user_id)
                 elif response['parameters']['inventory'] == "Enough":
                     update.message.reply_text(
                         "In your inventory there is enough of this medicine for this whole treatment. No need to buy "
@@ -359,7 +359,7 @@ class PillDora:
                     update.message.reply_text(
                         "In your inventory there is some of this medicine but not enough for the whole treatment. "
                         "Need to buy it.")
-                    self.show_location(user_id)
+                    self.show_location(user_id=user_id)
 
             elif response['function'] == 'INTRODUCE MEDICINE':
                 if response['parameters']["Code"] == "0":
@@ -681,7 +681,9 @@ class PillDora:
             return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
 
 
-    def show_location(self, user_id):
+    def show_location(self, update, context, user_id):
+        if user_id is None:
+            user_id=update.message.from_user.id
         self.bot.send_location(chat_id=user_id, latitude=41.389725, longitude=2.112245)
         return self.set_state(user_id, LOCATION)
 
@@ -916,12 +918,12 @@ class PillDora:
         if response['parameters']['boolean'] == "False":
             update.message.reply_text(
                 "There is no Inventory for this medicine. Please introduce Medication or buy it if not done")
-            self.show_location(user_id)
+            self.show_location(user_id=user_id)
         if response['parameters']['remind'] == "Remind to buy":
             update.message.reply_text(
                 "Alert! You will actually run out of pills of " + cima.get_med_name(
                     reminder['cn']) + ". Please buy it and introduce to your Inventory")
-            self.show_location(user_id)
+            self.show_location(user_id=user_id)
         self.event.set()
         self.set_state(user_id, END)
 
