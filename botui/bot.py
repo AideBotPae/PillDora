@@ -76,7 +76,7 @@ loc_keyboard = KeyboardButton(text="Send location", request_location=True)
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 taken_pill_markup = ReplyKeyboardMarkup(taken_pill_keyboard, one_time_keyboard=True, resize_keyboard=True)
-loc_markup = ReplyKeyboardMarkup (loc_keyboard)
+loc_markup = ReplyKeyboardMarkup(loc_keyboard)
 
 
 
@@ -103,6 +103,8 @@ class PillDora:
         return self.aide_bot[user_id]['states']
 
     def in_end(self, user_id):
+        if(list(self.aide_bot.keys()).count(user_id)==0):
+            return False
         return self.aide_bot[user_id]['states'][0] == END
 
     def set_reminder(self, user_id, cn, time):
