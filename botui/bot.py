@@ -450,7 +450,7 @@ class PillDora:
             context.bot.send_message(chat_id=user_id,
                                      text='Is the medicine correctly introduced? ', reply_markup=yes_no_markup)
             context.bot.send_message(chat_id=user_id,
-                                     text=self.show_prescription(user_id))
+                                     text=self.show_prescription(user_id), parse_mode=telegram.ParseMode.MARKDOWN)
             self.set_query(user_id, list(self.get_prescription(user_id).keys()),
                            list(self.get_prescription(user_id).values()))
             self.set_function(user_id, 'INTRODUCE PRESCRIPTION')
@@ -496,7 +496,7 @@ class PillDora:
     def show_prescription(self, user_id):
         med_str = "You have to take **" + self.get_prescription(user_id)['QUANTITY'] + "** pills of medicine **" + \
                   cima.get_med_name(self.get_prescription(user_id)['NAME']).split(' ')[0] + "** each **" + \
-                  self.get_prescription(user_id)['FREQUENCY']
+                  self.get_prescription(user_id)['FREQUENCY'] + "** hours"
 
         date_str = self.get_prescription(user_id)['END_DATE']
         if date_str == MAX_DATE:
@@ -560,7 +560,7 @@ class PillDora:
             context.bot.send_message(chat_id=user_id,
                                      text='Is the medicine correctly introduced? ', reply_markup=yes_no_markup)
             context.bot.send_message(chat_id=user_id,
-                                     text=self.show_medicine(user_id))
+                                     text=self.show_medicine(user_id),  parse_mode=telegram.ParseMode.MARKDOWN)
             self.set_query(user_id, list(self.get_medicine(user_id).keys()), list(self.get_medicine(user_id).values()))
             self.set_function(user_id, 'INTRODUCE MEDICINE')
             return self.set_state(user_id, CHECK_MED)
@@ -627,7 +627,7 @@ class PillDora:
             context.bot.send_message(chat_id=user_id,
                                      text='Is the pill taken correctly introduced? ', reply_markup=yes_no_markup)
             context.bot.send_message(chat_id=user_id,
-                                     text=self.show_pill(user_id))
+                                     text=self.show_pill(user_id),  parse_mode=telegram.ParseMode.MARKDOWN)
             self.set_query(user_id, list(self.get_pill(user_id).keys()), list(self.get_pill(user_id).values()))
             self.set_function(user_id, 'TAKE PILL')
             return self.set_state(user_id, CHECK_PILL)
