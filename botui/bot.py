@@ -13,6 +13,7 @@ import re
 from threading import Event
 
 import telegram
+from telegram import KeyboardButton
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler
 from telegram.ext.dispatcher import run_async
 from telegram.replykeyboardmarkup import ReplyKeyboardMarkup
@@ -70,10 +71,13 @@ reply_keyboard = [
     [u'Journey \U0000270D', u'Calendar \U0001F4C6', u'Location \U0001F5FE', u'Exit \U0001F6AA']]
 yes_no_reply_keyboard = [['YES', 'NO']]
 taken_pill_keyboard = [['TAKEN', 'POSPONE']]
+loc_keyboard = KeyboardButton(text="Send location", request_location=True)
 
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 taken_pill_markup = ReplyKeyboardMarkup(taken_pill_keyboard, one_time_keyboard=True, resize_keyboard=True)
+loc_markup = ReplyKeyboardMarkup (loc_keyboard)
+
 
 
 class PillDora:
@@ -683,8 +687,16 @@ class PillDora:
 
     def show_location(self, update, context):
         user_id=update.message.from_user.id
-        self.bot.send_location(chat_id=user_id, latitude=41.389725, longitude=2.112245)
+        self.bot.send_message(chat_id=user_id, text="Send Location", reply_markup=loc_markup)
         return self.set_state(user_id, LOCATION)
+
+    def print_location(self, update, context):
+        user_id=update.message.from_user.id
+        lat, lon = update.message.location.latitude, update.message.location.longitude
+        self.bot.send_location(chat_id=user_id, latitude=lat, longitude=lon)
+        update.message.reply_text(chat_id=user_id, text="Is there any other way I can help you?",
+                                  reply_markup=markup)
+        return self.set_state(user_id, CHOOSING)
 
 
     @run_async
@@ -988,6 +1000,7 @@ class PillDora:
                 INTR_MEDICINE: [MessageHandler(Filters.text | Filters.photo, self.send_new_medicine)],
                 TAKE_PILL: [MessageHandler(Filters.text | Filters.photo, self.send_new_pill)],
                 SHOW_INFORMATION: [MessageHandler(Filters.text | Filters.photo, self.show_infoAbout)],
+                LOCATION: [MessageHandler(Filters.Location, self.print_location)],
                 CHECK_PRE: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
                             MessageHandler(Filters.regex('^NO$'), self.intr_prescription)
                             ],
