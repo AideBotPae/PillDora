@@ -219,7 +219,7 @@ class DBMethods:
                                                                                             'BOOLEAN'],
                                                                                         ))
             return "True"
-        return "False"
+        return "Pospone"
 
     def get_history(self, user_id):
         with Database() as db:
