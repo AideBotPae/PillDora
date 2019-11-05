@@ -192,7 +192,7 @@ class DBMethods:
             else:
                 data = db.query(''' SELECT Taken FROM aidebot.daily_reminders
                 WHERE user_id={id} and national_code={cn} and time={time}
-                '''.format(id=user_id), cn=cn, time=time)
+                '''.format(id=user_id, cn=cn, time=time))
                 num = data[0][0] + 1
 
             db.execute(
