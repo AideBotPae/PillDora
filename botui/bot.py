@@ -279,6 +279,7 @@ class PillDora:
         :return: the new state to be on (LOGIN if fails, CHOOSING if succeeds)
         """
         password = update.message.text
+        print(update)
         if self.pwd_verification(password, update.message.from_user.id) == "False":
             update.message.reply_text("Wrong Password. Enter correct password again:")
             return self.set_state(update.message.from_user.id, LOGIN)
