@@ -22,7 +22,7 @@ class Reminder:
         while True:
             schedule.run_pending()
             # Sleeps for 1 minute
-            time.sleep(60)
+            time.sleep(30)
 
     # Delete all reminders which has expired by end_date < today
     def test(self):
