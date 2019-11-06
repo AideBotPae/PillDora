@@ -913,6 +913,8 @@ class PillDora:
                 "Alert! You will actually run out of pills of " + cima.get_med_name(
                     reminder['cn']) + ". Please buy it and introduce to your Inventory")
             self.show_location(user_id=user_id)
+        elif response['parameters']['remind'] == "No reminder":
+            update.message.reply_text("Good Job")
         self.event.set()
         self.set_state(user_id, END)
 
@@ -928,7 +930,7 @@ class PillDora:
             self.bot.send_message(chat_id=user_id, text="Message has been posponed correctly.")
         else:
             self.bot.send_message(chat_id=user_id,
-                                  text="Message has already been posponed 3 times and not taken.\nNo more notiifcations will be set of this reminder\n. Choose take pill to introduce it")
+                                  text="Message has already been posponed 3 times and not taken.\nNo more notiifcations will be set of this reminder.\n Choose 'Take pill' to introduce it")
         self.event.set()
         self.set_state(user_id, END)
 
