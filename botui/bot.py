@@ -688,7 +688,7 @@ class PillDora:
         user_id = update.message.from_user.id
         lat, lon = update.message.location.latitude, update.message.location.longitude
         maps='https://www.google.com/maps/search/farmacias+cercanas/@'+str(lat)+','+str(lon)+'z'
-        url=" <a href ='"+maps+"'> Click Here < / a >"
+        url=" <a href ='"+maps+"'> Click Here </a>"
         print (url)
         self.bot.send_message(chat_id=user_id,
                               text=url,
