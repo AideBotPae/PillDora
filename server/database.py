@@ -213,8 +213,7 @@ class DBMethods:
                 db.execute('''INSERT INTO aidebot.history (user_id, national_code, last_taken_pill, taken)
                                        values ({id},{cn},'{date}', {boolean})'''.format(id=user_id,
                                                                                         cn=query_parsed['NAME'],
-                                                                                        date=query_parsed[
-                                                                                            'DATE'],
+                                                                                        date=date,
                                                                                         boolean=query_parsed[
                                                                                             'BOOLEAN'],
                                                                                         ))
