@@ -687,8 +687,10 @@ class PillDora:
     def print_location(self, update, context):
         user_id = update.message.from_user.id
         lat, lon = update.message.location.latitude, update.message.location.longitude
+        url='"https://www.google.com/maps/search/farmacias+cercanas/@'+str(lat)+','+str(lon)+'z"'
+        print(url)
         self.bot.send_message(chat_id=user_id,
-                              text=' < a href = "https://www.google.com/maps/search/farmacias+cercanas/@'+str(lat)+','+str(lon)+'z" > Click Here < / a >',
+                              text=' < a href ="http://www.example.com/"> Click Here < / a >',
                               parse_mode=telegram.ParseMode.HTML)
         self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?", reply_markup=markup)
         return self.set_state(user_id, CHOOSING)
