@@ -356,7 +356,7 @@ class DBMethods:
                                 '''.format(cn=cn, id=user_id))
                 if data is not ():
                     end_date = data[0][0]
-                    pills_needed = min(self.days_between(today, end_date), 3) * quantity
+                    pills_needed = min(self.days_between(today, end_date), 3) * int(quantity)
                     data = db.query('''SELECT SUM(num_of_pills)
                                                 FROM aidebot.inventory 
                                                 WHERE national_code >= '{cn}' and user_id={id}
