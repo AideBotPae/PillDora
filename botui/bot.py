@@ -690,7 +690,8 @@ class PillDora:
 
     def print_location(self, update, context):
         user_id = update.message.from_user.id
-        self.bot.delete_message(chat_id=user_id, message_id=update.message.message_id)
+        # If we want to delete the message of location, just use line below
+        #self.bot.delete_message(chat_id=user_id, message_id=update.message.message_id)
         lat, lon = update.message.location.latitude, update.message.location.longitude
         #to clear all queries possibly made
         self.set_query(user_id, ["None"], ["None"])
