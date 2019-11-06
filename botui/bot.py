@@ -691,6 +691,9 @@ class PillDora:
     def show_location(self, user_id):
         self.bot.send_message(chat_id=user_id, text="Would you like to search for nearest pharmacies?",
                               reply_markup=loc_markup)
+        #to clear all queries possibly made
+        self.set_query(user_id, ["None"], ["None"])
+        self.set_function(user_id, "None")
         return self.set_state(user_id, LOCATION)
 
     def print_location(self, update, context):
@@ -698,9 +701,7 @@ class PillDora:
         # If we want to delete the message of location, just use line below
         #self.bot.delete_message(chat_id=user_id, message_id=update.message.message_id)
         lat, lon = update.message.location.latitude, update.message.location.longitude
-        #to clear all queries possibly made
-        self.set_query(user_id, ["None"], ["None"])
-        self.set_function(user_id, "None")
+
         maps='https://www.google.com/maps/search/farmacias+cercanas/@'+str(lat)+','+str(lon)+'z'
         url=" <a href ='"+maps+"'> Click Here </a>"
         self.bot.send_message(chat_id=user_id,
