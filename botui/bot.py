@@ -281,8 +281,8 @@ class PillDora:
         user_id=update.message.from_user.id
         password = update.message.text
         message_id=update.message.message_id
+        self.bot.delete_message(chat_id=user_id, message_id=message_id-1)
         self.bot.delete_message(chat_id=user_id, message_id=message_id)
-        print(update)
         if self.pwd_verification(password, user_id) == "False":
             update.message.reply_text("Wrong Password. Enter correct password again:")
             return self.set_state(user_id, LOGIN)
