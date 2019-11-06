@@ -680,13 +680,16 @@ class PillDora:
 
     def show_location(self, update, context):
         user_id = update.message.from_user.id
-        self.bot.send_message(chat_id=user_id, text="Would you like to search for nearest pharmacies?", reply_markup=loc_markup)
+        self.bot.send_message(chat_id=user_id, text="Would you like to search for nearest pharmacies?",
+                              reply_markup=loc_markup)
         return self.set_state(user_id, LOCATION)
 
     def print_location(self, update, context):
         user_id = update.message.from_user.id
         lat, lon = update.message.location.latitude, update.message.location.longitude
-        self.bot.send_location(chat_id=user_id, latitude=lat, longitude=lon)
+        self.bot.send_message(chat_id=user_id,
+                              text=' < a href = "https://www.google.com/maps/search/farmacias+cercanas/@'+lat+','+lon+'z" > Click Here < / a >',
+                              parse_mode=telegram.ParseMode.HTML)
         self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?", reply_markup=markup)
         return self.set_state(user_id, CHOOSING)
 
