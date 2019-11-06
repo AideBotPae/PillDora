@@ -278,14 +278,17 @@ class PillDora:
         :param context: Handler's context
         :return: the new state to be on (LOGIN if fails, CHOOSING if succeeds)
         """
+        user_id=update.message.from_user.id
         password = update.message.text
+        message_id=update.message.message_id
+        self.bot.delete_message(chat_id=user_id, message_id=message_id)
         print(update)
-        if self.pwd_verification(password, update.message.from_user.id) == "False":
+        if self.pwd_verification(password, user_id) == "False":
             update.message.reply_text("Wrong Password. Enter correct password again:")
-            return self.set_state(update.message.from_user.id, LOGIN)
+            return self.set_state(user_id, LOGIN)
         update.message.reply_text('Welcome ' + self.get_name(update.message.from_user) + '. How can I help you?',
                                   reply_markup=markup)
-        return self.set_state(update.message.from_user.id, CHOOSING)
+        return self.set_state(user_id, CHOOSING)
 
     @run_async
     def new_user(self, update, context):
