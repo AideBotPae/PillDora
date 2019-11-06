@@ -281,7 +281,7 @@ class DBMethods:
                 return self.get_calendar(user_id, date)
 
     def days_between(self, d1, d2):
-        return (abs((d2 - d1).days) + 1)
+        return (abs((d2 - d1).days)+1)
 
     def get_array_dates(self, init_date, end_date):
         in_date = datetime.datetime.strptime(init_date, '%Y-%m-%d')
@@ -362,7 +362,7 @@ class DBMethods:
                                                 WHERE national_code >= '{cn}' and user_id={id}
                                                 '''.format(cn=cn, id=user_id))
                     if data is not ():
-                        pills_in = data[0][0]
+                        pills_in = int(data[0][0])
                         if pills_in >= pills_needed:
                             return "No reminder"
             return "Remind to buy"
