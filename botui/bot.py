@@ -70,7 +70,7 @@ reply_keyboard = [
     [u'History \U0001F4D6', u'Inventory \U00002696', u'Information \U0001F4AC'],
     [u'Journey \U0000270D', u'Calendar \U0001F4C6', u'Exit \U0001F6AA']]
 yes_no_reply_keyboard = [['YES', 'NO']]
-taken_pill_keyboard = [['TAKEN', 'POSPONE']]
+taken_pill_keyboard = [['TAKEN', 'POSTPONE']]
 loc_button = KeyboardButton(text="Send Location", request_location=True)
 location_keyboard = [[loc_button, "Don't Send Location"]]
 
@@ -227,8 +227,9 @@ class PillDora:
             return self.set_state(user_id, LOGIN)
         else:
             context.bot.send_message(chat_id=update.message.chat_id,
-                                     text=("Welcome to the HealthCare Assistant AideBot!\n"
-                                           "Enter new password for creating your account:"))
+                                     text="Welcome to the HealthCare Assistant AideBot!")
+            context.bot.send_message(chat_id=update.message.chat_id,
+                                     text="Enter new password for creating your account.")
         return self.set_state(user_id, NEW_USER)
 
     @staticmethod
@@ -301,6 +302,8 @@ class PillDora:
         password = update.message.text
         logger.info('User introduced new password:  ' + password)
         user_id = update.message.from_user.id
+        self.bot.delete_message(chat_id=user_id, message_id=update.message.message_id-1)
+        self.bot.delete_message(chat_id=user_id, message_id=update.message.message_id)
 
         # Check for password difficulty:
         i = 0
@@ -318,13 +321,13 @@ class PillDora:
             i = 0
 
         if i > 2:
-            update.message.reply_text("Valid Password")
+            # update.message.reply_text("Valid Password")
             # Introduce new UserID-Password to DataBase
             self.set_function(user_id, 'NEW PASSWORD')
             self.set_query(user_id, ["new_password"], [password])
             query = self.create_query(user_id)
             self.send_query(user_id, query)
-            update.message.reply_text('How can I help you?',
+            update.message.reply_text('Alright. Now you are ready! How can I help you?',
                                       reply_markup=markup)
             return self.set_state(update.message.from_user.id, CHOOSING)
 
@@ -944,11 +947,11 @@ class PillDora:
                        [str(user_id), reminder['cn'], reminder['time'], "False"])
         query = self.create_query(user_id)
         response = json.loads(self.send_query(user_id, query))
-        if (response["parameters"]["boolean"] == "Pospone"):
-            self.bot.send_message(chat_id=user_id, text="Message has been posponed correctly.")
+        if (response["parameters"]["boolean"] == "Postpone"):
+            self.bot.send_message(chat_id=user_id, text="Message has been postponed correctly.")
         else:
             self.bot.send_message(chat_id=user_id,
-                                  text="Message has already been posponed 3 times and not taken.\nNo more notiifcations will be set of this reminder.\n Choose 'Take pill' to introduce it")
+                                  text="Message has already been postponed 3 times and not taken.\nNo more notiifcations will be set of this reminder.\n Choose 'Take pill' to introduce it")
         self.event.set()
         return self.set_state(user_id, END)
 
@@ -1021,7 +1024,7 @@ class PillDora:
                           MessageHandler(Filters.regex('^NO$'), self.create_journey)
                           ],
                 END: [MessageHandler(Filters.regex('^TAKEN'), self.intr_history_yes),
-                      MessageHandler(Filters.regex('^POSPONE'), self.intr_history_no)
+                      MessageHandler(Filters.regex('^POSTPONE'), self.intr_history_no)
                       ]
             },
             fallbacks=[MessageHandler(Filters.regex('^Exit$'), self.exit)]
