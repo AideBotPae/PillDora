@@ -77,7 +77,7 @@ location_keyboard = [[loc_button, "Don't Send Location"]]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 taken_pill_markup = ReplyKeyboardMarkup(taken_pill_keyboard, one_time_keyboard=True, resize_keyboard=True)
-loc_markup = ReplyKeyboardMarkup(location_keyboard)
+loc_markup = ReplyKeyboardMarkup(location_keyboard, one_time_keyboard=True, resize_keyboard=True)
 
 
 class PillDora:
