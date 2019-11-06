@@ -68,7 +68,7 @@ reply_keyboard = [
     [u'New Prescription \U0001F4C3', u'New Medicine \U0001F48A'],
     [u'Current Treatments \U0001F3E5', u'Delete reminder \U0001F514', u'Take Pill \U0001F48A'],
     [u'History \U0001F4D6', u'Inventory \U00002696', u'Information \U0001F4AC'],
-    [u'Journey \U0000270D', u'Calendar \U0001F4C6', u'Location \U0001F5FE', u'Exit \U0001F6AA']]
+    [u'Journey \U0000270D', u'Calendar \U0001F4C6', u'Exit \U0001F6AA']]
 yes_no_reply_keyboard = [['YES', 'NO']]
 taken_pill_keyboard = [['TAKEN', 'POSPONE']]
 loc_button = KeyboardButton(text="Send Location", request_location=True)
@@ -356,7 +356,7 @@ class PillDora:
                     update.message.reply_text(
                         "In your inventory we do not have any of this medicine. Please 'Introduce Medicine' after "
                         "getting the med")
-                    self.show_location(user_id=user_id)
+                    return self.show_location(user_id=user_id)
                 elif response['parameters']['inventory'] == "Enough":
                     update.message.reply_text(
                         "In your inventory there is enough of this medicine for this whole treatment. No need to buy "
@@ -365,7 +365,7 @@ class PillDora:
                     update.message.reply_text(
                         "In your inventory there is some of this medicine but not enough for the whole treatment. "
                         "Need to buy it.")
-                    self.show_location(user_id=user_id)
+                    return self.show_location(user_id=user_id)
 
             elif response['function'] == 'INTRODUCE MEDICINE':
                 if response['parameters']["Code"] == "0":
@@ -678,8 +678,7 @@ class PillDora:
                                       reply_markup=markup)
             return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
 
-    def show_location(self, update, context):
-        user_id = update.message.from_user.id
+    def show_location(self, user_id):
         self.bot.send_message(chat_id=user_id, text="Would you like to search for nearest pharmacies?",
                               reply_markup=loc_markup)
         return self.set_state(user_id, LOCATION)
@@ -687,14 +686,20 @@ class PillDora:
     def print_location(self, update, context):
         user_id = update.message.from_user.id
         lat, lon = update.message.location.latitude, update.message.location.longitude
+        #to clear all queries possibly made
+        self.set_query(user_id, ["None"], ["None"])
+        self.set_function(user_id, "None")
         maps='https://www.google.com/maps/search/farmacias+cercanas/@'+str(lat)+','+str(lon)+'z'
         url=" <a href ='"+maps+"'> Click Here </a>"
-        print (url)
         self.bot.send_message(chat_id=user_id,
                               text=url,
                               parse_mode=telegram.ParseMode.HTML)
-        self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?", reply_markup=markup)
-        return self.set_state(user_id, CHOOSING)
+        if self.get_states(user_id=user_id)[1] == REMINDERS:
+            self.event.set()
+            return self.set_state(user_id, END)
+        else:
+            self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?", reply_markup=markup)
+            return self.set_state(user_id, CHOOSING)
 
     @run_async
     def see_calendar(self, update, context):
@@ -913,16 +918,16 @@ class PillDora:
         if response['parameters']['boolean'] == "False":
             update.message.reply_text(
                 "There is no Inventory for this medicine. Please introduce Medication or buy it if not done")
-            self.show_location(user_id=user_id)
+            return self.show_location(user_id=user_id)
         if response['parameters']['remind'] == "Remind to buy":
             update.message.reply_text(
                 "Alert! You will actually run out of pills of " + cima.get_med_name(
                     reminder['cn']) + ". Please buy it and introduce to your Inventory")
-            self.show_location(user_id=user_id)
+            return self.show_location(user_id=user_id)
         elif response['parameters']['remind'] == "No reminder":
             update.message.reply_text("Good Job")
         self.event.set()
-        self.set_state(user_id, END)
+        return self.set_state(user_id, END)
 
     def intr_history_no(self, update, context):
         user_id = update.message.from_user.id
@@ -938,7 +943,7 @@ class PillDora:
             self.bot.send_message(chat_id=user_id,
                                   text="Message has already been posponed 3 times and not taken.\nNo more notiifcations will be set of this reminder.\n Choose 'Take pill' to introduce it")
         self.event.set()
-        self.set_state(user_id, END)
+        return self.set_state(user_id, END)
 
     # Ends the communication between the user and the bot
     def exit(self, update, context):
@@ -980,8 +985,6 @@ class PillDora:
                                           self.delete_reminder),
                            MessageHandler(Filters.regex('^Journey'),
                                           self.create_journey),
-                           MessageHandler(Filters.regex('^Location'),
-                                          self.show_location),
                            MessageHandler(Filters.regex('^Exit'), self.exit)
                            ],
                 INTR_PRESCRIPTION: [MessageHandler(Filters.text | Filters.photo, self.send_new_prescription)],
