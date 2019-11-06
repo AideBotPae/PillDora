@@ -158,7 +158,7 @@ class DBMethods:
     def intr_taken_pill(self, user_id, query_parsed):
         query_parsed['DATE'] = datetime.datetime.now()
         query_parsed['BOOLEAN'] = "True"
-        exact_time = datetime.datetime.now().strftime("%H:%M:%S")
+        exact_time = datetime.datetime.now()
         with Database() as db:
             db.execute('''INSERT INTO aidebot.history (user_id, national_code, last_taken_pill, taken)
                                           values ({id},{cn},'{date}', {boolean})'''.format(id=user_id,
@@ -171,7 +171,7 @@ class DBMethods:
             min_time = db.query(
                 '''select min(time) from aidebot.daily_reminders where time >= '{time}' and user_id = {id} and 
                 national_code = {cn}'''.format(
-                    id=user_id, time=time, cn=query_parsed['NAME']))
+                    id=user_id, time=exact_time.strftime("%H:%M:%S"), cn=query_parsed['NAME']))
             if min_time[0][0] is not None:
                 db.execute(
                     '''update aidebot.daily_reminders set Taken = 3 where time = '{time}' and user_id = {id} and 
