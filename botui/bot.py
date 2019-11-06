@@ -286,7 +286,7 @@ class PillDora:
         if self.pwd_verification(password, user_id) == "False":
             update.message.reply_text("Wrong Password. Enter correct password again:")
             return self.set_state(user_id, LOGIN)
-        update.message.reply_text('Welcome ' + self.get_name(update.message.from_user) + '. How can I help you?',
+        update.message.reply_text('How can I help you?',
                                   reply_markup=markup)
         return self.set_state(user_id, CHOOSING)
 
@@ -324,7 +324,7 @@ class PillDora:
             self.set_query(user_id, ["new_password"], [password])
             query = self.create_query(user_id)
             self.send_query(user_id, query)
-            update.message.reply_text('Welcome ' + self.get_name(update.message.from_user) + '. How can I help you?',
+            update.message.reply_text('How can I help you?',
                                       reply_markup=markup)
             return self.set_state(update.message.from_user.id, CHOOSING)
 
@@ -690,6 +690,7 @@ class PillDora:
 
     def print_location(self, update, context):
         user_id = update.message.from_user.id
+        self.bot.delete_message(chat_id=user_id, message_id=update.message.message_id)
         lat, lon = update.message.location.latitude, update.message.location.longitude
         #to clear all queries possibly made
         self.set_query(user_id, ["None"], ["None"])
