@@ -583,7 +583,7 @@ class PillDora:
         med_str = "Introducing *" + self.get_medicine(user_id)['QUANTITY'] + "* pills of medicine *" + \
                   cima.get_med_name(self.get_medicine(user_id)['NAME']).split(' ')[0] + "* which "
 
-        date_str = self.get_medicine(user_id)['END_DATE']
+        date_str = self.get_medicine(user_id)['EXP_DATE']
         if date_str == MAX_DATE:
             med_str += "*never expire*!"
         else:
