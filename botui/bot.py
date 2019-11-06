@@ -508,6 +508,7 @@ class PillDora:
         return res == int(validation_number)
 
     def show_prescription(self, user_id):
+        print(self.get_prescription(user_id))
         med_str = "You have to take *" + self.get_prescription(user_id)['QUANTITY'] + "* pills of medicine *" + \
                   cima.get_med_name(self.get_prescription(user_id)['NAME']).split(' ')[0] + "* each *" + \
                   self.get_prescription(user_id)['FREQUENCY'] + "* hours"
@@ -517,6 +518,7 @@ class PillDora:
             med_str += "* chronically*!"
         else:
             med_str += "* until the end date of *" + date_str + "* !"
+        print(med_str)
         return med_str
 
     @run_async
