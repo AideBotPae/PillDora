@@ -394,6 +394,7 @@ class PillDora:
                     logger.info("Pill taken correctly introduced. However, no inventory for these pills.")
                     self.bot.send_message(chat_id=user_id,
                                           text="Pills taken correctly introduced in the history. However, there is no record of these pills in the inventory. Please introduce them")
+                    return self.show_location(user_id)
 
         self.set_query(user_id, ["None"], ["None"])
         self.set_function(user_id, "None")
