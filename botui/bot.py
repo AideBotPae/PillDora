@@ -517,9 +517,9 @@ class PillDora:
 
         date_str = self.get_prescription(user_id)['END_DATE']
         if date_str == MAX_DATE:
-            med_str += "* chronically*!"
+            med_str += "*chronically*!"
         else:
-            med_str += "* until the end date of *" + date_str + "* !"
+            med_str += " until the end date of *" + date_str + "* !"
         print(med_str)
         return med_str
 
