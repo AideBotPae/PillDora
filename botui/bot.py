@@ -13,7 +13,7 @@ import re
 from threading import Event
 
 import telegram
-from telegram import KeyboardButton
+from telegram import KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler
 from telegram.ext.dispatcher import run_async
 from telegram.replykeyboardmarkup import ReplyKeyboardMarkup
@@ -40,6 +40,8 @@ LOGIN, NEW_USER, CHOOSING, INTR_PRESCRIPTION, INTR_MEDICINE, TAKE_PILL, LOCATION
 # MAX_DATE FORBID BY MYSQL:
 MAX_DATE = "2036-12-31"
 
+# cross icon:
+crossIcon = u"\u274C"
 # FUNCTIONS FOR COMMUNICATING WITH DATA BASE
 QUERIES = ['CHECK USER', 'CHECK PASSWORD', 'NEW PASSWORD', 'INTRODUCE PRESCRIPTION', 'INTRODUCE MEDICINE', 'TAKE PILL',
            'CHECK PILL', 'VERIFICATE PILL'
@@ -279,10 +281,10 @@ class PillDora:
         :param context: Handler's context
         :return: the new state to be on (LOGIN if fails, CHOOSING if succeeds)
         """
-        user_id=update.message.from_user.id
+        user_id = update.message.from_user.id
         password = update.message.text
-        message_id=update.message.message_id
-        self.bot.delete_message(chat_id=user_id, message_id=message_id-1)
+        message_id = update.message.message_id
+        self.bot.delete_message(chat_id=user_id, message_id=message_id - 1)
         self.bot.delete_message(chat_id=user_id, message_id=message_id)
         if self.pwd_verification(password, user_id) == "False":
             update.message.reply_text("Wrong Password. Enter correct password again:")
@@ -302,7 +304,7 @@ class PillDora:
         password = update.message.text
         logger.info('User introduced new password:  ' + password)
         user_id = update.message.from_user.id
-        self.bot.delete_message(chat_id=user_id, message_id=update.message.message_id-1)
+        self.bot.delete_message(chat_id=user_id, message_id=update.message.message_id - 1)
         self.bot.delete_message(chat_id=user_id, message_id=update.message.message_id)
 
         # Check for password difficulty:
@@ -465,8 +467,8 @@ class PillDora:
                                      text='Is the medicine correctly introduced? ', reply_markup=yes_no_markup)
             context.bot.send_message(chat_id=user_id,
                                      text=self.show_prescription(user_id), parse_mode=telegram.ParseMode.MARKDOWN)
-            self.set_query(user_id, list(self.get_prescription(user_id).keys()),
-                           list(self.get_prescription(user_id).values()))
+            self.set_query(user_id, list(self.get_prescription(user_id).keys().append('NAME')),
+                           list(self.get_prescription(user_id).values()).append(cima.get_med_name(medicine_cn)))
             self.set_function(user_id, 'INTRODUCE PRESCRIPTION')
             return self.set_state(user_id, CHECK_PRE)
 
@@ -601,7 +603,13 @@ class PillDora:
         :return: new state TAKE_PILL
         """
         logger.info('User introducing new pill taken')
-        update.message.reply_text(INTR_PILL_MSSGS[self.get_counter(update.message.from_user.id)])
+        user_id = update.message.from_user.id
+        dict = self.list_of_current_cn(user_id)
+        if dict is not "False":
+            dyn_markup= self.makeKeyboard(dict)
+            update.message.reply_text(INTR_PILL_MSSGS[self.get_counter(update.message.from_user.id)], dyn_markup)
+        else:
+            update.message.reply_text(INTR_PILL_MSSGS[self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, TAKE_PILL)
 
     def send_new_pill(self, update, context):
@@ -665,6 +673,23 @@ class PillDora:
 
         return self.manage_response(update, context)
 
+    def list_of_current_cn(self, user_id):
+        self.set_function(user_id, 'GET LIST')
+        self.set_query(user_id, ["user_id"], [str(user_id)])
+        query = self.create_query(user_id)
+        response = self.send_query(user_id, query)
+        return json.loads(response)["parameters"]
+
+    def makeKeyboard(self, dict):
+        dyn_markup = InlineKeyboardMarkup()
+
+        for key, value in dict:
+            dyn_markup.add(InlineKeyboardButton(text=value,
+                                            callback_data=key),
+                       InlineKeyboardButton(text=crossIcon,
+                                            callback_data=key))
+        return dyn_markup
+
     @run_async
     def show_information(self, update, context):
         logger.info('User ' + self.get_name(update.message.from_user) + '  searching for information')
@@ -691,7 +716,7 @@ class PillDora:
     def show_location(self, user_id):
         self.bot.send_message(chat_id=user_id, text="Would you like to search for nearest pharmacies?",
                               reply_markup=loc_markup)
-        #to clear all queries possibly made
+        # to clear all queries possibly made
         self.set_query(user_id, ["None"], ["None"])
         self.set_function(user_id, "None")
         return self.set_state(user_id, LOCATION)
@@ -699,11 +724,11 @@ class PillDora:
     def print_location(self, update, context):
         user_id = update.message.from_user.id
         # If we want to delete the message of location, just use line below
-        #self.bot.delete_message(chat_id=user_id, message_id=update.message.message_id)
+        # self.bot.delete_message(chat_id=user_id, message_id=update.message.message_id)
         lat, lon = update.message.location.latitude, update.message.location.longitude
 
-        maps='https://www.google.com/maps/search/farmacias+cercanas/@'+str(lat)+','+str(lon)+'z'
-        url=" <a href ='"+maps+"'> Click Here </a>"
+        maps = 'https://www.google.com/maps/search/farmacias+cercanas/@' + str(lat) + ',' + str(lon) + 'z'
+        url = " <a href ='" + maps + "'> Click Here </a>"
         self.bot.send_message(chat_id=user_id,
                               text=url,
                               parse_mode=telegram.ParseMode.HTML)
