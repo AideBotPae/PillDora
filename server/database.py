@@ -88,12 +88,13 @@ class DBMethods:
         with Database() as db:
             exists = self.check_receipt(user_id=user_id, cn=query_parsed['NAME'])
             if not exists:
-                db.execute('''INSERT INTO aidebot.receipts (user_id,national_code, frequency, quantity, begin_date, end_date)
-                            values ({id},{cn},{frequency},'{quantity}','{init}','{end}')'''.format(
+                db.execute('''INSERT INTO aidebot.receipts (user_id,national_code, frequency, quantity, begin_date, end_date, name)
+                            values ({id},{cn},{frequency},'{quantity}','{init}','{end}', '{name}')'''.format(
                     id=user_id, cn=query_parsed['NAME'], frequency=query_parsed['FREQUENCY'],
                     quantity=query_parsed['QUANTITY'],
                     init=date,
-                    end=query_parsed['END_DATE']
+                    end=query_parsed['END_DATE'],
+                    name=query_parsed['NAME']
                 ))
                 # Daily Reminders is table used to have the current reminders for one day.
                 # Every time day finish we check if end_Date in receipts is today. If it is today, delete reminder from daily_reminders
@@ -145,6 +146,14 @@ class DBMethods:
              WHERE user_id={id}
             '''.format(id=user_id
                        ))
+            return data
+
+    def getCNList(self, user_id):
+        with Database() as db:
+            data = db.query(''' SELECT national_code, name
+                FROM aidebot.receipts 
+                WHERE user_id={id} ORDER BY frequency ASC
+                '''.format(id=user_id))
             return data
 
     def get_currentTreatment(self, user_id):
