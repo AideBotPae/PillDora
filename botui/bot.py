@@ -467,7 +467,7 @@ class PillDora:
                                      text='Is the medicine correctly introduced? ', reply_markup=yes_no_markup)
             context.bot.send_message(chat_id=user_id,
                                      text=self.show_prescription(user_id), parse_mode=telegram.ParseMode.MARKDOWN)
-            self.set_query(user_id, list(self.get_prescription(user_id).keys().append('NAME')),
+            self.set_query(user_id, list(self.get_prescription(user_id).keys()).append('NAME'),
                            list(self.get_prescription(user_id).values()).append(cima.get_med_name(medicine_cn)))
             self.set_function(user_id, 'INTRODUCE PRESCRIPTION')
             return self.set_state(user_id, CHECK_PRE)
