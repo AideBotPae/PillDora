@@ -744,8 +744,8 @@ class PillDora:
             self.set_pill(user_id, 0, "None")
             return self.set_state(user_id=user_id, state=CHOOSING)
 
-        if self.get_handling(user_id)=="True":
-            return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
+       # if self.get_handling(user_id)=="True":
+        #    return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
 
     def show_location(self, user_id):
         self.bot.send_message(chat_id=user_id, text="Would you like to search for nearest pharmacies?",
