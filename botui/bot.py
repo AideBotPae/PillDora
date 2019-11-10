@@ -104,14 +104,6 @@ class PillDora:
     def get_states(self, user_id):
         return self.aide_bot[user_id]['states']
 
-
-    def set_handling(self, user_id, text):
-        self.aide_bot[user_id]['handling']= text
-
-    # Returns the state of being handling the bot for a specific user_id
-    def get_handling(self, user_id):
-        return self.aide_bot[user_id]['handling']
-
     def in_end(self, user_id):
         if (list(self.aide_bot.keys()).count(user_id) == 0):
             return False
@@ -229,8 +221,7 @@ class PillDora:
                                   'query': {},
                                   'reminder': {'cn': "None", 'time': 'None'},
                                   'serverworker': ServerWorker(user_id),
-                                  'language': 'eng',
-                                  'handling':'False'}
+                                  'language': 'eng'}
         logger.info('User ' + name + ' has connected to AideBot: ID is ' + str(user_id))
         context.bot.send_message(chat_id=user_id, text=("Welcome " + name + " ! My name is AideBot"))
 
@@ -719,21 +710,20 @@ class PillDora:
     def show_infoAbout(self, update, context):
         try:
             user_id = update.message.from_user.id
-            if self.get_handling(user_id) == "False":
-                if update.message.photo:  # If user sent a photo, we apply
-                    medicine_cn, validation_num = self.handle_pic(update, context, user_id)
-                else:
-                    medicine_cn, validation_num = self.split_code(update.message.text)
+            if update.message.photo:  # If user sent a photo, we apply
+                medicine_cn, validation_num = self.handle_pic(update, context, user_id)
+            else:
+                medicine_cn, validation_num = self.split_code(update.message.text)
 
-                if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
-                    update.message.reply_text(
-                        "An error has occurred, please repeat the photo or manually introduce the CN")
-                    return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
-                else:
-                    update.message.reply_text(cima.get_info_about(medicine_cn))
-                    update.message.reply_text(chat_id=user_id, text="Is there any other way I can help you?",
-                                              reply_markup=markup)
-                    return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
+            if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
+                update.message.reply_text(
+                    "An error has occurred, please repeat the photo or manually introduce the CN")
+                return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
+            else:
+                update.message.reply_text(cima.get_info_about(medicine_cn))
+                update.message.reply_text(chat_id=user_id, text="Is there any other way I can help you?",
+                                          reply_markup=markup)
+                return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
         except:
             user_id = update.callback_query.from_user.id
             medicine_cn = self.get_pill(user_id)['NAME']
@@ -743,9 +733,6 @@ class PillDora:
                                       reply_markup=markup)
             self.set_pill(user_id, 0, "None")
             return self.set_state(user_id=user_id, state=CHOOSING)
-
-       # if self.get_handling(user_id)=="True":
-        #    return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
 
     def show_location(self, user_id):
         self.bot.send_message(chat_id=user_id, text="Would you like to search for nearest pharmacies?",
