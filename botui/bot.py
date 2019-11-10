@@ -61,8 +61,9 @@ INTR_MEDICINE_MSSGS = ["What is the medicine's name (CN)?\nYou can also send me 
 MEDICINE_TAGS = ['NAME', 'QUANTITY', 'EXP_DATE']
 
 # TAGS TO MANAGE INTRODUCING PILL TAKEN
-INTR_PILL_MSSGS = ["What is the medicine's name (CN)?\nChoose it from your current treatment, introduce it or you can also send me a photo of the package!",
-                   "How many pills have you taken?"]
+INTR_PILL_MSSGS = [
+    "What is the medicine's name (CN)?\nChoose it from your current treatment, introduce it or you can also send me a photo of the package!",
+    "How many pills have you taken?"]
 PILL_TAGS = ['NAME', 'QUANTITY']
 
 # KEYBOARD AND MARKUPS
@@ -104,9 +105,8 @@ class PillDora:
     def get_states(self, user_id):
         return self.aide_bot[user_id]['states']
 
-
     def set_handling(self, user_id, text):
-        self.aide_bot[user_id]['handling']= text
+        self.aide_bot[user_id]['handling'] = text
 
     # Returns the state of being handling the bot for a specific user_id
     def get_handling(self, user_id):
@@ -230,7 +230,7 @@ class PillDora:
                                   'reminder': {'cn': "None", 'time': 'None'},
                                   'serverworker': ServerWorker(user_id),
                                   'language': 'eng',
-                                  'handling':'False'}
+                                  'handling': 'False'}
         logger.info('User ' + name + ' has connected to AideBot: ID is ' + str(user_id))
         context.bot.send_message(chat_id=user_id, text=("Welcome " + name + " ! My name is AideBot"))
 
@@ -618,7 +618,8 @@ class PillDora:
         dict = self.list_of_current_cn(user_id)
         if dict is not "False":
             dyn_markup = self.makeKeyboard(dict, user_id)
-            update.message.reply_text(INTR_PILL_MSSGS[self.get_counter(update.message.from_user.id)], reply_markup=dyn_markup)
+            update.message.reply_text(INTR_PILL_MSSGS[self.get_counter(update.message.from_user.id)],
+                                      reply_markup=dyn_markup)
         else:
             update.message.reply_text(INTR_PILL_MSSGS[self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, TAKE_PILL)
@@ -702,16 +703,17 @@ class PillDora:
         dyn_markup = InlineKeyboardMarkup(lista)
         return dyn_markup
 
-
     @run_async
     def show_information(self, update, context):
         logger.info('User ' + self.get_name(update.message.from_user) + '  searching for information')
-        user_id=update.message.from_user.id
+        user_id = update.message.from_user.id
         dict = self.list_of_current_cn(user_id)
         print(dict)
         if dict is not "False":
             dyn_markup = self.makeKeyboard(dict, user_id)
-            update.message.reply_text("Introduce CN of the Medicine you want information about or choose it from the ones on your Current Treatment:", reply_markup=dyn_markup)
+            update.message.reply_text(
+                "Introduce CN of the Medicine you want information about or choose it from the ones on your Current Treatment:",
+                reply_markup=dyn_markup)
         else:
             update.message.reply_text("Introduce CN of the Medicine you want information about:")
         return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
@@ -740,11 +742,11 @@ class PillDora:
             print(medicine_cn)
             self.bot.send_message(text=cima.get_info_about(medicine_cn), chat_id=user_id)
             self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?",
-                                      reply_markup=markup)
+                                  reply_markup=markup)
             self.set_pill(user_id, 0, "None")
             return self.set_state(user_id=user_id, state=CHOOSING)
 
-        if self.get_handling(user_id)=="True":
+        if self.get_handling(user_id) == "True":
             return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
 
     def show_location(self, user_id):
@@ -1031,6 +1033,20 @@ class PillDora:
         self.event.set()
         return self.set_state(update.message.chat_id, END)
 
+    def getToTheMenu(self, update, context):
+        try:
+            user_id = update.message.from_user.id
+        except:
+            user_id = update.callback_query.from_user.id
+        self.set_handling(user_id=user_id, text="False")
+        self.set_pill(user_id=user_id, num=0, text="None")
+        self.set_pill(user_id=user_id, num=1, text="None")
+        self.set_function("None")
+        self.set_dates(user_id=user_id, text="departure", date="None")
+        self.set_dates(user_id=user_id, text="arrival", date="None")
+        self.set_counter(user_id=user_id, num=0)
+        return self.set_state(user_id=user_id, state=CHOOSING)
+
     # Main of the Client.py, where the bot is activated and creates the transition to the different functionalities
     def main(self):
         # Create the Updater and pass it your bot's token.
@@ -1066,31 +1082,42 @@ class PillDora:
                                           self.create_journey),
                            MessageHandler(Filters.regex('^Exit'), self.exit)
                            ],
-                INTR_PRESCRIPTION: [MessageHandler(Filters.text | Filters.photo, self.send_new_prescription)],
-                INTR_MEDICINE: [MessageHandler(Filters.text | Filters.photo, self.send_new_medicine)],
-                TAKE_PILL: [MessageHandler(Filters.text | Filters.photo, self.send_new_pill)],
-                SHOW_INFORMATION: [MessageHandler(Filters.text | Filters.photo, self.show_infoAbout)],
+                INTR_PRESCRIPTION: [MessageHandler(Filters.text | Filters.photo, self.send_new_prescription),
+                                    MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu)],
+                INTR_MEDICINE: [MessageHandler(Filters.text | Filters.photo, self.send_new_medicine),
+                                MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu)],
+                TAKE_PILL: [MessageHandler(Filters.text | Filters.photo, self.send_new_pill),
+                            MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu)],
+                SHOW_INFORMATION: [MessageHandler(Filters.text | Filters.photo, self.show_infoAbout),
+                                   MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu)],
                 LOCATION: [MessageHandler(Filters.location, self.print_location),
-                           MessageHandler(Filters.regex("^Don't Send Location"), self.manage_response)
-                           ],
+                           MessageHandler(Filters.regex("^Don't Send Location"), self.manage_response),
+                                          MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu)],
                 CHECK_PRE: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
-                            MessageHandler(Filters.regex('^NO$'), self.intr_prescription)
+                            MessageHandler(Filters.regex('^NO$'), self.intr_prescription),
+                            MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu)
                             ],
                 CHECK_MED: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
-                            MessageHandler(Filters.regex('^NO$'), self.intr_medicine)
+                            MessageHandler(Filters.regex('^NO$'), self.intr_medicine),
+                            MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu)
                             ],
                 CHECK_REM: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
-                            MessageHandler(Filters.regex('^NO$'), self.delete_reminder)
+                            MessageHandler(Filters.regex('^NO$'), self.delete_reminder),
+                            MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu)
                             ],
                 CHECK_PILL: [MessageHandler(Filters.regex('^YES$'), self.verificate_pill),
-                             MessageHandler(Filters.regex('^NO$'), self.take_pill)
+                             MessageHandler(Filters.regex('^NO$'), self.take_pill),
+                             MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu)
                              ],
                 CHECK_PILL_PHOTO: [MessageHandler(Filters.photo, self.manage_response),
-                                   MessageHandler(Filters.regex('^NO$'), self.delete_reminder)
+                                   MessageHandler(Filters.regex('^NO$'), self.delete_reminder),
+                                   MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu)
                                    ],
-                GET_CN: [MessageHandler(Filters.text, self.get_medicine_CN)],
+                GET_CN: [MessageHandler(Filters.text, self.get_medicine_CN),
+                         MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu)],
                 JOURNEY: [MessageHandler(Filters.regex('^YES$'), self.manage_response),
-                          MessageHandler(Filters.regex('^NO$'), self.create_journey)
+                          MessageHandler(Filters.regex('^NO$'), self.create_journey),
+                          MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu)
                           ],
                 END: [MessageHandler(Filters.regex('^TAKEN'), self.intr_history_yes),
                       MessageHandler(Filters.regex('^POSTPONE'), self.intr_history_no)
@@ -1104,7 +1131,6 @@ class PillDora:
         updater.start_polling()
         updater.idle()
 
-
-if __name__ == '__main__':
-    pilldora = PillDora()
-    pilldora.main()
+        if __name__ == '__main__':
+            pilldora = PillDora()
+        pilldora.main()
