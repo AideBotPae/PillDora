@@ -1082,8 +1082,8 @@ class PillDora:
                                           self.create_journey),
                            MessageHandler(Filters.regex('^Exit'), self.exit)
                            ],
-                INTR_PRESCRIPTION: [MessageHandler(Filters.text | Filters.photo, self.send_new_prescription),
-                                    MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu)],
+                INTR_PRESCRIPTION: [MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu),
+                                    MessageHandler(Filters.text | Filters.photo, self.send_new_prescription)],
                 INTR_MEDICINE: [MessageHandler(Filters.text | Filters.photo, self.send_new_medicine),
                                 MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu)],
                 TAKE_PILL: [MessageHandler(Filters.text | Filters.photo, self.send_new_pill),
