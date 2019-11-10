@@ -742,8 +742,8 @@ class PillDora:
             self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?",
                                       reply_markup=markup)
             self.set_pill(user_id, 0, "None")
-            return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
-        
+            return self.set_state(user_id=user_id, state=CHOOSING)
+
         if self.get_handling(user_id)=="True":
             return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
 
