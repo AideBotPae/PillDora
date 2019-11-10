@@ -770,6 +770,8 @@ class PillDora:
         user_id = update.callback_query.from_user.id
         if self.get_states(user_id)[0] == TAKE_PILL:
             self.send_new_pill(update, context)
+        elif self.get_states(user_id)[0] == SHOW_INFORMATION:
+            self.show_infoAbout(update, context)
         else:
             selected, date = telegramcalendar.process_calendar_selection(context.bot, update)
             if date is not None:
