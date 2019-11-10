@@ -683,15 +683,15 @@ class PillDora:
         response = self.send_query(user_id, query)
         return json.loads(response)["parameters"]
 
-    def makeKeyboard(self, dict):
-        list = list()
-        print(dict)
-        for key in dict:
-            list.add(InlineKeyboardButton(text=dict[key],
+    def makeKeyboard(self, arg):
+        lista = []
+        print(arg)
+        for key in arg:
+            lista.add(InlineKeyboardButton(text=arg[key],
                                           callback_data=key),
                      InlineKeyboardButton(text=crossIcon,
                                           callback_data=key))
-        dyn_markup = InlineKeyboardMarkup(list)
+        dyn_markup = InlineKeyboardMarkup(lista)
         return dyn_markup
 
     @run_async
