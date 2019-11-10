@@ -16,19 +16,22 @@ def get_json(aux):
         return aux
     except requests.exceptions.ConnectionError as ex:
         print("Connection with CIMA is down")
-        return aux
+        raise NameError("Connection with CIMA is down")
 
 
 
 def get_med_name(CN):
-    data = get_json(CN)
-    frase = data['presentaciones'][0]['nombre']
-    matches = [CN]
-    for regex in REGEX_NAME:
-        matches = re.findall(regex, frase)
-        if matches:
-            break
-    return matches[0]
+    try:
+        data = get_json(CN)
+        frase = data['presentaciones'][0]['nombre']
+        matches = [CN]
+        for regex in REGEX_NAME:
+            matches = re.findall(regex, frase)
+            if matches:
+                break
+        return matches[0]
+    except NameError as ex:
+        return str(CN)
 
 def get_med_name_nq(data, CN):
     frase = data['presentaciones'][0]['nombre']
