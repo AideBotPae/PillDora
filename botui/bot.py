@@ -607,7 +607,7 @@ class PillDora:
         user_id = update.message.from_user.id
         dict = self.list_of_current_cn(user_id)
         if dict is not "False":
-            dyn_markup = self.makeKeyboard(dict)
+            dyn_markup = self.makeKeyboard(dict, user_id)
             update.message.reply_text(INTR_PILL_MSSGS[self.get_counter(update.message.from_user.id)], reply_markup=dyn_markup)
         else:
             update.message.reply_text(INTR_PILL_MSSGS[self.get_counter(update.message.from_user.id)])
@@ -621,7 +621,6 @@ class PillDora:
         :param context: Handler's context
         :return: state TAKE_PILL while form not completed, state CHECK_PILL once completed
         """
-        print(update.callback_query.message.text)
 
         try:
             user_id = update.message.from_user.id
@@ -645,7 +644,7 @@ class PillDora:
         self.set_counter(user_id, self.get_counter(user_id) + 1)
         logger.info(self.get_pill(user_id))
         if self.get_counter(user_id) != len(INTR_PILL_MSSGS):
-            update.message.reply_text(INTR_PILL_MSSGS[self.get_counter(user_id)])
+            self.bot.send_message(chat_id=user_id, text=INTR_PILL_MSSGS[self.get_counter(user_id)])
             return TAKE_PILL
         else:
             self.set_counter(user_id, 0)
@@ -683,15 +682,16 @@ class PillDora:
         response = self.send_query(user_id, query)
         return json.loads(response)["parameters"]
 
-    def makeKeyboard(self, arg):
+    def makeKeyboard(self, arg, user_id):
         lista = []
         for key in arg:
             lista.append([InlineKeyboardButton(text=arg[key],
-                                               callback_data=key),
+                                               callback_data=self.set_pill(user_id=user_id, num=0, text=key)),
                           InlineKeyboardButton(text=crossIcon,
-                                               callback_data=key)])
+                                               callback_data=self.set_pill(user_id=user_id, num=0, text=key))])
         dyn_markup = InlineKeyboardMarkup(lista)
         return dyn_markup
+    
 
     @run_async
     def show_information(self, update, context):
