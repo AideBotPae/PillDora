@@ -697,21 +697,36 @@ class PillDora:
     @run_async
     def show_information(self, update, context):
         logger.info('User ' + self.get_name(update.message.from_user) + '  searching for information')
-        update.message.reply_text("Introduce CN of the Medicine you want information about:")
+        user_id=update.message.from_user.id
+        dict = self.list_of_current_cn(user_id)
+        if dict is not "False":
+            dyn_markup = self.makeKeyboard(dict, user_id)
+            update.message.reply_text("Introduce CN of the Medicine you want information about:",
+                                      reply_keyboard=dyn_markup)
+        else:
+            update.message.reply_text("Introduce CN of the Medicine you want information about:")
         return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
 
     def show_infoAbout(self, update, context):
-        user_id = update.message.from_user.id
-        if update.message.photo:  # If user sent a photo, we apply
-            medicine_cn, validation_num = self.handle_pic(update, context, user_id)
-        else:
-            medicine_cn, validation_num = self.split_code(update.message.text)
-
-        if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
-            update.message.reply_text(
-                "An error has occurred, please repeat the photo or manually introduce the CN")
-            return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
-        else:
+        try:
+            user_id = update.message.from_user.id
+            if update.message.photo:  # If user sent a photo, we apply
+                medicine_cn, validation_num = self.handle_pic(update, context, user_id)
+            else:
+                medicine_cn, validation_num = self.split_code(update.message.text)
+    
+            if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
+                update.message.reply_text(
+                    "An error has occurred, please repeat the photo or manually introduce the CN")
+                return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
+            else:
+                update.message.reply_text(cima.get_info_about(medicine_cn))
+                update.message.reply_text(chat_id=user_id, text="Is there any other way I can help you?",
+                                          reply_markup=markup)
+                return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
+        except:
+            user_id = update.callback_query.from_user.id
+            medicine_cn = self.get_pill(user_id)
             update.message.reply_text(cima.get_info_about(medicine_cn))
             update.message.reply_text(chat_id=user_id, text="Is there any other way I can help you?",
                                       reply_markup=markup)
