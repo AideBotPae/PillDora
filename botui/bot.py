@@ -467,8 +467,6 @@ class PillDora:
             a.append('NAME REAL')
             b = list(self.get_prescription(user_id).values())
             b.append(cima.get_med_name(self.get_prescription(user_id)['NAME']))
-            print(a)
-            print(b)
             context.bot.send_message(chat_id=user_id,
                                      text='Is the medicine correctly introduced? ', reply_markup=yes_no_markup)
             context.bot.send_message(chat_id=user_id,
@@ -623,6 +621,7 @@ class PillDora:
         :param context: Handler's context
         :return: state TAKE_PILL while form not completed, state CHECK_PILL once completed
         """
+        print(update)
         try:
             user_id = update.message.from_user.id
             if self.get_counter(user_id) == 0:  # If we are in the first field of the form
@@ -685,13 +684,11 @@ class PillDora:
 
     def makeKeyboard(self, arg):
         lista = []
-        print(arg)
         for key in arg:
             lista.append([InlineKeyboardButton(text=arg[key],
                                                callback_data=key),
                           InlineKeyboardButton(text=crossIcon,
                                                callback_data=key)])
-        print(lista)
         dyn_markup = InlineKeyboardMarkup(lista)
         return dyn_markup
 
