@@ -1041,10 +1041,12 @@ class PillDora:
         self.set_handling(user_id=user_id, text="False")
         self.set_pill(user_id=user_id, num=0, text="None")
         self.set_pill(user_id=user_id, num=1, text="None")
-        self.set_function("None")
+        self.set_function(user_id=user_id, text="None")
         self.set_dates(user_id=user_id, text="departure", date="None")
         self.set_dates(user_id=user_id, text="arrival", date="None")
         self.set_counter(user_id=user_id, num=0)
+        logger.info('User ' + self.get_name(update.message.from_user) + ' in the menu after quitting from function')
+        update.message.reply_text("Is there any other way I can help you?", reply_markup=markup)
         return self.set_state(user_id=user_id, state=CHOOSING)
 
     # Main of the Client.py, where the bot is activated and creates the transition to the different functionalities
