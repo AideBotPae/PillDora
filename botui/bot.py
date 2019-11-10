@@ -463,9 +463,9 @@ class PillDora:
                 return CHECK_PRE
         else:
             self.set_counter(user_id, 0)
-            a= list(self.get_prescription(user_id).keys())
+            a = list(self.get_prescription(user_id).keys())
             a.append('NAME REAL')
-            b=list(self.get_prescription(user_id).values())
+            b = list(self.get_prescription(user_id).values())
             b.append(cima.get_med_name(self.get_prescription(user_id)['NAME']))
             print(a)
             print(b)
@@ -609,7 +609,7 @@ class PillDora:
         user_id = update.message.from_user.id
         dict = self.list_of_current_cn(user_id)
         if dict is not "False":
-            dyn_markup= self.makeKeyboard(dict)
+            dyn_markup = self.makeKeyboard(dict)
             update.message.reply_text(INTR_PILL_MSSGS[self.get_counter(update.message.from_user.id)], dyn_markup)
         else:
             update.message.reply_text(INTR_PILL_MSSGS[self.get_counter(update.message.from_user.id)])
@@ -684,13 +684,14 @@ class PillDora:
         return json.loads(response)["parameters"]
 
     def makeKeyboard(self, dict):
-        dyn_markup = InlineKeyboardMarkup([[]])
+        list = list()
         print(dict)
         for key in dict:
-            dyn_markup.add(InlineKeyboardButton(text=dict[key],
-                                            callback_data=key),
-                       InlineKeyboardButton(text=crossIcon,
-                                            callback_data=key))
+            list.add(InlineKeyboardButton(text=dict[key],
+                                          callback_data=key),
+                     InlineKeyboardButton(text=crossIcon,
+                                          callback_data=key))
+        dyn_markup = InlineKeyboardMarkup(list)
         return dyn_markup
 
     @run_async
