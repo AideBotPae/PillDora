@@ -684,7 +684,7 @@ class PillDora:
         return json.loads(response)["parameters"]
 
     def makeKeyboard(self, dict):
-        dyn_markup = InlineKeyboardMarkup()
+        dyn_markup = InlineKeyboardMarkup([[]])
 
         for key, value in dict:
             dyn_markup.add(InlineKeyboardButton(text=value,
