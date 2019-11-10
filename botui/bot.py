@@ -610,7 +610,7 @@ class PillDora:
         dict = self.list_of_current_cn(user_id)
         if dict is not "False":
             dyn_markup = self.makeKeyboard(dict)
-            update.message.reply_text(INTR_PILL_MSSGS[self.get_counter(update.message.from_user.id)], dyn_markup)
+            update.message.reply_text(INTR_PILL_MSSGS[self.get_counter(update.message.from_user.id)], reply_markup=dyn_markup)
         else:
             update.message.reply_text(INTR_PILL_MSSGS[self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, TAKE_PILL)
