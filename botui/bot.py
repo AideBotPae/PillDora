@@ -466,7 +466,7 @@ class PillDora:
             a= list(self.get_prescription(user_id).keys())
             a.append('NAME REAL')
             b=list(self.get_prescription(user_id).values())
-            b.append(cima.get_med_name(self.get_prescription(user_id)['NAME REAL']))
+            b.append(cima.get_med_name(self.get_prescription(user_id)['NAME']))
             print(a)
             print(b)
             context.bot.send_message(chat_id=user_id,
