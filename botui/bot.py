@@ -139,6 +139,7 @@ class PillDora:
     # Insertion of a medicine for a specific user_id
     def set_pill(self, user_id, num, text):
         self.aide_bot[user_id]['pill'][PILL_TAGS[num]] = text
+        return True
 
     # Returns the dates on a journey for a specific user_id
     def get_dates(self, user_id):
@@ -691,7 +692,7 @@ class PillDora:
                                                callback_data=self.set_pill(user_id=user_id, num=0, text=key))])
         dyn_markup = InlineKeyboardMarkup(lista)
         return dyn_markup
-    
+
 
     @run_async
     def show_information(self, update, context):
