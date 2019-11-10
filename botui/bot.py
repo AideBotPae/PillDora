@@ -726,11 +726,12 @@ class PillDora:
                 return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
         except:
             user_id = update.callback_query.from_user.id
-            medicine_cn = self.get_pill(user_id)
+            medicine_cn = self.get_pill(user_id)['NAME']
             print(medicine_cn)
             self.bot.send_message(text=cima.get_info_about(medicine_cn), chat_id=user_id)
             self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?",
                                       reply_markup=markup)
+            self.set_pill(user_id, 0, "None")
             return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
 
     def show_location(self, user_id):
