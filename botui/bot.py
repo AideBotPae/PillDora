@@ -621,7 +621,8 @@ class PillDora:
         :param context: Handler's context
         :return: state TAKE_PILL while form not completed, state CHECK_PILL once completed
         """
-        print(update)
+        print(update.callback_query.message.text)
+
         try:
             user_id = update.message.from_user.id
             if self.get_counter(user_id) == 0:  # If we are in the first field of the form
