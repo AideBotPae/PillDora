@@ -754,8 +754,8 @@ class PillDora:
         selected, date = telegramcalendar.process_calendar_selection(context.bot, update)
         if date is not None:
             date_str = date.strftime("%Y-%m-%d")
-        if date_str == MAX_DATE:
-            date_str = "CHRONIC"
+            if date_str == MAX_DATE:
+                date_str = "CHRONIC"
         user_id = update.callback_query.from_user.id
         if selected:
             if self.get_states(user_id)[0] == CHOOSING:
