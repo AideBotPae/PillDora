@@ -658,7 +658,7 @@ class PillDora:
             return self.set_state(user_id, CHECK_PILL)
 
     def show_pill(self, user_id):
-        med_str = "You are taking  *" + self.get_pill(user_id)['QUANTITY'] + "* pills of medicine *" + \
+        med_str = "You are taking *" + self.get_pill(user_id)['QUANTITY'] + "* pills of medicine *" + \
                   cima.get_med_name(self.get_pill(user_id)['NAME']).split(' ')[0] + "* !"
         return med_str
 
