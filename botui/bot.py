@@ -463,23 +463,23 @@ class PillDora:
                 return CHECK_PRE
         else:
             self.set_counter(user_id, 0)
-            context.bot.send_message(chat_id=user_id,
-                                     text='Is the medicine correctly introduced? ', reply_markup=yes_no_markup)
-            context.bot.send_message(chat_id=user_id,
-                                     text=self.show_prescription(user_id), parse_mode=telegram.ParseMode.MARKDOWN)
             a= list(self.get_prescription(user_id).keys())
             a.append('NAME')
             b=list(self.get_prescription(user_id).values())
             b.append(cima.get_med_name(self.get_prescription(user_id)['NAME']))
             print(a)
             print(b)
+            context.bot.send_message(chat_id=user_id,
+                                     text='Is the medicine correctly introduced? ', reply_markup=yes_no_markup)
+            context.bot.send_message(chat_id=user_id,
+                                     text=self.show_prescription(user_id), parse_mode=telegram.ParseMode.MARKDOWN)
+
             self.set_query(user_id, a, b)
             self.set_function(user_id, 'INTRODUCE PRESCRIPTION')
             return self.set_state(user_id, CHECK_PRE)
 
     def handle_pic(self, update, context, user_id):
         """
-
         :param update:
         :param context:
         :param user_id:
