@@ -61,7 +61,7 @@ INTR_MEDICINE_MSSGS = ["What is the medicine's name (CN)?\nYou can also send me 
 MEDICINE_TAGS = ['NAME', 'QUANTITY', 'EXP_DATE']
 
 # TAGS TO MANAGE INTRODUCING PILL TAKEN
-INTR_PILL_MSSGS = ["What is the medicine's name (CN)?\nYou can also send me a photo of the package!",
+INTR_PILL_MSSGS = ["What is the medicine's name (CN)?\nChoose it from your current treatment, introduce it or you can also send me a photo of the package!",
                    "How many pills have you taken?"]
 PILL_TAGS = ['NAME', 'QUANTITY']
 
@@ -753,38 +753,41 @@ class PillDora:
     @run_async
     # Method that handles the situations and depending on the current state, changes the state
     def inline_handler(self, update, context):
-        selected, date = telegramcalendar.process_calendar_selection(context.bot, update)
-        if date is not None:
-            date_str = date.strftime("%Y-%m-%d")
-            if date_str == MAX_DATE:
-                date_str = "CHRONIC"
         user_id = update.callback_query.from_user.id
-        if selected:
-            if self.get_states(user_id)[0] == CHOOSING:
-                context.bot.send_message(chat_id=user_id,
-                                         text="You selected %s" % date_str,
-                                         reply_markup=ReplyKeyboardRemove())
-            if self.get_states(user_id)[0] == CHOOSING:
-                self.get_calendar_tasks(update, context, date.strftime("%Y-%m-%d"), user_id)
-                self.set_state(user_id, CHOOSING)
-            elif self.get_states(user_id)[0] == JOURNEY:
-                self.set_journey(update, context, date.strftime("%Y-%m-%d"))
-                if self.get_states(user_id)[1] == CHOOSING:
-                    self.set_state(user_id, JOURNEY)
-                elif self.get_states(user_id)[1] == JOURNEY:
-                    self.set_state(user_id, JOURNEY)
-            elif self.get_states(user_id)[0] == INTR_PRESCRIPTION:
-                context.bot.send_message(chat_id=user_id,
-                                         text=date_str,
-                                         reply_markup=ReplyKeyboardRemove())
-                self.set_prescription(user_id, self.get_counter(user_id), date.strftime("%Y-%m-%d"))
-                self.send_new_prescription(update, context)
-            elif self.get_states(user_id)[0] == INTR_MEDICINE:
-                context.bot.send_message(chat_id=user_id,
-                                         text=date_str,
-                                         reply_markup=ReplyKeyboardRemove())
-                self.set_medicine(user_id, self.get_counter(user_id), date.strftime("%Y-%m-%d"))
-                self.send_new_medicine(update, context)
+        if self.get_states(user_id)[0] == TAKE_PILL:
+            self.send_new_pill(update, context)
+        else:
+            selected, date = telegramcalendar.process_calendar_selection(context.bot, update)
+            if date is not None:
+                date_str = date.strftime("%Y-%m-%d")
+                if date_str == MAX_DATE:
+                    date_str = "CHRONIC"
+            if selected:
+                if self.get_states(user_id)[0] == CHOOSING:
+                    context.bot.send_message(chat_id=user_id,
+                                             text="You selected %s" % date_str,
+                                             reply_markup=ReplyKeyboardRemove())
+                if self.get_states(user_id)[0] == CHOOSING:
+                    self.get_calendar_tasks(update, context, date.strftime("%Y-%m-%d"), user_id)
+                    self.set_state(user_id, CHOOSING)
+                elif self.get_states(user_id)[0] == JOURNEY:
+                    self.set_journey(update, context, date.strftime("%Y-%m-%d"))
+                    if self.get_states(user_id)[1] == CHOOSING:
+                        self.set_state(user_id, JOURNEY)
+                    elif self.get_states(user_id)[1] == JOURNEY:
+                        self.set_state(user_id, JOURNEY)
+                elif self.get_states(user_id)[0] == INTR_PRESCRIPTION:
+                    context.bot.send_message(chat_id=user_id,
+                                             text=date_str,
+                                             reply_markup=ReplyKeyboardRemove())
+                    self.set_prescription(user_id, self.get_counter(user_id), date.strftime("%Y-%m-%d"))
+                    self.send_new_prescription(update, context)
+                elif self.get_states(user_id)[0] == INTR_MEDICINE:
+                    context.bot.send_message(chat_id=user_id,
+                                             text=date_str,
+                                             reply_markup=ReplyKeyboardRemove())
+                    self.set_medicine(user_id, self.get_counter(user_id), date.strftime("%Y-%m-%d"))
+                    self.send_new_medicine(update, context)
 
     @run_async
     # Returns all the reminders associated for a specific date and user_id
