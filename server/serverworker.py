@@ -215,7 +215,7 @@ class ServerWorker:
                 for item in data:
                     references[item[0]]=item[1]
                 info=json.dumps(references).replace('{','')
-            response=self.bot_parser(self.user_id, function="GET LIST") + info +'}}'
+            response=self.bot_parser(self.user_id, function="GET LIST") + info +'}'
 
         # IF WE SEND A WRONG QUERY, WE SEND THE INFORMATION LIKE THIS
         else:
