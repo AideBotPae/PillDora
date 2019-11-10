@@ -139,7 +139,7 @@ class PillDora:
     # Insertion of a medicine for a specific user_id
     def set_pill(self, user_id, num, text):
         self.aide_bot[user_id]['pill'][PILL_TAGS[num]] = text
-        return True
+        return text
 
     # Returns the dates on a journey for a specific user_id
     def get_dates(self, user_id):
