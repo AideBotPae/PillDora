@@ -464,9 +464,9 @@ class PillDora:
         else:
             self.set_counter(user_id, 0)
             a= list(self.get_prescription(user_id).keys())
-            a.append('NAME')
+            a.append('NAME REAL')
             b=list(self.get_prescription(user_id).values())
-            b.append(cima.get_med_name(self.get_prescription(user_id)['NAME']))
+            b.append(cima.get_med_name(self.get_prescription(user_id)['NAME REAL']))
             print(a)
             print(b)
             context.bot.send_message(chat_id=user_id,
@@ -521,7 +521,7 @@ class PillDora:
 
         date_str = self.get_prescription(user_id)['END_DATE']
         if date_str == MAX_DATE:
-            med_str += "*chronically*!"
+            med_str += " *chronically*!"
         else:
             med_str += " until the end date of *" + date_str + "* !"
         return med_str
