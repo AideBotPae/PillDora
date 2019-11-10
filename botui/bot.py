@@ -688,9 +688,10 @@ class PillDora:
         print(arg)
         for key in arg:
             lista.append([InlineKeyboardButton(text=arg[key],
-                                          callback_data=key),
-                     InlineKeyboardButton(text=crossIcon,
-                                          callback_data=key)])
+                                               callback_data=key),
+                          InlineKeyboardButton(text=crossIcon,
+                                               callback_data=key)])
+        print(lista)
         dyn_markup = InlineKeyboardMarkup(lista)
         return dyn_markup
 
