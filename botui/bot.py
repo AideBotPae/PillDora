@@ -702,7 +702,7 @@ class PillDora:
         print(dict)
         if dict is not "False":
             dyn_markup = self.makeKeyboard(dict, user_id)
-            update.message.reply_text("Introduce CN of the Medicine you want information about:", reply_keyboard=dyn_markup)
+            update.message.reply_text("Introduce CN of the Medicine you want information about or choose it from the ones on your Current Treatment:", reply_markup=dyn_markup)
         else:
             update.message.reply_text("Introduce CN of the Medicine you want information about:")
         return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
