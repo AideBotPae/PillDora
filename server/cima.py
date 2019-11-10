@@ -73,7 +73,7 @@ def get_info_about(CN):
         estrink += 'Si desea mas informacion, puede consultar el prospecto en '+ data['docs'][1]['urlHtml']
         return estrink
     except NameError as ex:
-        return "No information could be retrieved from CIMA's server about "+ get_med_name(CN) +"as Connection is Down."
+        return "We are sorry.\n No information could be retrieved from CIMA's server about "+ get_med_name(CN) +" as Connection is Down."
 
 if __name__ == '__main__':
     # CN = input('Introduzca el CN del medicamento ')
