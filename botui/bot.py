@@ -752,7 +752,8 @@ class PillDora:
     # Method that handles the situations and depending on the current state, changes the state
     def inline_handler(self, update, context):
         selected, date = telegramcalendar.process_calendar_selection(context.bot, update)
-        date_str = date.strftime("%Y-%m-%d")
+        if date is not None:
+            date_str = date.strftime("%Y-%m-%d")
         if date_str == MAX_DATE:
             date_str = "CHRONIC"
         user_id = update.callback_query.from_user.id
