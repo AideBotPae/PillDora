@@ -84,11 +84,106 @@ STR_INTR_PWD_WELCOME = {
 
 
 STR_NEW_USER_VALIDPASS= {
-    'eng': 'Valid Password',
-    'esp': 'Contraseña válida'
+    'eng': 'Alright. Now you are ready! How can I help you?',
+    'esp': 'Perfecto, ya estamos listos! ¿Cómo te puedo ayudar?, reply_markup=markup'
+}
+STR_NEW_USER_NOTVALIDPASS = {
+    'eng': "Not a Valid Password. Enter Password with 6 to 12 characters and minimum 3 of these types of characters: uppercase, lowercase, number and $, # or @",
+    'esp': "No es una contraseña válida. Introduce una contraseña de 6 a 12 carácteres que contengo al menos 3 de estos tipos: minúsuclas, mayúsculas, numeros y $, # o @"
 }
 
-STR_NEW_USER_WELCOME = {
-    'eng': "'Welcome ' + self.get_name(update.message.from_user) + '. How can I help you?', reply_markup = markup",
-    'esp': "'Bienvenido '+self.get_name(update.message.from_user) + '. ¿Cómo te puedo ayudar?', reply_markup = markup"
+# STR_NEW_USER_WELCOME = {
+#     'eng': "'Welcome ' + self.get_name(update.message.from_user) + '. How can I help you?', reply_markup = markup",
+#     'esp': "'Bienvenido '+self.get_name(update.message.from_user) + '. ¿Cómo te puedo ayudar?', reply_markup = markup"
+# }
+
+STR_MANAGE_RESPONSE_ALREADYPRESCRIPT1 = {
+'eng' : "There is already a prescription of same med that has not expire yet. Different frequencies.\nIn order to introduce this new prescription, please first delete the other reminder.",
+'esp' : "Ya existe una receta del mismo medicamento que aun no ha acabado. Frecuencias diferentes. \n Para introducir esta nueva receta, elimina la otra con la opcion eliminar recordatorio. "
+
+}
+
+STR_MANAGE_RESPONSE_ALREADYPRESCRIPT2 = {
+'eng' : "Medicine already in the database with same frequencies. NO PROBLEM",
+'esp' : "Ya existe una receta del mismo medicamento con la misma frecuencia. NINGÚN PROBLEMA"
+
+}
+
+STR_MANAGE_RESPONSE_EMPTYINVENTORY = {
+    'eng': "In your inventory we do not have any of this medicine. Please 'Introduce Medicine' after getting the med",
+    'esp': "En el inventorio no tenemos este medicamento. Por favor, usa la opcion 'Introduce Medicine' cuando la hayas probado "
+}
+
+STR_MANAGE_RESPONSE_FULLNIVENTORY = {
+    'eng': "In your inventory there is enough of this medicine for this whole treatment. No need to buy it.",
+    'esp': "En el inventorio hay suficientes pastillas para todo el tratamiento. No hace falta comprar "
+}
+
+STR_MANAGE_RESPONSE_BUYINVENTORY = {
+    'eng': "In your inventory there is some of this medicine but not enough for the whole treatment. Need to buy it.",
+    'esp': "En el inventorio queda algo, pero no suficiente para todo el tratamiento. Hay que comprar. "
+}
+
+STR_MANAGE_RESPONSE_DELETEREMINDER = {
+    'eng' : "Medicine introduced did not exist in your current Treatment.",
+    'esp' : "El medicamento introducido no aperace en tus Tratamientos Actuales"
+}
+
+STR_MANAGE_RESPONSE_JOURNEY = {
+    'eng': "'Medicines to take during journey:\n' + response['parameters']['journey_info']",
+    'esp': "'Medicamentos a llevar durante el viaje:\n + response['parameters']['journey_info']"
+}
+
+STR_MANAGERESPONSE_TAKEPILL1 = {
+    'eng': "chat_id=user_id, text='Pills taken correctly introduced in the history'",
+    'esp': "chat_id=user_id, text= 'Pastillas introducidas correctamente en el historial"
+}
+
+STR_MANAGE_RESPONSE_TAKEPILL0 = {
+    'eng': "chat_id=user_id, text='Pills taken correctly introduced in the history. However, there is no record of these pills in the inventory. Please introduce them'",
+    'esp': "chat_id=user_id, text='Pastillas tomadas introduciadas correctamente en el historial. Sin embargo, no hay registro de estas en el inventorio. Porfavor introducelas usando la función Introducir Medicamento'"
+}
+
+STR_MANAGE_RESPONSE_END = {
+    'eng': "'Is there any other way I can help you?', reply_markup=markup",
+    'esp': "'¿Puedo ayudarte de alguna otra manera?', reply_markup= markup"
+}
+
+
+STR_SEND_NEW_PRESCRIPTION_ERROR = {
+    'eng': "An error has occurred, please repeat the photo or manually introduce the CN.",
+    'esp': "Ha ocurrido un error, por favor repite la foto o introduce el CN manualmente."
+
+}
+
+STR_SEND_NEW_PRESCRIPTION_ISCORRECT = {
+    'eng': "chat_id=user_id, text='Is the medicine correctly introduced? ', reply_markup=yes_no_markup",
+    'esp': "chat_id=user_id, text='¿Está introducida correctamente?, reply_markup=yes_no_markup"
+}
+
+
+STR_SHOW_PRESCRIPTION_MEDSTR = {
+    'eng': "'You have to take *' + self.get_prescription(user_id)['QUANTITY'] + '* pills of medicine *' + cima.get_med_name(self.get_prescription(user_id)['NAME']).split(' ')[0] + '* each *' + self.get_prescription(user_id)['FREQUENCY'] + '* hours'",
+    'esp': "'Debes tomar *' + self.get_prescription(user_id)['QUANTITY'] + '* pastillas del medicamento *' + cima.get_med_name(self.get_prescription(user_id)['NAME']).split(' ')[0] + '* cada *' + self.get_prescription(user_id)['FREQUENCY'] + '* horas'
+}
+
+STR_SHOW_PRESCRIPTION_CHRONIC = {
+    'eng': " *chronically*!",
+    'esp': " *crónicamente*!"
+}
+
+STR_SHOW_PRESCRIPTION_UNTIL = {
+    'eng': "'until the end date of *'+ date_str+'* !'",
+    'esp': "'hasta el día *' + date_str+'* !'"
+}
+
+STR_SEND_NEW_MEDICINE_ERROR =  {
+    'eng': "An error has occurred, please repeat the photo or manually introduce the CN.",
+    'esp': "Ha ocurrido un error, por favor repite la foto o introduce el CN manualmente."
+
+}
+
+STR_SEND_NEW_MEDICINE_ISCORRECT = {
+    'eng': "chat_id=user_id, text='Is the medicine correctly introduced? ', reply_markup=yes_no_markup",
+    'esp': "chat_id=user_id, text='¿Está introducida correctamente?, reply_markup=yes_no_markup"
 }

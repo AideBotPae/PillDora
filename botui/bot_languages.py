@@ -304,10 +304,9 @@ class PillDora:
         self.bot.delete_message(chat_id=user_id, message_id=message_id - 1)
         self.bot.delete_message(chat_id=user_id, message_id=message_id)
         if self.pwd_verification(password, user_id) == "False":
-            update.message.reply_text(STR_INTR_PWD_WRONGPASS[self.get_language(user_id)])
+            update.message.reply_text(st.STR_INTR_PWD_WRONGPASS[self.get_language(user_id)])
             return self.set_state(user_id, LOGIN)
-        update.message.reply_text('How can I help you?',
-                                  reply_markup=markup)
+        update.message.reply_text(st.STR_INTR_PWD_WELCOME[self.get_language(user_id)])
         return self.set_state(user_id, CHOOSING)
 
     @run_async
@@ -346,13 +345,10 @@ class PillDora:
             self.set_query(user_id, ["new_password"], [password])
             query = self.create_query(user_id)
             self.send_query(user_id, query)
-            update.message.reply_text('Alright. Now you are ready! How can I help you?',
-                                      reply_markup=markup)
+            update.message.reply_text(eval(st.STR_NEW_USER_VALIDPASS[self.get_language(user_id)]))
             return self.set_state(update.message.from_user.id, CHOOSING)
 
-        update.message.reply_text(
-            "Not a Valid Password. Enter Password with 6 to 12 characters and minimum 3 of these types of characters: "
-            "uppercase, lowercase, number and $, # or @")
+        update.message.reply_text(st.STR_NEW_USER_NOTVALIDPASS[self.get_language(user_id)])
         return self.set_state(update.message.from_user.id, NEW_USER)
 
     def manage_response(self, update, context):
@@ -372,25 +368,20 @@ class PillDora:
                 elif response['parameters']["Code"] == "1":
                     logger.info("Medicine already in the database with different frequencies. PROBLEM")
                     update.message.reply_text(
-                        "There is already a prescription of same med that has not expire yet. Different frequencies")
-                    update.message.reply_text(
-                        "In order to introduce this new prescription, please first delete the other reminder.")
+                        "There is already a prescription of same med that has not expire yet. Different frequencies \n In order to introduce this new prescription, please first delete the other reminder.")
                 elif response['parameters']["Code"] == "2":
                     logger.info("Medicine already in the database with same frequencies. NO PROBLEM")
                     update.message.reply_text("There is already a prescription of same med with same frequencies")
                 if response['parameters']['inventory'] == "None":
                     update.message.reply_text(
-                        "In your inventory we do not have any of this medicine. Please 'Introduce Medicine' after "
-                        "getting the med")
+                        "In your inventory we do not have any of this medicine. Please 'Introduce Medicine' after getting the med")
                     return self.show_location(user_id=user_id)
                 elif response['parameters']['inventory'] == "Enough":
                     update.message.reply_text(
-                        "In your inventory there is enough of this medicine for this whole treatment. No need to buy "
-                        "it.")
+                        "In your inventory there is enough of this medicine for this whole treatment. No need to buy it.")
                 elif response['parameters']['inventory'] == "Need to buy":
                     update.message.reply_text(
-                        "In your inventory there is some of this medicine but not enough for the whole treatment. "
-                        "Need to buy it.")
+                        "In your inventory there is some of this medicine but not enough for the whole treatment. Need to buy it.")
                     return self.show_location(user_id=user_id)
 
             elif response['function'] == 'INTRODUCE MEDICINE':
@@ -437,7 +428,7 @@ class PillDora:
         :return: new state INTR_PRESCRIPTION
         """
         logger.info('User introducing new prescription')
-        update.message.reply_text(INTR_PRESCRIPTION_MSSGS[self.get_counter(update.message.from_user.id)])
+        update.message.reply_text(INTR_PRESCRIPTION_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, INTR_PRESCRIPTION)
 
     def send_new_prescription(self, update, context):
@@ -471,11 +462,11 @@ class PillDora:
         logger.info(self.get_prescription(user_id))
         if self.get_counter(user_id) != len(INTR_PRESCRIPTION_MSSGS):
             if self.get_counter(user_id) < 3:
-                update.message.reply_text(INTR_PRESCRIPTION_MSSGS[self.get_counter(user_id)])
+                update.message.reply_text(INTR_PRESCRIPTION_MSSGS[self.get_language(user_id)][self.get_counter(user_id)])
                 return INTR_PRESCRIPTION
             else:
                 context.bot.send_message(chat_id=user_id,
-                                         text=INTR_PRESCRIPTION_MSSGS[self.get_counter(user_id)],
+                                         text=INTR_PRESCRIPTION_MSSGS[self.get_language(user_id)][self.get_counter(user_id)],
                                          reply_markup=telegramcalendar.create_calendar())
                 return CHECK_PRE
         else:
@@ -550,7 +541,7 @@ class PillDora:
         :return: new state INTR_MEDICINE
         """
         logger.info('User introducing new medicine')
-        update.message.reply_text(INTR_MEDICINE_MSSGS[self.get_counter(update.message.from_user.id)])
+        update.message.reply_text(INTR_MEDICINE_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, INTR_MEDICINE)
 
     def send_new_medicine(self, update, context):
@@ -584,11 +575,11 @@ class PillDora:
         logger.info(self.get_medicine(user_id))
         if self.get_counter(user_id) != len(INTR_MEDICINE_MSSGS):
             if self.get_counter(user_id) < 2:
-                update.message.reply_text(INTR_MEDICINE_MSSGS[self.get_counter(user_id)])
+                update.message.reply_text(INTR_MEDICINE_MSSGS[self.get_language(user_id)][self.get_counter(user_id)])
                 return INTR_MEDICINE
             else:
                 context.bot.send_message(chat_id=user_id,
-                                         text=INTR_MEDICINE_MSSGS[self.get_counter(user_id)],
+                                         text=INTR_MEDICINE_MSSGS[self.get_language(user_id)][self.get_counter(user_id)],
                                          reply_markup=telegramcalendar.create_calendar())
                 return CHECK_MED
         else:
