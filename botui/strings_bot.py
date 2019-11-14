@@ -206,7 +206,7 @@ STR_SHOW_MEDICINE_ELDIA={
 STR_SEND_NEW_PILL_ERROR = STR_SEND_NEW_MEDICINE_ERROR
 
 STR_SEND_NEW_PILL_ISTAKENCORRECTLY = {
-    'eng': "chat_id=user_id, text='Is the pill taken correctly introduced? ', reply_markup=yes_no_markup".
+    'eng': "chat_id=user_id, text='Is the pill taken correctly introduced? ', reply_markup=yes_no_markup",
     'esp': "chat_id=user_id, text='¿Se ha introducido correctamente la pastilla tomada? ', reply_markup=yes_no_markup"
 }
 
@@ -224,3 +224,136 @@ STR_SHOW_INFOABOUT_ERROR = STR_SEND_NEW_MEDICINE_ERROR
 
 
 STR_SHOW_INFOABOUT_HELPEND= STR_MANAGE_RESPONSE_END
+
+STR_SHOW_LOCATION = {
+    'eng' : "chat_id=user_id, text='Would you like to search for nearest pharmacies?',reply_markup=loc_markup",
+    'esp' : "chat_id=user_id, text='¿Te gustaría buscar las farmacias más cercanas?',reply_markup=loc_markup"
+}
+
+STR_PRINT_LOCATION_HELPEND = STR_SHOW_INFOABOUT_HELPEND
+
+STR_SEE_CALENDAR = {
+    'eng' : "'Please select a date: ', reply_markup=telegramcalendar.create_calendar()",
+    'esp' : "'Por favor, selecciona una fecha: ', reply_markup=telegramcalendar.create_calendar()"
+}
+
+STR_GET_CALENDAR_TASKS_REMINDERS = {
+    'eng' : "chat_id=user_id, text='Reminders for ' + date_str + ' :\n'",
+    'esp' : "chat_id=user_id, text='Recordatorios para ' + date_str + ' :\n'"
+}
+STR_GET_CALENDAR_TASKS_HELPEND = STR_MANAGE_RESPONSE_END
+
+STR_SEE_CURRENTTREATMENT_IF = {
+    'eng': 'There is actually no Current Treatment about you in the DataBase',
+    'esp': 'Actualmente no tienes ningún tratamiento en la base de datos'
+}
+
+STR_SEE_CURRENTTREATMENT_ELSE = {
+    'eng': "'To sum up, you are currently taking these meds:\n' + response['parameters']['reminder_info']",
+    'esp': "'Actualmente, estás tomando estos medicamentos:\n' + response['parameters']['reminder_info']"
+}
+
+STR_SEE_HISTORY_IF = {
+    'eng': "Currently, there is no history about you in the DataBase",
+    'esp': "Actualmente, no disponemos de información sobre tu historial en la base de datos"
+}
+
+STR_SEE_HISTORY_ELSE = {
+    'eng': "'To sum up, history of your last reminders:\n' + response['parameters']['history']",
+    'esp': "'En resumen, este es el historial de tus últimos recordatorios\n' + response['parameters']['history']"
+}
+
+STR_SEE_HISTORY_IF = {
+    'eng': "There is actually no history about you in the DataBase",
+    'esp': "Actualmente, no disponemos de información sobre tu historial en la base de datos"
+}
+
+STR_SEE_INVENTORY_IF = {
+    'eng': "Currently, there is no inventory about you in the DataBase",
+    'esp': "Actualmente, no disponemos de información sobre tu inventorio en la base de datos"
+}
+
+STR_SEE_INVENTORY_ELSE = {
+    'eng': "'To sum up, your inventory consists on:\n' + response['parameters']['inventory']",
+    'esp': "'En resumen, tu inventario está formado por:\n' + response['parameters']['inventory']"
+}
+
+STR_DELETE_REMINDER = {
+    'eng' : 'Please Introduce CN of the Medicine you want to delete the reminder:',
+    'esp' : 'Por favor, introduce el CN del medicamento del cuál quieres eliminar el recordatorio:'
+}
+
+STR_GETMEDICINECN_IFFALSE = {
+    'eng' : 'CN introduced is wrong, there is not any med with this CN',
+    'esp' : "'Is there any other way I can help you?', reply_markup=markup"
+}
+
+STR_GETMEDICINECN_SHOULDREMOVE = {
+    'eng' : "'Reminder asked to be removed:\n ->\t' + reminder_info",
+    'esp' : "'Recordatorio solicitado para eliminar:\n -> \t' + reminder_info"
+}
+STR_GETMEDICINECN_ISTHIS = {
+    'eng' : "'Is this the reminder you want to remove? ', reply_markup=yes_no_markup",
+    'esp' : "'Es este el recordatorio que quieres eliminar? ', reply_markup=yes_no_markup"
+}
+
+STR_CREATE_JOURNEY_IF = {
+    'eng' : "Wow fantastic! So you are going on a trip...\nWhen are you leaving?",
+    'esp' : "Uala fantśatico! Así que te vas de viaje...\n¿Cuándo te vas?"
+}
+
+STR_CREATE_JOURNEY_ELSE = {
+    'eng' : "'Wow fantastic! So you are going on a trip...\nWhen are you leaving?',reply_markup=telegramcalendar.create_calendar()",
+    'esp' : "'Uala fantśatico! Así que te vas de viaje...\n¿Cuándo te vas?',reply_markup=telegramcalendar.create_calendar()"
+}
+
+STR_SET_JOURNEY_DEPARTURE = {
+'eng' : "chat_id=user_id,text='Alright. I see you are leaving on ' + date_str + '.\n When will you come back?', reply_markup=telegramcalendar.create_calendar()",
+'esp' : "chat_id=user_id,text='Estupendo. Veo que te vas el ' + date_str + '.\n ¿Cuándo vas a volver?', reply_markup=telegramcalendar.create_calendar()"
+}
+
+STR_SET_JOURNEY_ARRIVAL = {
+    'eng' : "chat_id=user_id, text='The arrival Date is on '+ date_str + '\nIs this information correct?',reply_markup=yes_no_markup",
+    'esp' : "chat_id=user_id, text='TLa fecha de llegada es el  '+ date_str + '\n¿Es correcta la información?',reply_markup=yes_no_markup"
+}
+
+STR_SEND_REMINDER_REMINDER = {
+'eng' : "'Remember to take ' + cima.get_med_name(cn) + ' at ' + str(time)",
+'esp' : "'Acuérdate de tomar ' + cima.get_med_name(cn) + ' a las ' + str(time)"
+}
+
+STR_SEND_REMINDER_SENDMESSAGE = {
+    'eng' : "chat_id=user_id,text='*`' + reminder + '`*\n', parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=taken_pill_markup",
+    'esp' : "chat_id=user_id,text='*`' + recordatorio + '`*\n', parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=taken_pill_markup"
+}
+
+STR_INTR_HISTORY_YES_IFFALSE = {
+    'eng' : "There is no Inventory for this medicine. Please introduce Medication or buy it if not done",
+    'esp' : "En el inventario no tenemos constancia de este medicamaento. Por favor introdúcelo o cómpralo si aún no lo has hecho"
+}
+
+STR_INTR_HISTORY_YES_IFREMINDTOBUY = {
+    'eng' : "'Alert! You will run out of pills of ' + cima.get_med_name(reminder['cn']) + '. Please buy it and introduce to your Inventory'",
+    'esp' : "'Alerta! Te vas a quedar sin pastillas de  ' + cima.get_med_name(reminder['cn']) + '. Por favor, compralas e introducelas en tu inventorio'"
+
+}
+
+STR_INTR_HISTORY_YES_ELIFNOREMINDER = {
+    'eng' : "Good Job!",
+    'esp' : "Buen trabajo!"
+}
+
+STR_INTR_HISTORY_NO_IFPOSTPONE = {
+    'eng' : "chat_id=user_id, text='Message has been postponed correctly.'",
+    'esp' : "chat_id=user_id, text='El mensaje se ha pospuesto correctamente .'"
+}
+
+STR_INTR_HISTORY_NO_ELSE = {
+'eng' :"chat_id=user_id,text='Message has already been postponed 3 times and not taken.\nNo more notiifcations will be set of this reminder.\n Choose Take pill to introduce it'",
+'esp' : "chat_id=user_id,text='El mensaje ya se ha pospuesto 3 veces, y aun no se ha tomad.\nNo se van a crear más notifcaciones d eeste recordatorio.\n Usa la opción Tomar Pastilla, cuando te la tomes'"
+}
+
+STR_EXIT = {
+    'eng' : "See you next time!",
+    'esp' : "¡Hasta pronto!"
+}
