@@ -192,6 +192,7 @@ class DBMethods:
             if data is ():
                 return "0"
             else:
+                print(query_parsed)
                 self.reminder_taken(user_id=user_id, cn=query_parsed['NAME'], quantity=str(query_parsed['QUANTITY']))
                 return "1"
 
@@ -352,12 +353,14 @@ class DBMethods:
                 return "0"
 
     def reminder_taken(self, user_id, cn, quantity):
+        print(quantity)
         with Database() as db:
             # there is the possibility of more than one columns of one CN
             data = db.query('''SELECT MIN(expiracy_date)
                             FROM aidebot.inventory 
                             WHERE national_code >= '{cn}' and user_id={id}
                             '''.format(cn=cn, id=user_id))
+            print(data)
             if data[0][0] is not None:
                 exp_date = datetime.datetime.strftime(data[0][0], "%Y-%m-%d")
                 # substract quantity to med that expires earlier
@@ -371,6 +374,7 @@ class DBMethods:
                                 FROM aidebot.receipts 
                                 WHERE national_code >= '{cn}' and user_id={id}
                                 '''.format(cn=cn, id=user_id))
+                print(data)
                 if data is not ():
                     end_date = data[0][0]
                     pills_needed = min(self.days_between(today, end_date), 3) * int(quantity)
