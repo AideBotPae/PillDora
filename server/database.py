@@ -88,12 +88,13 @@ class DBMethods:
         with Database() as db:
             exists = self.check_receipt(user_id=user_id, cn=query_parsed['NAME'])
             if not exists:
-                db.execute('''INSERT INTO aidebot.receipts (user_id,national_code, frequency, quantity, begin_date, end_date)
-                            values ({id},{cn},{frequency},'{quantity}','{init}','{end}')'''.format(
+                db.execute('''INSERT INTO aidebot.receipts (user_id, national_code, frequency, quantity, begin_date, end_date, name)
+                            values ({id},{cn},{frequency},'{quantity}','{init}','{end}', '{name}')'''.format(
                     id=user_id, cn=query_parsed['NAME'], frequency=query_parsed['FREQUENCY'],
                     quantity=query_parsed['QUANTITY'],
                     init=date,
-                    end=query_parsed['END_DATE']
+                    end=query_parsed['END_DATE'],
+                    name=query_parsed['NAME REAL']
                 ))
                 # Daily Reminders is table used to have the current reminders for one day.
                 # Every time day finish we check if end_Date in receipts is today. If it is today, delete reminder from daily_reminders
@@ -147,6 +148,14 @@ class DBMethods:
                        ))
             return data
 
+    def getCNList(self, user_id):
+        with Database() as db:
+            data = db.query(''' SELECT national_code, name
+                FROM aidebot.receipts 
+                WHERE user_id={id} ORDER BY frequency ASC
+                '''.format(id=user_id))
+            return data
+
     def get_currentTreatment(self, user_id):
         with Database() as db:
             data = db.query(''' SELECT national_code, end_date
@@ -158,13 +167,12 @@ class DBMethods:
     def intr_taken_pill(self, user_id, query_parsed):
         query_parsed['DATE'] = datetime.datetime.now()
         query_parsed['BOOLEAN'] = "True"
-        time = datetime.datetime.now().strftime("%H:%M:%S")
+        exact_time = datetime.datetime.now()
         with Database() as db:
             db.execute('''INSERT INTO aidebot.history (user_id, national_code, last_taken_pill, taken)
                                           values ({id},{cn},'{date}', {boolean})'''.format(id=user_id,
                                                                                            cn=query_parsed['NAME'],
-                                                                                           date=query_parsed[
-                                                                                               'DATE'],
+                                                                                           date=exact_time,
                                                                                            boolean=query_parsed[
                                                                                                'BOOLEAN'],
                                                                                            ))
@@ -172,7 +180,7 @@ class DBMethods:
             min_time = db.query(
                 '''select min(time) from aidebot.daily_reminders where time >= '{time}' and user_id = {id} and 
                 national_code = {cn}'''.format(
-                    id=user_id, time=time, cn=query_parsed['NAME']))
+                    id=user_id, time=exact_time.strftime("%H:%M:%S"), cn=query_parsed['NAME']))
             if min_time[0][0] is not None:
                 db.execute(
                     '''update aidebot.daily_reminders set Taken = 3 where time = '{time}' and user_id = {id} and 
@@ -180,7 +188,6 @@ class DBMethods:
                         id=user_id, time=min_time[0][0], cn=query_parsed['NAME']))
 
             data = self.get_cn_from_inventory(user_id, query_parsed['NAME'])
-            print(data)
             if data is ():
                 return "0"
             return "1"
@@ -191,8 +198,8 @@ class DBMethods:
                 num = 3
             else:
                 data = db.query(''' SELECT Taken FROM aidebot.daily_reminders
-                WHERE user_id={id} and national_code={cn} and time={time}
-                '''.format(id=user_id), cn=cn, time=time)
+                WHERE user_id={id} and national_code={cn} and time='{time}'
+                '''.format(id=user_id, cn=cn, time=time))
                 num = data[0][0] + 1
 
             db.execute(
@@ -206,20 +213,21 @@ class DBMethods:
         if query_parsed['BOOLEAN'] == "True" and data is ():
             return "False"
 
-        num = self.postpone_or_check_reminder(user_id=user_id, time=query_parsed['DATE'].split(" ")[1],
+        num = self.postpone_or_check_reminder(user_id=user_id, time=query_parsed['DATE'],
                                               cn=query_parsed['NAME'],
                                               condition=query_parsed['BOOLEAN'], )
         if num == 3:
+            date=datetime.datetime.now().strftime("%Y-%m-%d") + " " + query_parsed["DATE"]
             with Database() as db:
                 db.execute('''INSERT INTO aidebot.history (user_id, national_code, last_taken_pill, taken)
                                        values ({id},{cn},'{date}', {boolean})'''.format(id=user_id,
                                                                                         cn=query_parsed['NAME'],
-                                                                                        date=query_parsed[
-                                                                                            'DATE'],
+                                                                                        date=date,
                                                                                         boolean=query_parsed[
                                                                                             'BOOLEAN'],
                                                                                         ))
             return "True"
+        return "Postpone"
 
     def get_history(self, user_id):
         with Database() as db:
@@ -282,9 +290,7 @@ class DBMethods:
                 return self.get_calendar(user_id, date)
 
     def days_between(self, d1, d2):
-        d1 = datetime.datetime.strptime(d1, "%Y-%m-%d")
-        d2 = datetime.datetime.strptime(d2, "%Y-%m-%d")
-        return (abs((d2 - d1).days) + 1)
+        return (abs((d2 - d1).days)+1)
 
     def get_array_dates(self, init_date, end_date):
         in_date = datetime.datetime.strptime(init_date, '%Y-%m-%d')
@@ -359,13 +365,13 @@ class DBMethods:
                                 '''.format(cn=cn, id=user_id))
                 if data is not ():
                     end_date = data[0][0]
-                    pills_needed = min(self.days_between(today, end_date), 3) * quantity
+                    pills_needed = min(self.days_between(today, end_date), 3) * int(quantity)
                     data = db.query('''SELECT SUM(num_of_pills)
                                                 FROM aidebot.inventory 
                                                 WHERE national_code >= '{cn}' and user_id={id}
                                                 '''.format(cn=cn, id=user_id))
                     if data is not ():
-                        pills_in = data[0][0]
+                        pills_in = int(data[0][0])
                         if pills_in >= pills_needed:
                             return "No reminder"
             return "Remind to buy"
