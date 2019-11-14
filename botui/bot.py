@@ -700,6 +700,7 @@ class PillDora:
                                                callback_data=self.set_pill(user_id=user_id, num=0, text=key)),
                           InlineKeyboardButton(text=crossIcon,
                                                callback_data=self.set_pill(user_id=user_id, num=0, text=key))])
+        print(lista)
         dyn_markup = InlineKeyboardMarkup(lista)
         return dyn_markup
 
@@ -716,11 +717,13 @@ class PillDora:
                 reply_markup=dyn_markup)
         else:
             update.message.reply_text("Introduce CN of the Medicine you want information about:")
+        print(self.get_handling(user_id))
         return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
 
     def show_infoAbout(self, update, context):
         try:
             user_id = update.message.from_user.id
+            print(self.get_handling(user_id))
             if self.get_handling(user_id) == "False":
                 if update.message.photo:  # If user sent a photo, we apply
                     medicine_cn, validation_num = self.handle_pic(update, context, user_id)
@@ -738,6 +741,7 @@ class PillDora:
                     return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
         except:
             user_id = update.callback_query.from_user.id
+            print(self.get_handling(user_id))
             medicine_cn = self.get_pill(user_id)['NAME']
             print(medicine_cn)
             self.bot.send_message(text=cima.get_info_about(medicine_cn), chat_id=user_id)
@@ -746,7 +750,9 @@ class PillDora:
             self.set_pill(user_id, 0, "None")
             return self.set_state(user_id=user_id, state=CHOOSING)
 
+        print(self.get_handling(user_id))
         if self.get_handling(user_id) == "True":
+            print("True")
             return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
 
     def show_location(self, user_id):
