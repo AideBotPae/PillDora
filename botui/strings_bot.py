@@ -164,7 +164,7 @@ STR_SEND_NEW_PRESCRIPTION_ISCORRECT = {
 
 STR_SHOW_PRESCRIPTION_MEDSTR = {
     'eng': "'You have to take *' + self.get_prescription(user_id)['QUANTITY'] + '* pills of medicine *' + cima.get_med_name(self.get_prescription(user_id)['NAME']).split(' ')[0] + '* each *' + self.get_prescription(user_id)['FREQUENCY'] + '* hours'",
-    'esp': "'Debes tomar *' + self.get_prescription(user_id)['QUANTITY'] + '* pastillas del medicamento *' + cima.get_med_name(self.get_prescription(user_id)['NAME']).split(' ')[0] + '* cada *' + self.get_prescription(user_id)['FREQUENCY'] + '* horas'
+    'esp': "'Debes tomar *' + self.get_prescription(user_id)['QUANTITY'] + '* pastillas del medicamento *' + cima.get_med_name(self.get_prescription(user_id)['NAME']).split(' ')[0] + '* cada *' + self.get_prescription(user_id)['FREQUENCY'] + '* horas'"
 }
 
 STR_SHOW_PRESCRIPTION_CHRONIC = {
@@ -187,3 +187,40 @@ STR_SEND_NEW_MEDICINE_ISCORRECT = {
     'eng': "chat_id=user_id, text='Is the medicine correctly introduced? ', reply_markup=yes_no_markup",
     'esp': "chat_id=user_id, text='¿Está introducida correctamente?, reply_markup=yes_no_markup"
 }
+
+STR_SHOW_MEDICINE_INITIALSTRING = {
+    'eng': "'Introducing *' + self.get_medicine(user_id)['QUANTITY'] + '* pills of medicine *' + cima.get_med_name(self.get_medicine(user_id)['NAME']).split(' ')[0] + '* which '",
+    'esp': "'Introduciendo *' + self.get_medicine(user_id)['QUANTITY'] + '* pastillas del medicamento *' + cima.get_med_name(self.get_medicine(user_id)['NAME']).split(' ')[0] + '* que '"
+}
+
+STR_SHOW_MEDICINE_NOCADUCA = {
+    'eng': "*never expire*!",
+    'esp':"*no caducan nunca*!"
+}
+
+STR_SHOW_MEDICINE_ELDIA={
+    'eng': "' expire on day *'+ date_str + '* !'",
+    'esp': "' caducan el día *'+ date_str + '* !'"
+}
+
+STR_SEND_NEW_PILL_ERROR = STR_SEND_NEW_MEDICINE_ERROR
+
+STR_SEND_NEW_PILL_ISTAKENCORRECTLY = {
+    'eng': "chat_id=user_id, text='Is the pill taken correctly introduced? ', reply_markup=yes_no_markup".
+    'esp': "chat_id=user_id, text='¿Se ha introducido correctamente la pastilla tomada? ', reply_markup=yes_no_markup"
+}
+
+STR_SHOW_PILL= {
+    'eng': "'You are taking *' + self.get_pill(user_id)['QUANTITY'] + '* pills of medicine *' + cima.get_med_name(self.get_pill(user_id)['NAME']).split(' ')[0] + '* !'",
+    'esp': "'Estás tomando *' + self.get_pill(user_id)['QUANTITY'] + '* pastillas de *' + cima.get_med_name(self.get_pill(user_id)['NAME']).split(' ')[0] + '* !'"
+}
+
+STR_CHECK_PILL = {
+'eng': "chat_id=user_id,text='Please introduce photo of the pills you proceed to take. If you can not do so, click on NO',reply_markup=yes_no_markup",
+'esp': "chat_id=user_id,text='Por favor, introduce una foto de las pastillas que te vas a tomar. Si no puedes realizarla ahora, apreta NO',reply_markup=yes_no_markup"
+}
+
+STR_SHOW_INFOABOUT_ERROR = STR_SEND_NEW_MEDICINE_ERROR
+
+
+STR_SHOW_INFOABOUT_HELPEND= STR_MANAGE_RESPONSE_END
