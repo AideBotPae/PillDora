@@ -364,6 +364,8 @@ class DBMethods:
             if data[0][0] is not None:
                 exp_date = datetime.datetime.strftime(data[0][0], "%Y-%m-%d")
                 # substract quantity to med that expires earlier
+                print('''UPDATE aidebot.inventory SET num_of_pills=num_of_pills-{quantity} where user_id={id} and expiracy_date='{exp_date}' and national_code ={cn}'''.format(
+                        cn=cn, id=user_id, exp_date=exp_date, quantity=quantity))
                 db.execute(
                     '''UPDATE aidebot.inventory SET num_of_pills=num_of_pills-{quantity} where user_id={id} and expiracy_date='{exp_date}' and national_code ={cn}'''.format(
                         cn=cn, id=user_id, exp_date=exp_date, quantity=quantity))
