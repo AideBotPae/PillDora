@@ -10,7 +10,6 @@ bot.
 import json
 import logging
 import re
-import strings_bot as st
 from threading import Event
 
 import telegram
@@ -19,12 +18,11 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Conve
 from telegram.ext.dispatcher import run_async
 from telegram.replykeyboardmarkup import ReplyKeyboardMarkup
 from telegram.replykeyboardremove import ReplyKeyboardRemove
-
+from botui import strings_bot as st
 import botui.telegramcalendar as telegramcalendar
 import server.cima as cima
 from imagerecognition.ocr.ocr import TextRecognition
 from server.serverworker import ServerWorker
-
 
 # LOG INFORMATION
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -169,14 +167,14 @@ class PillDora:
     # Returns the number of medicines associated to a medicine for a specific user_id
     def get_counter(self, user_id):
         return self.aide_bot[user_id]['intr_prescription_counter']
-
-    # Set the language associated to an specific user_id
+	# Set the language associated to an specific user_id
     def set_language(self, user_id, lang):
         self.aide_bot[user_id]['language'] = lang
 
     # Returns the language associated to an specific user_id
     def get_language(self, user_id):
         return self.aide_bot[user_id]['language']
+        
     # Insertion of the query that the Client sends to the ServerWorker for a specific user_id
     def set_query(self, user_id, keys, values):
         # We use a dictionary for the parameters of the query on the JSON string
@@ -238,17 +236,19 @@ class PillDora:
                                   'query': {},
                                   'reminder': {'cn': "None", 'time': 'None'},
                                   'serverworker': ServerWorker(user_id),
-                                  'language': 'eng',
+                                  'language': 'esp',
                                   'handling': 'False'}
         logger.info('User ' + name + ' has connected to AideBot: ID is ' + str(user_id))
-        context.bot.send_message(chat_id=user_id, text=(eval(st.STR_START_WELCOME[self.get_language[user_id]])))
+        context.bot.send_message(chat_id=user_id, text=(eval(st.STR_START_WELCOME[self.get_language(user_id)])))
 
         if self.user_verification(user_id) == "True":
-            update.message.reply_text(st.STR_START_ENTERPASSWORD[self.get_language[user_id]])
+            update.message.reply_text(st.STR_START_ENTERPASSWORD[self.get_language(user_id)])
             return self.set_state(user_id, LOGIN)
         else:
             context.bot.send_message(chat_id=update.message.chat_id,
-                                     text=st.STR_START_CREATEUSER[self.get_language[user_id]])
+                                     text=st.STR_START_CREATEUSER[self.get_language(user_id)])
+            context.bot.send_message(chat_id=update.message.chat_id,
+                                     text=st.STR_START_ENTERPASSWORD[self.get_language(user_id)])
         return self.set_state(user_id, NEW_USER)
 
     @staticmethod
@@ -304,9 +304,10 @@ class PillDora:
         self.bot.delete_message(chat_id=user_id, message_id=message_id - 1)
         self.bot.delete_message(chat_id=user_id, message_id=message_id)
         if self.pwd_verification(password, user_id) == "False":
-            update.message.reply_text(st.STR_INTR_PWD_WRONGPASS[self.get_language(user_id)])
+            update.message.reply_text("Wrong Password. Enter correct password again:")
             return self.set_state(user_id, LOGIN)
-        update.message.reply_text(st.STR_INTR_PWD_WELCOME[self.get_language(user_id)])
+        update.message.reply_text('How can I help you?',
+                                  reply_markup=markup)
         return self.set_state(user_id, CHOOSING)
 
     @run_async
@@ -345,10 +346,13 @@ class PillDora:
             self.set_query(user_id, ["new_password"], [password])
             query = self.create_query(user_id)
             self.send_query(user_id, query)
-            update.message.reply_text(eval(st.STR_NEW_USER_VALIDPASS[self.get_language(user_id)]))
+            update.message.reply_text('Alright. Now you are ready! How can I help you?',
+                                      reply_markup=markup)
             return self.set_state(update.message.from_user.id, CHOOSING)
 
-        update.message.reply_text(st.STR_NEW_USER_NOTVALIDPASS[self.get_language(user_id)])
+        update.message.reply_text(
+            "Not a Valid Password. Enter Password with 6 to 12 characters and minimum 3 of these types of characters: "
+            "uppercase, lowercase, number and $, # or @")
         return self.set_state(update.message.from_user.id, NEW_USER)
 
     def manage_response(self, update, context):
@@ -368,20 +372,25 @@ class PillDora:
                 elif response['parameters']["Code"] == "1":
                     logger.info("Medicine already in the database with different frequencies. PROBLEM")
                     update.message.reply_text(
-                        "There is already a prescription of same med that has not expire yet. Different frequencies \n In order to introduce this new prescription, please first delete the other reminder.")
+                        "There is already a prescription of same med that has not expire yet. Different frequencies")
+                    update.message.reply_text(
+                        "In order to introduce this new prescription, please first delete the other reminder.")
                 elif response['parameters']["Code"] == "2":
                     logger.info("Medicine already in the database with same frequencies. NO PROBLEM")
                     update.message.reply_text("There is already a prescription of same med with same frequencies")
                 if response['parameters']['inventory'] == "None":
                     update.message.reply_text(
-                        "In your inventory we do not have any of this medicine. Please 'Introduce Medicine' after getting the med")
+                        "In your inventory we do not have any of this medicine. Please 'Introduce Medicine' after "
+                        "getting the med")
                     return self.show_location(user_id=user_id)
                 elif response['parameters']['inventory'] == "Enough":
                     update.message.reply_text(
-                        "In your inventory there is enough of this medicine for this whole treatment. No need to buy it.")
+                        "In your inventory there is enough of this medicine for this whole treatment. No need to buy "
+                        "it.")
                 elif response['parameters']['inventory'] == "Need to buy":
                     update.message.reply_text(
-                        "In your inventory there is some of this medicine but not enough for the whole treatment. Need to buy it.")
+                        "In your inventory there is some of this medicine but not enough for the whole treatment. "
+                        "Need to buy it.")
                     return self.show_location(user_id=user_id)
 
             elif response['function'] == 'INTRODUCE MEDICINE':
@@ -428,7 +437,7 @@ class PillDora:
         :return: new state INTR_PRESCRIPTION
         """
         logger.info('User introducing new prescription')
-        update.message.reply_text(INTR_PRESCRIPTION_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)])
+        update.message.reply_text(INTR_PRESCRIPTION_MSSGS[self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, INTR_PRESCRIPTION)
 
     def send_new_prescription(self, update, context):
@@ -462,11 +471,11 @@ class PillDora:
         logger.info(self.get_prescription(user_id))
         if self.get_counter(user_id) != len(INTR_PRESCRIPTION_MSSGS):
             if self.get_counter(user_id) < 3:
-                update.message.reply_text(INTR_PRESCRIPTION_MSSGS[self.get_language(user_id)][self.get_counter(user_id)])
+                update.message.reply_text(INTR_PRESCRIPTION_MSSGS[self.get_counter(user_id)])
                 return INTR_PRESCRIPTION
             else:
                 context.bot.send_message(chat_id=user_id,
-                                         text=INTR_PRESCRIPTION_MSSGS[self.get_language(user_id)][self.get_counter(user_id)],
+                                         text=INTR_PRESCRIPTION_MSSGS[self.get_counter(user_id)],
                                          reply_markup=telegramcalendar.create_calendar())
                 return CHECK_PRE
         else:
@@ -541,7 +550,7 @@ class PillDora:
         :return: new state INTR_MEDICINE
         """
         logger.info('User introducing new medicine')
-        update.message.reply_text(INTR_MEDICINE_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)])
+        update.message.reply_text(INTR_MEDICINE_MSSGS[self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, INTR_MEDICINE)
 
     def send_new_medicine(self, update, context):
@@ -575,11 +584,11 @@ class PillDora:
         logger.info(self.get_medicine(user_id))
         if self.get_counter(user_id) != len(INTR_MEDICINE_MSSGS):
             if self.get_counter(user_id) < 2:
-                update.message.reply_text(INTR_MEDICINE_MSSGS[self.get_language(user_id)][self.get_counter(user_id)])
+                update.message.reply_text(INTR_MEDICINE_MSSGS[self.get_counter(user_id)])
                 return INTR_MEDICINE
             else:
                 context.bot.send_message(chat_id=user_id,
-                                         text=INTR_MEDICINE_MSSGS[self.get_language(user_id)][self.get_counter(user_id)],
+                                         text=INTR_MEDICINE_MSSGS[self.get_counter(user_id)],
                                          reply_markup=telegramcalendar.create_calendar())
                 return CHECK_MED
         else:
@@ -698,6 +707,7 @@ class PillDora:
                                                callback_data=self.set_pill(user_id=user_id, num=0, text=key)),
                           InlineKeyboardButton(text=crossIcon,
                                                callback_data=self.set_pill(user_id=user_id, num=0, text=key))])
+        print(lista)
         dyn_markup = InlineKeyboardMarkup(lista)
         return dyn_markup
 
@@ -714,11 +724,13 @@ class PillDora:
                 reply_markup=dyn_markup)
         else:
             update.message.reply_text("Introduce CN of the Medicine you want information about:")
+        print(self.get_handling(user_id))
         return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
 
     def show_infoAbout(self, update, context):
         try:
             user_id = update.message.from_user.id
+            print(self.get_handling(user_id))
             if self.get_handling(user_id) == "False":
                 if update.message.photo:  # If user sent a photo, we apply
                     medicine_cn, validation_num = self.handle_pic(update, context, user_id)
@@ -736,6 +748,7 @@ class PillDora:
                     return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
         except:
             user_id = update.callback_query.from_user.id
+            print(self.get_handling(user_id))
             medicine_cn = self.get_pill(user_id)['NAME']
             print(medicine_cn)
             self.bot.send_message(text=cima.get_info_about(medicine_cn), chat_id=user_id)
@@ -744,7 +757,9 @@ class PillDora:
             self.set_pill(user_id, 0, "None")
             return self.set_state(user_id=user_id, state=CHOOSING)
 
+        print(self.get_handling(user_id))
         if self.get_handling(user_id) == "True":
+            print("True")
             return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
 
     def show_location(self, user_id):
