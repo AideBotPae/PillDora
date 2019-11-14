@@ -1,8 +1,8 @@
-
 class PillCounter():
-  def __init__(self, arg):
+    def __init__(self, arg):
         self.arg = arg
-  def count(self):
+
+    def count(self):
         import numpy as np
         import cv2
         import imutils
@@ -23,7 +23,7 @@ class PillCounter():
 
         # Eliminacion de ruido y llenar huecos negros
         height, width = thresh.shape
-        if cv2.countNonZero(thresh) > height*width/2:
+        if cv2.countNonZero(thresh) > height * width / 2:
             thresh = cv2.bitwise_not(thresh)
 
         erosion = cv2.erode(thresh, kernel, iterations=2)
@@ -37,7 +37,7 @@ class PillCounter():
 
         # Buscamos contornos
         (contours, _) = cv2.findContours(canny.copy(),
-                                        cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                                         cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         # Output(contours)))
         return len(contours)
