@@ -798,8 +798,10 @@ class PillDora:
             self.send_new_pill(update, context)
         elif self.get_states(user_id)[0] == SHOW_INFORMATION:
             print("IN BRO")
-            self.show_infoAbout(update, context)
+            print(update)
+            print(context)
             self.set_handling(user_id, "True")
+            self.show_infoAbout(update, context)
         else:
             selected, date = telegramcalendar.process_calendar_selection(context.bot, update)
             if date is not None:
