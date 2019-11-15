@@ -741,9 +741,9 @@ class PillDora:
                     return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
         except:
             user_id = update.callback_query.from_user.id
-            print("GET HANDLING 2")
+            print("GET HANDLING 3")
             print(self.get_handling(user_id))
-            print("GET pills")
+            print("GET pills 3")
             print(self.get_pill(user_id))
             medicine_cn = self.get_pill(user_id)['NAME']
             print(medicine_cn)
