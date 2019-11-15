@@ -740,13 +740,15 @@ class PillDora:
             user_id = update.callback_query.from_user.id
             medicine_cn = update.callback_query.data
             self.bot.send_message(text=cima.get_info_about(medicine_cn), chat_id=user_id)
-            self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?",
-                                  reply_markup=markup)
+            self.bot.send_message(text="Has this information been useful?", chat_id=user_id, reply_markup=yes_no_markup)
             return self.set_state(user_id=user_id, state=CHOOSING)
 
         print(self.get_handling(user_id))
         if self.get_handling(user_id) == "True":
             print("IN WHAT")
+            self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?",
+                                  reply_markup=markup)
+            self.set_handling(user_id=user_id, text="False")
             return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
 
     def show_location(self, user_id):
