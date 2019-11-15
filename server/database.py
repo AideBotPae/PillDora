@@ -181,7 +181,10 @@ class DBMethods:
                 '''select min(time) from aidebot.daily_reminders where time >= '{time}' and user_id = {id} and 
                 national_code = {cn}'''.format(
                     id=user_id, time=exact_time.strftime("%H:%M:%S"), cn=query_parsed['NAME']))
+            print(min_time)
             if min_time[0][0] is not None:
+                if min_time[0][0] is '1 day, 0:00:00':
+                    min_time[0][0] = "24:00:00"
                 db.execute(
                     '''update aidebot.daily_reminders set Taken = 3 where time = '{time}' and user_id = {id} and 
                     national_code = {cn}'''.format(
