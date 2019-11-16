@@ -231,20 +231,20 @@ class PillDora:
         logger.info('User ' + name + ' has connected to AideBot: ID is ' + str(user_id))
         message = update.message.text
         if str(message).startswith("/start"):
-            self.bot.send_message(chat_id=user_id, text=("Welcome " + name + " ! My name is AideBot"))
+            self.bot.send_message(chat_id=user_id, text=("Welcome " + name + " ! My name is AideBot \U0001F64C"))
         elif str(message).startswith("I have had"):
             self.bot.send_message(chat_id=user_id, text="No worries I am with you! Sure you will get better! \U0001F4AA")
         else:
             self.bot.send_message(chat_id=user_id, text="That's what I love to hear! Keep like that! \U0001F44D")
 
         if self.user_verification(user_id) == "True":
-            self.bot.send_message(chat_id=user_id, text="Enter your password in order to get Assistance:")
+            self.bot.send_message(chat_id=user_id, text="Enter your password in order to get Assistance: \U0001F5DD")
             return self.set_state(user_id, LOGIN)
         else:
             self.bot.send_message(chat_id=update.message.chat_id,
-                                  text="Welcome to the HealthCare Assistant AideBot!")
+                                  text="Welcome to the HealthCare Assistant AideBot! \U0001F64C")
             self.bot.send_message(chat_id=update.message.chat_id,
-                                  text="Enter new password for creating your account.")
+                                  text="Enter new password for creating your account.\U0001F510")
         return self.set_state(user_id, NEW_USER)
 
 
