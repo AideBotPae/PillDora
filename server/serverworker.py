@@ -135,7 +135,7 @@ class ServerWorker:
         elif instruction == "CURRENT TREATMENT":
             current_treatment = self.checker.get_currentTreatment(user_id=user_id)
             if current_treatment is not ():
-                current_treatment_info = "Meds currently being taken :\\n"
+                current_treatment_info = ""
                 for output in current_treatment:
                     date_str = str(output[1]).split()[0]
                     if date_str == MAX_DATE:
