@@ -77,12 +77,14 @@ taken_pill_keyboard = [['TAKEN', 'POSTPONE']]
 loc_button = KeyboardButton(text="Send Location", request_location=True)
 location_keyboard = [[loc_button, "Don't Send Location"]]
 start_keyboard=[[InlineKeyboardButton(text="START", callback_data="/start")]]
+day_keyboard=[[u'Fantastic! \U0001F601', u'I have had better days \U0001F605']]
 
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 taken_pill_markup = ReplyKeyboardMarkup(taken_pill_keyboard, one_time_keyboard=True, resize_keyboard=True)
 loc_markup = ReplyKeyboardMarkup(location_keyboard, one_time_keyboard=True, resize_keyboard=True)
 start_markup = InlineKeyboardMarkup(start_keyboard)
+day_markup= ReplyKeyboardMarkup(day_keyboard, one_time_keyboard=True, resize_keyboard=True)
 
 
 class PillDora:
@@ -213,6 +215,10 @@ class PillDora:
         :param context: Handler context
         :return: the new state to be on
         """
+        message = update.message.text
+        print(message)
+        if str(message) is not "/start":
+            print("yes sir")
         user_id = update.message.from_user.id
         name = self.get_name(update.message.from_user)
         self.aide_bot[user_id] = {'states': [LOGIN, LOGIN], 'intr_prescription_counter': 0,
@@ -226,17 +232,17 @@ class PillDora:
                                   'serverworker': ServerWorker(user_id),
                                   'language': 'eng'}
         logger.info('User ' + name + ' has connected to AideBot: ID is ' + str(user_id))
-        context.bot.send_message(chat_id=user_id, text=("Welcome " + name + " ! My name is AideBot"))
-
+        self.bot.send_message(chat_id=user_id, text=("Welcome " + name + " ! My name is AideBot"))
         if self.user_verification(user_id) == "True":
             update.message.reply_text("Enter your password in order to get Assistance:")
             return self.set_state(user_id, LOGIN)
         else:
-            context.bot.send_message(chat_id=update.message.chat_id,
-                                     text="Welcome to the HealthCare Assistant AideBot!")
-            context.bot.send_message(chat_id=update.message.chat_id,
-                                     text="Enter new password for creating your account.")
+            self.bot.send_message(chat_id=update.message.chat_id,
+                                  text="Welcome to the HealthCare Assistant AideBot!")
+            self.bot.send_message(chat_id=update.message.chat_id,
+                                  text="Enter new password for creating your account.")
         return self.set_state(user_id, NEW_USER)
+
 
     @staticmethod
     def get_name(user):
@@ -781,6 +787,10 @@ class PillDora:
             self.show_infoAbout(update, context)
         elif self.get_states(user_id)[0] == CHECK_REM:
             self.get_medicine_CN(update, context)
+        elif self.get_states(user_id)[0] == END or self.get_states(user_id)[0] == REMINDERS:
+            name = update.callback_query.from_user
+            self.bot.send_message(chat_id=user_id, text="Welcome " + name + ". How is your day going?",
+                                  reply_markup=day_markup)
         else:
             selected, date = telegramcalendar.process_calendar_selection(context.bot, update)
             if date is not None:
@@ -1127,7 +1137,8 @@ class PillDora:
                           MessageHandler(Filters.regex('^YES$'), self.manage_response),
                           MessageHandler(Filters.regex('^NO$'), self.create_journey)],
                 END: [MessageHandler(Filters.regex('^TAKEN'), self.intr_history_yes),
-                      MessageHandler(Filters.regex('^POSTPONE'), self.intr_history_no)
+                      MessageHandler(Filters.regex('^POSTPONE'), self.intr_history_no),
+                      MessageHandler(Filters.text, self.start)
                       ]
             },
             fallbacks=[MessageHandler(Filters.regex('^Exit$'), self.exit)]
