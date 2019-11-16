@@ -911,8 +911,8 @@ class PillDora:
         response = json.loads(self.send_query(user_id, query))
         reminder_info = response['parameters']
         if reminder_info['CN'] == "False":
-            update.message.reply_text('CN introduced is wrong, there is not any med with this CN')
-            update.message.reply_text("Is there any other way I can help you?", reply_markup=markup)
+            self.bot.send_message(chat_id=user_id, text='CN introduced is wrong, there is not any med with this CN')
+            self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?", reply_markup=markup)
             return self.set_state(user_id, CHOOSING)
         end_date = response['parameters']['end_date']
         if end_date == MAX_DATE:
@@ -923,8 +923,8 @@ class PillDora:
             reminder_info = "Medicine " + cima.get_med_name(
                 response['parameters']['CN']) + " taken with a frequency of " + \
                             response['parameters']['frequency'] + " hours until the date of " + end_date + "."
-        update.message.reply_text('Reminder asked to be removed:\n ->\t' + reminder_info)
-        update.message.reply_text('Is this the reminder you want to remove? ', reply_markup=yes_no_markup)
+        self.bot.send_message(chat_id=user_id, text='Reminder asked to be removed:\n ->\t' + reminder_info)
+        self.bot.send_message(chat_id=user_id, text='Is this the reminder you want to remove? ', reply_markup=yes_no_markup)
         self.set_query(user_id, ["CN"], [response['parameters']['CN']])
         self.set_function(user_id, 'DELETE REMINDER')
         return self.set_state(user_id, CHECK_REM)
