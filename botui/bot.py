@@ -902,7 +902,7 @@ class PillDora:
             user_id = update.message.from_user.id
         except:
             user_id = update.callback_query.from_user.id
-            medicine_cn = update.callback_query.data
+            medicine_CN = update.callback_query.data
 
         # connects to DataBase with UserId and get the current reminder for this medicine_CN.
         self.set_function(user_id, "GET REMINDER")
