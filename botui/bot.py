@@ -391,12 +391,12 @@ class PillDora:
                     logger.info("Medicine correctly introduced")
 
             elif response['function'] == "DELETE REMINDER":
-                if response['parameters']:
+                if response['parameters']['boolean']=="True":
                     logger.info("Medicine correctly deleted")
                 else:
                     logger.info("Medicine not deleted as did not exist in the database")
                     update.message.reply_text("Medicine introduced did not exist in your current Treatment.")
-                    self.delete_reminder()
+                    self.delete_reminder(update, context)
                     return self.set_state(update.message.from_user.id, CHOOSING)
 
             elif response['function'] == "JOURNEY":
@@ -792,6 +792,8 @@ class PillDora:
         elif self.get_states(user_id)[0] == SHOW_INFORMATION:
             self.set_handling(user_id, "True")
             self.show_infoAbout(update, context)
+        elif self.get_states(user_id)[0] == CHECK_REM:
+            self.get_medicine_CN(update, context)
         else:
             selected, date = telegramcalendar.process_calendar_selection(context.bot, update)
             if date is not None:
@@ -900,13 +902,26 @@ class PillDora:
     # Deletes a reminder using a CN for a certain user_id
     def delete_reminder(self, update, context):
         logger.info('User ' + self.get_name(update.message.from_user) + ' deleting reminder')
-        update.message.reply_text('Please Introduce CN of the Medicine you want to delete the reminder:')
-        return self.set_state(update.message.from_user.id, GET_CN)
+        user_id=update.message.from_user.id
+        dict = self.list_of_current_cn(user_id)
+        if dict is not "False":
+            dyn_markup = self.makeKeyboard(dict, user_id)
+            update.message.reply_text('Choose medicine you want to delete from your current treatment:',
+                                      reply_markup=dyn_markup)
+            return self.set_state(user_id, CHECK_REM)
+        else:
+            update.message.reply_text('Please Introduce CN of the Medicine you want to delete the reminder:')
+            return self.set_state(user_id, GET_CN)
 
     # Method that asks for a CN and prints all the information and asks about if it should be removed or not
     def get_medicine_CN(self, update, context):
-        medicine_CN = update.message.text
-        user_id = update.message.from_user.id
+        try:
+            medicine_CN = update.message.text
+            user_id = update.message.from_user.id
+        except:
+            user_id = update.callback_query.from_user.id
+            medicine_cn = update.callback_query.data
+        
         # connects to DataBase with UserId and get the current reminder for this medicine_CN.
         self.set_function(user_id, "GET REMINDER")
         self.set_query(user_id, ["CN"], [medicine_CN])
@@ -931,6 +946,7 @@ class PillDora:
         self.set_query(user_id, ["CN"], [response['parameters']['CN']])
         self.set_function(user_id, 'DELETE REMINDER')
         return self.set_state(user_id, CHECK_REM)
+            
 
     # Method that creates a journey to be handled later and asks for the information
     @run_async
