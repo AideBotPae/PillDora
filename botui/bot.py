@@ -788,8 +788,7 @@ class PillDora:
         elif self.get_states(user_id)[0] == CHECK_REM:
             self.get_medicine_CN(update, context)
         elif self.get_states(user_id)[0] == END or self.get_states(user_id)[0] == REMINDERS:
-            print(update.callback_query.from_user)
-            name=update.callback_query.from_user.id
+            name=update.callback_query.from_user.first_name
             self.bot.send_message(chat_id=user_id, text="Welcome " + name + ". How is your day going?",
                                   reply_markup=day_markup)
         else:
