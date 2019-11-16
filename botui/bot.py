@@ -303,7 +303,7 @@ class PillDora:
         if self.pwd_verification(password, user_id) == "False":
             update.message.reply_text("Wrong Password. Enter correct password again:")
             return self.set_state(user_id, LOGIN)
-        update.message.reply_text('How can I help you?',
+        update.message.reply_text('How can I help you? \U0001F914',
                                   reply_markup=markup)
         return self.set_state(user_id, CHOOSING)
 
@@ -343,7 +343,7 @@ class PillDora:
             self.set_query(user_id, ["new_password"], [password])
             query = self.create_query(user_id)
             self.send_query(user_id, query)
-            update.message.reply_text('Alright. Now you are ready! How can I help you?',
+            update.message.reply_text('Alright. Now you are ready! How can I help you? \U0001F914',
                                       reply_markup=markup)
             return self.set_state(update.message.from_user.id, CHOOSING)
 
@@ -422,7 +422,7 @@ class PillDora:
         self.set_query(user_id, ["None"], ["None"])
         self.set_function(user_id, "None")
         logger.info('User ' + self.get_name(update.message.from_user) + ' in the menu')
-        update.message.reply_text("Is there any other way I can help you?", reply_markup=markup)
+        update.message.reply_text("Is there any other way I can help you? \U0001F914", reply_markup=markup)
         return self.set_state(update.message.from_user.id, CHOOSING)
 
     @run_async
@@ -738,14 +738,14 @@ class PillDora:
                 return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
             else:
                 update.message.reply_text(cima.get_info_about(medicine_cn))
-                update.message.reply_text(chat_id=user_id, text="Is there any other way I can help you?",
+                update.message.reply_text(chat_id=user_id, text="Is there any other way I can help you? \U0001F914",
                                           reply_markup=markup)
                 return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
         except:
             user_id = update.callback_query.from_user.id
             medicine_cn = update.callback_query.data
             self.bot.send_message(text=cima.get_info_about(medicine_cn), chat_id=user_id)
-            self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?",
+            self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you? \U0001F914",
                                   reply_markup=markup)
             return self.set_state(user_id=user_id, state=CHOOSING)
 
@@ -772,7 +772,7 @@ class PillDora:
             self.event.set()
             return self.set_state(user_id, END)
         else:
-            self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?", reply_markup=markup)
+            self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you? \U0001F914", reply_markup=markup)
             return self.set_state(user_id, CHOOSING)
 
     @run_async
@@ -845,7 +845,7 @@ class PillDora:
         self.bot.delete_message(chat_id=user_id, message_id=message_id)
         self.bot.send_message(chat_id=user_id,
                                  text="Reminders for " + date_str + " :\n"+response['parameters']['tasks'])
-        self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?",
+        self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you? \U0001F914",
                                  reply_markup=markup)
 
     @run_async
@@ -933,7 +933,7 @@ class PillDora:
         reminder_info = response['parameters']
         if reminder_info['CN'] == "False":
             self.bot.send_message(chat_id=user_id, text='CN introduced is wrong, there is not any med with this CN')
-            self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?", reply_markup=markup)
+            self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you? \U0001F914", reply_markup=markup)
             return self.set_state(user_id, CHOOSING)
         end_date = response['parameters']['end_date']
         if end_date == MAX_DATE:
@@ -1071,7 +1071,7 @@ class PillDora:
         self.set_dates(user_id=user_id, text="arrival", date="None")
         self.set_counter(user_id=user_id, num=0)
         logger.info('User ' + self.get_name(update.message.from_user) + ' in the menu after quitting from function')
-        update.message.reply_text("Is there any other way I can help you?", reply_markup=markup)
+        update.message.reply_text("Is there any other way I can help you? \U0001F914", reply_markup=markup)
         return self.set_state(user_id=user_id, state=CHOOSING)
 
     # Main of the Client.py, where the bot is activated and creates the transition to the different functionalities
