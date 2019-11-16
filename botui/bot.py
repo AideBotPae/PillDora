@@ -824,9 +824,11 @@ class PillDora:
         self.set_query(user_id, ["date"], [date])
         query = self.create_query(user_id)
         response = json.loads(self.send_query(user_id, query))
+        message_id = update.callback_query.message.message_id
+        self.bot.delete_message(chat_id=user_id, message_id=message_id)
+        self.bot.delete_message(chat_id=user_id, message_id=message_id - 1)
         context.bot.send_message(chat_id=user_id,
-                                 text="Reminders for " + date_str + " :\n")
-        context.bot.send_message(chat_id=user_id, text=response['parameters']['tasks'])
+                                 text="Reminders for " + date_str + " :\n"+response['parameters']['tasks'])
         context.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?",
                                  reply_markup=markup)
 
@@ -967,7 +969,7 @@ class PillDora:
             self.bot.delete_message(chat_id=user_id, message_id=message_id)
             self.bot.delete_message(chat_id=user_id, message_id=message_id-1)
             context.bot.send_message(chat_id=user_id,
-                                     text="Your journey starts on *"+self.get_dates(user_id)[0]+"* and ends up the *"+self.get_dates(user_id)[1]+"*\nIs this information correct?",
+                                     text="Your journey starts on *"+self.get_dates(user_id)[0]+"* until *"+self.get_dates(user_id)[1]+"*\nIs this information correct?",
                                      reply_markup=yes_no_markup,
                                      parse_mode=telegram.ParseMode.MARKDOWN)
             self.set_query(user_id, ["departure_date", "arrival_date"],
