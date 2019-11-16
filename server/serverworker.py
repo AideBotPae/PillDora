@@ -117,7 +117,7 @@ class ServerWorker:
             date_selected = parsed_string["parameters"]["date"]
             calendar_output = self.checker.get_reminders(user_id=user_id, date=date_selected)
             if calendar_output is not None:
-                journey_info = "Reminders:\\n"
+                journey_info = ""
                 for output in calendar_output:
                     time = str(output[1]).split(',')[1] if len(str(output[1]).split(',')) == 2 else str(output[1])
                     journey_info += "\\t-> " + cima.get_med_name(str(output[0])) + " : " + time + "\\n"
