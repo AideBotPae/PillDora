@@ -916,14 +916,14 @@ class PillDora:
             return self.set_state(user_id, CHOOSING)
         end_date = response['parameters']['end_date']
         if end_date == MAX_DATE:
-            reminder_info = "Medicine " + cima.get_med_name(
-                response['parameters']['CN']) + " taken with a frequency of " + \
-                            response['parameters']['frequency'] + " hours chronically."
+            reminder_info = "Medicine *" + cima.get_med_name(
+                response['parameters']['CN']) + "* taken with a frequency of *" + \
+                            response['parameters']['frequency'] + "* hours *chronically*."
         else:
-            reminder_info = "Medicine " + cima.get_med_name(
-                response['parameters']['CN']) + " taken with a frequency of " + \
-                            response['parameters']['frequency'] + " hours until the date of " + end_date + "."
-        self.bot.send_message(chat_id=user_id, text='Reminder asked to be removed:\n ->\t' + reminder_info)
+            reminder_info = "Medicine *" + cima.get_med_name(
+                response['parameters']['CN']) + "* taken with a frequency of *" + \
+                            response['parameters']['frequency'] + "* hours until the date of *" + end_date + "*."
+        self.bot.send_message(chat_id=user_id, text='Reminder asked to be removed:\n ->\t' + reminder_info, parse_mode=telegram.ParseMode.MARKDOWN)
         self.bot.send_message(chat_id=user_id, text='Is this the reminder you want to remove? ', reply_markup=yes_no_markup)
         self.set_query(user_id, ["CN"], [response['parameters']['CN']])
         self.set_function(user_id, 'DELETE REMINDER')
