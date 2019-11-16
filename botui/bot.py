@@ -963,7 +963,8 @@ class PillDora:
 
         if self.get_states(user_id)[1] == JOURNEY:
             self.set_dates(user_id, "arrival", date)
-            message_id = update.message.message_id
+            print(update.callback_query)
+            message_id = update.callback_query.id
             self.bot.delete_message(chat_id=user_id, message_id=message_id)
             self.bot.delete_message(chat_id=user_id, message_id=message_id-1)
             context.bot.send_message(chat_id=user_id,
