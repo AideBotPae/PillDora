@@ -696,7 +696,10 @@ class PillDora:
     @run_async
     def show_information(self, update, context):
         logger.info('User ' + self.get_name(update.message.from_user) + '  searching for information')
-        user_id = update.message.from_user.id
+        try:
+            user_id = update.message.from_user.id
+        except:
+            user_id = update.callback_query.from_user.id
         dict = self.list_of_current_cn(user_id)
         print(dict)
         if dict is not "False":
