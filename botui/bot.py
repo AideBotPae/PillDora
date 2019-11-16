@@ -233,9 +233,9 @@ class PillDora:
         if str(message).startswith("/start"):
             self.bot.send_message(chat_id=user_id, text=("Welcome " + name + " ! My name is AideBot"))
         elif str(message).startswith("I have had"):
-            self.bot.send_message(chat_id=user_id, text="u'No worries I am with you! Sure you will get better! \U0001F4AA'")
+            self.bot.send_message(chat_id=user_id, text="No worries I am with you! Sure you will get better! \U0001F4AA")
         else:
-            self.bot.send_message(chat_id=user_id, text="u'That's what I love to hear! Keep like that! \U0001F44D'")
+            self.bot.send_message(chat_id=user_id, text="That's what I love to hear! Keep like that! \U0001F44D")
 
         if self.user_verification(user_id) == "True":
             self.bot.send_message(chat_id=user_id, text="Enter your password in order to get Assistance:")
@@ -1054,7 +1054,7 @@ class PillDora:
     # Ends the communication between the user and the bot
     def exit(self, update, context):
         user_id=update.message.from_user.id
-        self.bot.send_message(chat_id=user_id, text="u'See you next time \U0001F44B'", reply_markup=start_markup)
+        self.bot.send_message(chat_id=user_id, text="See you next time \U0001F44B", reply_markup=start_markup)
         logger.info('User ' + self.get_name(update.message.from_user) + ' finish with AideBot')
         self.event.set()
         return self.set_state(update.message.chat_id, END)
