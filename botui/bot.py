@@ -956,14 +956,16 @@ class PillDora:
         if self.get_states(user_id)[1] == CHOOSING:
             self.set_dates(user_id, "departure", date)
             context.bot.send_message(chat_id=user_id,
-                                     text="Alright. I see you are leaving on " + date_str + ".\n When will you come back?",
-                                     reply_markup=telegramcalendar.create_calendar())
+                                     text="Alright. I see you are *leaving on " + date_str + "*. When will you come back?",
+                                     reply_markup=telegramcalendar.create_calendar(),
+                                     parse_mode=telegram.ParseMode.MARKDOWN)
 
         if self.get_states(user_id)[1] == JOURNEY:
             self.set_dates(user_id, "arrival", date)
             context.bot.send_message(chat_id=user_id,
-                                     text="The arrival Date is on " + date_str + "\nIs this information correct?",
-                                     reply_markup=yes_no_markup)
+                                     text="And you actually *arrive on" + date_str + "*\nIs this information correct?",
+                                     reply_markup=yes_no_markup,
+                                     parse_mode=telegram.ParseMode.MARKDOWN)
             self.set_query(user_id, ["departure_date", "arrival_date"],
                            [self.get_dates(user_id)[0], self.get_dates(user_id)[1]])
             self.set_function(user_id, 'JOURNEY')
