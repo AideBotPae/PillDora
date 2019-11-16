@@ -76,11 +76,13 @@ yes_no_reply_keyboard = [['YES', 'NO']]
 taken_pill_keyboard = [['TAKEN', 'POSTPONE']]
 loc_button = KeyboardButton(text="Send Location", request_location=True)
 location_keyboard = [[loc_button, "Don't Send Location"]]
+start_keyboard=[[InlineKeyboardButton(text="START", callback_data="/start")]]
 
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 taken_pill_markup = ReplyKeyboardMarkup(taken_pill_keyboard, one_time_keyboard=True, resize_keyboard=True)
 loc_markup = ReplyKeyboardMarkup(location_keyboard, one_time_keyboard=True, resize_keyboard=True)
+start_markup = InlineKeyboardMarkup(start_keyboard)
 
 
 class PillDora:
@@ -1037,7 +1039,8 @@ class PillDora:
 
     # Ends the communication between the user and the bot
     def exit(self, update, context):
-        update.message.reply_text("See you next time")
+        user_id=update.message.from_user.id
+        self.bot.send_message(chat_id=user_id, text="See you next time", reply_markup=start_markup)
         logger.info('User ' + self.get_name(update.message.from_user) + ' finish with AideBot')
         self.event.set()
         return self.set_state(update.message.chat_id, END)
