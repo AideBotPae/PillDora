@@ -391,7 +391,7 @@ class PillDora:
                     logger.info("Medicine correctly introduced")
 
             elif response['function'] == "DELETE REMINDER":
-                if response['parameters']['boolean']=="True":
+                if response['parameters']['boolean'] == "True":
                     logger.info("Medicine correctly deleted")
                 else:
                     logger.info("Medicine not deleted as did not exist in the database")
@@ -902,7 +902,7 @@ class PillDora:
     # Deletes a reminder using a CN for a certain user_id
     def delete_reminder(self, update, context):
         logger.info('User ' + self.get_name(update.message.from_user) + ' deleting reminder')
-        user_id=update.message.from_user.id
+        user_id = update.message.from_user.id
         dict = self.list_of_current_cn(user_id)
         if dict is not "False":
             dyn_markup = self.makeKeyboard(dict, user_id)
@@ -921,7 +921,7 @@ class PillDora:
         except:
             user_id = update.callback_query.from_user.id
             medicine_cn = update.callback_query.data
-        
+
         # connects to DataBase with UserId and get the current reminder for this medicine_CN.
         self.set_function(user_id, "GET REMINDER")
         self.set_query(user_id, ["CN"], [medicine_CN])
@@ -946,7 +946,6 @@ class PillDora:
         self.set_query(user_id, ["CN"], [response['parameters']['CN']])
         self.set_function(user_id, 'DELETE REMINDER')
         return self.set_state(user_id, CHECK_REM)
-            
 
     # Method that creates a journey to be handled later and asks for the information
     @run_async
@@ -1111,7 +1110,7 @@ class PillDora:
                 SHOW_INFORMATION: [MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu),
                                    MessageHandler(Filters.text | Filters.photo, self.show_infoAbout)],
                 LOCATION: [MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu),
-                            MessageHandler(Filters.location, self.print_location),
+                           MessageHandler(Filters.location, self.print_location),
                            MessageHandler(Filters.regex("^Don't Send Location"), self.manage_response)],
                 CHECK_PRE: [MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu),
                             MessageHandler(Filters.regex('^YES$'), self.manage_response),
