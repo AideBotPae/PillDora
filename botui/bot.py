@@ -77,7 +77,7 @@ taken_pill_keyboard = [['TAKEN', 'POSTPONE']]
 loc_button = KeyboardButton(text="Send Location", request_location=True)
 location_keyboard = [[loc_button, "Don't Send Location"]]
 start_keyboard=[[InlineKeyboardButton(text="START", callback_data="/start")]]
-day_keyboard=[[u'Fantastic! \U0001F601', u'I have had better days \U0001F605']]
+day_keyboard=[[u'Fantastic! \U0001F601', u'I have had better days \U0001F641']]
 
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
@@ -215,12 +215,7 @@ class PillDora:
         :param context: Handler context
         :return: the new state to be on
         """
-        message = update.message.text
-        print(message)
-        if str(message).startswith("/start"):
-            print("yes sir")
-        else:
-            print("No sir")
+
         user_id = update.message.from_user.id
         name = self.get_name(update.message.from_user)
         self.aide_bot[user_id] = {'states': [LOGIN, LOGIN], 'intr_prescription_counter': 0,
@@ -234,9 +229,16 @@ class PillDora:
                                   'serverworker': ServerWorker(user_id),
                                   'language': 'eng'}
         logger.info('User ' + name + ' has connected to AideBot: ID is ' + str(user_id))
-        self.bot.send_message(chat_id=user_id, text=("Welcome " + name + " ! My name is AideBot"))
+        message = update.message.text
+        if str(message).startswith("/start"):
+            self.bot.send_message(chat_id=user_id, text=("Welcome " + name + " ! My name is AideBot"))
+        elif str(message).startswith("I have had"):
+            self.bot.send_message(chat_id=user_id, text="u'No worries I am with you! Sure you will get better! \U0001F4AA'")
+        else:
+            self.bot.send_message(chat_id=user_id, text="u'That's what I love to hear! Keep like that! \U0001F44D'")
+
         if self.user_verification(user_id) == "True":
-            update.message.reply_text("Enter your password in order to get Assistance:")
+            self.bot.send_message(chat_id=user_id, text="Enter your password in order to get Assistance:")
             return self.set_state(user_id, LOGIN)
         else:
             self.bot.send_message(chat_id=update.message.chat_id,
@@ -1052,7 +1054,7 @@ class PillDora:
     # Ends the communication between the user and the bot
     def exit(self, update, context):
         user_id=update.message.from_user.id
-        self.bot.send_message(chat_id=user_id, text="See you next time", reply_markup=start_markup)
+        self.bot.send_message(chat_id=user_id, text="u'See you next time \U0001F44B'", reply_markup=start_markup)
         logger.info('User ' + self.get_name(update.message.from_user) + ' finish with AideBot')
         self.event.set()
         return self.set_state(update.message.chat_id, END)
