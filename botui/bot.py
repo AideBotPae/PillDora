@@ -787,9 +787,11 @@ class PillDora:
                     date_str = "CHRONIC"
             if selected:
                 if self.get_states(user_id)[0] == CHOOSING:
+                    '''
                     context.bot.send_message(chat_id=user_id,
                                              text="You selected %s" % date_str,
                                              reply_markup=ReplyKeyboardRemove())
+                    '''
                 if self.get_states(user_id)[0] == CHOOSING:
                     self.get_calendar_tasks(update, context, date.strftime("%Y-%m-%d"), user_id)
                     self.set_state(user_id, CHOOSING)
