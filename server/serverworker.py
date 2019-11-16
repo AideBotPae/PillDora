@@ -153,7 +153,7 @@ class ServerWorker:
         elif instruction == "HISTORY":
             history = self.checker.get_history(user_id=user_id)
             if history is not ():
-                history_info = "History of last meds :\\n"
+                history_info = ""
                 for output in history:
                     history_info += "\\t-> " + cima.get_med_name(str(output[0])) + " of " + str(output[1])
                     if output[2]:
@@ -179,11 +179,11 @@ class ServerWorker:
         elif instruction == "INVENTORY":
             inventory = self.checker.get_inventory(user_id=user_id)
             if inventory is not ():
-                inventory_info = "Your current inventory consists on:"
+                inventory_info = ""
                 for output in inventory:
-                    inventory_info += "\\n\\t-> There are " + str(output[1]) + " of " + cima.get_med_name(
+                    inventory_info += "\\t-> There are " + str(output[1]) + " of " + cima.get_med_name(
                         str(output[0])) + " which expire on " + datetime.datetime.strftime(output[2],
-                                                                                           "%Y-%m-%d")
+                                                                                           "%Y-%m-%d")+"\\n"
             else:
                 inventory_info = "False"
             response = self.bot_parser(user_id=user_id,
