@@ -825,7 +825,6 @@ class PillDora:
         response = json.loads(self.send_query(user_id, query))
         message_id = update.callback_query.message.message_id
         self.bot.delete_message(chat_id=user_id, message_id=message_id)
-        self.bot.delete_message(chat_id=user_id, message_id=message_id-1)
         self.bot.send_message(chat_id=user_id,
                                  text="Reminders for " + date_str + " :\n"+response['parameters']['tasks'])
         self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?",
