@@ -36,4 +36,3 @@ if __name__ == "__main__":
     while True:
         conn, addr = s.accept()
         MyThread(conn).start()
-    #s.close()
