@@ -738,7 +738,7 @@ class PillDora:
                 return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
             else:
                 update.message.reply_text(cima.get_info_about(medicine_cn))
-                update.message.reply_text(text="Is there any other way I can help you? \U0001F914",
+                update.message.reply_text(chat_id=user_id, text="Is there any other way I can help you? \U0001F914",
                                           reply_markup=markup)
                 return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
         except:
@@ -1078,7 +1078,7 @@ class PillDora:
     def main(self):
         # Create the Updater and pass it your bot's token.
         # Make sure to set use_context=True to use the new context based callbacks
-        updater = Updater(token=TOKEN_PROVE, use_context=True, workers=50)
+        updater = Updater(token=TOKEN_PILLDORA, use_context=True, workers=50)
         dp = updater.dispatcher
         conv_handler = ConversationHandler(
             allow_reentry=True,
