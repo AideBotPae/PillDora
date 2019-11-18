@@ -913,7 +913,7 @@ class PillDora:
                                       reply_markup=dyn_markup)
             return self.set_state(user_id, CHECK_REM)
         else:
-            update.message.reply_text('There is any pill in the current treatment, so any reminder can not be delete.')
+            update.message.reply_text('There is any pill in the current treatment, so any reminder can be delete.')
             update.message.reply_text(text="Is there any other way I can help you? \U0001F914", reply_markup=markup)
             return self.set_state(user_id, CHOOSING)
 
