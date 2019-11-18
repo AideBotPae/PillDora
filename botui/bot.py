@@ -620,7 +620,7 @@ class PillDora:
         logger.info('User introducing new pill taken')
         user_id = update.message.from_user.id
         dict = self.list_of_current_cn(user_id)
-        if dict['Boolean'] != "False":
+        if 'Boolean' not in dict:
             dyn_markup = self.makeKeyboard(dict, user_id)
             update.message.reply_text(INTR_PILL_MSSGS[self.get_counter(update.message.from_user.id)],
                                       reply_markup=dyn_markup)
@@ -696,7 +696,6 @@ class PillDora:
         self.set_query(user_id, ["user_id"], [str(user_id)])
         query = self.create_query(user_id)
         response = self.send_query(user_id, query)
-        print(response)
         return json.loads(response)["parameters"]
 
     def makeKeyboard(self, arg, user_id):
@@ -714,7 +713,7 @@ class PillDora:
         except:
             user_id = update.callback_query.from_user.id
         dict = self.list_of_current_cn(user_id)
-        if dict['Boolean'] != "False":
+        if 'Boolean' not in dict:
             dyn_markup = self.makeKeyboard(dict, user_id)
             update.message.reply_text(
                 "Introduce CN of the Medicine you want information about or choose it from the ones on your Current Treatment:",
@@ -739,7 +738,7 @@ class PillDora:
                 return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
             else:
                 update.message.reply_text(cima.get_info_about(medicine_cn))
-                update.message.reply_text(chat_id=user_id, text="Is there any other way I can help you? \U0001F914",
+                update.message.reply_text(text="Is there any other way I can help you? \U0001F914",
                                           reply_markup=markup)
                 return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
         except:
@@ -908,7 +907,7 @@ class PillDora:
         logger.info('User ' + self.get_name(update.message.from_user) + ' deleting reminder')
         user_id = update.message.from_user.id
         dict = self.list_of_current_cn(user_id)
-        if dict['Boolean'] != "False":
+        if 'Boolean' not in dict:
             dyn_markup = self.makeKeyboard(dict, user_id)
             update.message.reply_text('Choose medicine you want to delete from your current treatment:',
                                       reply_markup=dyn_markup)
