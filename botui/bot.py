@@ -215,7 +215,7 @@ class PillDora:
         :param context: Handler context
         :return: the new state to be on
         """
-        print(update.message.from.language_code)
+        print(update.message)
         user_id = update.message.from_user.id
         name = self.get_name(update.message.from_user)
         self.aide_bot[user_id] = {'states': [LOGIN, LOGIN], 'intr_prescription_counter': 0,
