@@ -353,7 +353,7 @@ class DBMethods:
             # there is the possibility of more than one columns of one CN
             data = db.query('''SELECT MIN(expiracy_date)
                             FROM aidebot.inventory 
-                            WHERE national_code >= '{cn}' and user_id={id}
+                            WHERE national_code = '{cn}' and user_id={id}
                             '''.format(cn=cn, id=user_id))
             if data[0][0] is not None:
                 exp_date = datetime.datetime.strftime(data[0][0], "%Y-%m-%d %H:%M:%S")
