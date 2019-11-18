@@ -913,8 +913,9 @@ class PillDora:
                                       reply_markup=dyn_markup)
             return self.set_state(user_id, CHECK_REM)
         else:
-            update.message.reply_text('Please Introduce CN of the Medicine you want to delete the reminder:')
-            return self.set_state(user_id, GET_CN)
+            update.message.reply_text('There is any pill in the current treatment, so any reminder can not be delete.')
+            update.message.reply_text(text="Is there any other way I can help you? \U0001F914", reply_markup=markup)
+            return self.set_state(user_id, CHOOSING)
 
     # Method that asks for a CN and prints all the information and asks about if it should be removed or not
     def get_medicine_CN(self, update, context):
