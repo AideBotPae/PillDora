@@ -10,7 +10,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     # Connect to server and send data
     sock.connect((HOST, PORT))
     query = {
-        'user_id': 'Pol',
+        'user_id': 1234,
         'function': 'CHECK USER',
         'parameters': {'user_id': 'Pol'}
     }
