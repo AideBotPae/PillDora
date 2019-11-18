@@ -738,7 +738,7 @@ class PillDora:
                 return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
             else:
                 update.message.reply_text(cima.get_info_about(medicine_cn))
-                update.message.reply_text(chat_id=user_id, text="Is there any other way I can help you? \U0001F914",
+                update.message.reply_text(text="Is there any other way I can help you? \U0001F914",
                                           reply_markup=markup)
                 return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
         except:
