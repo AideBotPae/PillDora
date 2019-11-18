@@ -10,9 +10,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     # Connect to server and send data
     sock.connect((HOST, PORT))
     query = {
-        'user_id': 1234,
+        'user_id': 1,
         'function': 'CHECK USER',
-        'parameters': {'user_id': 1234}
+        'parameters': {'user_id': 1}
     }
     query = json.dumps(query)
     sock.sendall(bytes(query, "utf-8"))
