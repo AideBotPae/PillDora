@@ -12,7 +12,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     query = {
         'user_id': 1234,
         'function': 'CHECK USER',
-        'parameters': {'user_id': 'Pol'}
+        'parameters': {'user_id': 1234}
     }
     query = json.dumps(query)
     sock.sendall(bytes(query, "utf-8"))

@@ -13,19 +13,17 @@ class MyThread(Thread):
 
     def run(self):
         while True:
-            try:
-                query = self.conn.recv(2048)
-                print(query)
-                user_id = json.loads(query)['user_id']
-                print(user_id)
+            query = self.conn.recv(2048)
+            if query == b'Exit':
+                break
+            print(query)
+            user_id = json.loads(query)['user_id']
+            print(user_id)
 
-                if self.server_worker is None:
-                    self.server_worker = ServerWorker(user_id)
+            if self.server_worker is None:
+                self.server_worker = ServerWorker(user_id)
 
-                self.conn.send(bytes(self.server_worker.handler_query(query), "utf-8"))
-
-            except json.decoder.JSONDecodeError:
-                print('ok')
+            self.conn.send(bytes(self.server_worker.handler_query(query), "utf-8"))
 
 
 if __name__ == "__main__":
