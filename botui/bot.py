@@ -215,7 +215,7 @@ class PillDora:
         :param context: Handler context
         :return: the new state to be on
         """
-        print(update.message.from_user.language_code)
+
         user_id = update.message.from_user.id
         name = self.get_name(update.message.from_user)
         self.aide_bot[user_id] = {'states': [LOGIN, LOGIN], 'intr_prescription_counter': 0,
@@ -227,7 +227,7 @@ class PillDora:
                                   'query': {},
                                   'reminder': {'cn': "None", 'time': 'None'},
                                   'serverworker': ServerWorker(user_id),
-                                  'language': 'eng'}
+                                  'language': update.message.from_user.language_code}
         logger.info('User ' + name + ' has connected to AideBot: ID is ' + str(user_id))
         message = update.message.text
         if str(message).startswith("/start"):
