@@ -207,15 +207,13 @@ class ServerWorker:
 
         elif instruction == "GET LIST":
             data = self.checker.getCNList(user_id)
-            print(data)
             if data is ():
-                info="False"
+                info="False}"
             else:
                 references={}
                 for item in data:
                     references[item[0]]=item[1]
                 info=json.dumps(references).replace('{','')
-            print(info)
             response=self.bot_parser(self.user_id, function="GET LIST") + info +'}'
 
         # IF WE SEND A WRONG QUERY, WE SEND THE INFORMATION LIKE THIS
