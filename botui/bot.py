@@ -696,6 +696,7 @@ class PillDora:
         self.set_query(user_id, ["user_id"], [str(user_id)])
         query = self.create_query(user_id)
         response = self.send_query(user_id, query)
+        print(response)
         return json.loads(response)["parameters"]
 
     def makeKeyboard(self, arg, user_id):
