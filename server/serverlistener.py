@@ -1,24 +1,41 @@
-import socketserver
+import socket
+import json
+from threading import Thread
+from server.serverworker import ServerWorker
 
 
-class MyTCPHandler(socketserver.StreamRequestHandler):
+class MyThread(Thread):
 
-    def handle(self):
-        # self.rfile is a file-like object created by the handler;
-        # we can now use e.g. readline() instead of raw recv() calls
-        self.data = self.rfile.readline().strip()
-        print("{} wrote:".format(self.client_address[0]))
-        print(self.data)
-        # Likewise, self.wfile is a file-like object used to write back
-        # to the client
-        self.wfile.write("hhhhhh")
+    def __init__(self, connection):
+        super().__init__()
+        self.conn = connection
+        self.server_worker = None
+
+    def run(self):
+        while True:
+            try:
+                query = self.conn.recv(2048)
+                print(query)
+                user_id = json.loads(query)['user_id']
+                print(user_id)
+
+                if self.server_worker is None:
+                    self.server_worker = ServerWorker(user_id)
+
+                self.conn.send(bytes(self.server_worker.handler_query(query), "utf-8"))
+
+            except json.decoder.JSONDecodeError:
+                print('ok')
 
 
 if __name__ == "__main__":
-    HOST, PORT = "localhost", 9091
+    HOST, PORT = "localhost", 9001
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind((HOST, PORT))
+    s.listen()
+    print("socket listening")
 
-    # Create the server, binding to localhost on port 9999
-    with socketserver.TCPServer((HOST, PORT), MyTCPHandler) as server:
-        # Activate the server; this will keep running until you
-        # interrupt the program with Ctrl-C
-        server.serve_forever()
+    while True:
+        conn, addr = s.accept()
+        MyThread(conn).start()
+    #s.close()
