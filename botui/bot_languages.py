@@ -304,10 +304,9 @@ class PillDora:
         self.bot.delete_message(chat_id=user_id, message_id=message_id - 1)
         self.bot.delete_message(chat_id=user_id, message_id=message_id)
         if self.pwd_verification(password, user_id) == "False":
-            update.message.reply_text("Wrong Password. Enter correct password again:")
+            update.message.reply_text(st.STR_INTR_PWD_WRONGPASS[self.get_language(user_id)])
             return self.set_state(user_id, LOGIN)
-        update.message.reply_text('How can I help you?',
-                                  reply_markup=markup)
+        update.message.reply_text(eval(st.STR_INTR_PWD_WELCOME[self.get_language(user_id)]))
         return self.set_state(user_id, CHOOSING)
 
     @run_async
@@ -346,13 +345,11 @@ class PillDora:
             self.set_query(user_id, ["new_password"], [password])
             query = self.create_query(user_id)
             self.send_query(user_id, query)
-            update.message.reply_text('Alright. Now you are ready! How can I help you?',
-                                      reply_markup=markup)
+            update.message.reply_text(eval(st.STR_NEW_USER_VALIDPASS[self.get_language(user_id)]))
             return self.set_state(update.message.from_user.id, CHOOSING)
 
         update.message.reply_text(
-            "Not a Valid Password. Enter Password with 6 to 12 characters and minimum 3 of these types of characters: "
-            "uppercase, lowercase, number and $, # or @")
+            st.STR_NEW_USER_NOTVALIDPASS[self.get_language(user_id)])
         return self.set_state(update.message.from_user.id, NEW_USER)
 
     def manage_response(self, update, context):

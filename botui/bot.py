@@ -227,7 +227,7 @@ class PillDora:
                                   'query': {},
                                   'reminder': {'cn': "None", 'time': 'None'},
                                   'serverworker': ServerWorker(user_id),
-                                  'language': update.message.from_user.language_code}
+                                  'language': self.define_language(update.message.from_user.language_code)}
         logger.info('User ' + name + ' has connected to AideBot: ID is ' + str(user_id))
         message = update.message.text
         if str(message).startswith("/start"):
@@ -247,7 +247,11 @@ class PillDora:
                                   text="Enter new password for creating your account.\U0001F510")
         return self.set_state(user_id, NEW_USER)
 
-
+    def define_language(self, language_code):
+        if language_code == 'es':
+            return 'esp'
+        else:
+            return 'esp'
     @staticmethod
     def get_name(user):
         """Resolve message data to a readable name.
