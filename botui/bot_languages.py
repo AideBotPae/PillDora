@@ -65,7 +65,7 @@ INTR_PILL_MSSGS = [
     "What is the medicine's name (CN)?\nChoose it from your current treatment, introduce it or you can also send me a photo of the package!",
     "How many pills have you taken?"]
 PILL_TAGS = ['NAME', 'QUANTITY']
-
+markup = {}
 markup['eng'] = ReplyKeyboardMarkup(st.reply_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
 markup['esp'] = ReplyKeyboardMarkup(st.reply_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
 # KEYBOARD AND MARKUPS
@@ -1072,7 +1072,7 @@ class PillDora:
     def main(self):
         # Create the Updater and pass it your bot's token.
         # Make sure to set use_context=True to use the new context based callbacks
-        updater = Updater(token=TOKEN_PILLDORA, use_context=True, workers=50)
+        updater = Updater(token=TOKEN_PROVE, use_context=True, workers=50)
         dp = updater.dispatcher
         conv_handler = ConversationHandler(
             allow_reentry=True,
@@ -1081,7 +1081,7 @@ class PillDora:
             states={
                 LOGIN: [MessageHandler(Filters.text, self.intr_pwd)],
                 NEW_USER: [MessageHandler(Filters.text, self.new_user)],
-                CHOOSING: [MessageHandler(Filters.regex('^New Prescription'),
+                CHOOSING: [MessageHandler(Filters.regex('^New Prescription')|Filters.regex('^Nueva receta'),
                                           self.intr_prescription),
                            MessageHandler(Filters.regex('^New Medicine'),
                                           self.intr_medicine),
