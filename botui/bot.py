@@ -248,10 +248,10 @@ class PillDora:
         return self.set_state(user_id, NEW_USER)
 
     def define_language(self, language_code):
-        if language_code == 'es':
+        if language_code == 'es' or language_code == 'ca':
             return 'esp'
         else:
-            return 'esp'
+            return 'eng'
     @staticmethod
     def get_name(user):
         """Resolve message data to a readable name.

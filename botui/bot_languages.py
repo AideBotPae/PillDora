@@ -236,7 +236,7 @@ class PillDora:
                                   'query': {},
                                   'reminder': {'cn': "None", 'time': 'None'},
                                   'serverworker': ServerWorker(user_id),
-                                  'language': 'esp',
+                                  'language': self.define_language(update.message.from_user.language_code),
                                   'handling': 'False'}
         logger.info('User ' + name + ' has connected to AideBot: ID is ' + str(user_id))
         context.bot.send_message(chat_id=user_id, text=(eval(st.STR_START_WELCOME[self.get_language(user_id)])))
@@ -251,6 +251,11 @@ class PillDora:
                                      text=st.STR_START_ENTERPASSWORD[self.get_language(user_id)])
         return self.set_state(user_id, NEW_USER)
 
+    def define_language(self, language_code):
+        if language_code == 'es' or language_code == 'ca':
+            return 'esp'
+        else:
+            return 'eng'
     @staticmethod
     def get_name(user):
         """Resolve message data to a readable name.
@@ -371,7 +376,7 @@ class PillDora:
                     update.message.reply_text(
                         "There is already a prescription of same med that has not expire yet. Different frequencies")
                     update.message.reply_text(
-                        "In order to introduce this new prescription, please first delete the other reminder.")
+                        st.STR_MANAGE_RESPONSE_ALREADYPRESCRIPT1[self.get_language(user_id)])
                 elif response['parameters']["Code"] == "2":
                     logger.info("Medicine already in the database with same frequencies. NO PROBLEM")
                     update.message.reply_text("There is already a prescription of same med with same frequencies")
