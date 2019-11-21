@@ -65,7 +65,7 @@ INTR_PILL_MSSGS = [
     "What is the medicine's name (CN)?\nChoose it from your current treatment, introduce it or you can also send me a photo of the package!",
     "How many pills have you taken?"]
 PILL_TAGS = ['NAME', 'QUANTITY']
-
+markup = {}
 markup['eng'] = ReplyKeyboardMarkup(st.reply_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
 markup['esp'] = ReplyKeyboardMarkup(st.reply_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
 # KEYBOARD AND MARKUPS
