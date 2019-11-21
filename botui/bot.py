@@ -580,7 +580,10 @@ class PillDora:
                 else:
                     self.set_medicine(user_id, self.get_counter(user_id), medicine_cn)
             else:
-                self.set_medicine(user_id, self.get_counter(user_id), update.message.text)
+                if self.valid_input(update.message.text):
+                    self.set_medicine(user_id, self.get_counter(user_id), update.message.text)
+                else:
+                    update.message.reply_text("Metacharacters entered, please introduce " +INTR_MEDICINE_MSSGS[self.get_counter(user_id)] +" correctly")
         except:
             user_id = update.callback_query.from_user.id
 
@@ -664,7 +667,11 @@ class PillDora:
                 else:
                     self.set_pill(user_id, self.get_counter(user_id), medicine_cn)
             else:
-                self.set_pill(user_id, self.get_counter(user_id), update.message.text)
+                if self.valid_input(update.message.text):
+                    self.set_pill(user_id, self.get_counter(user_id), update.message.text)
+                else:
+                    update.message.reply_text("Metacharacters entered, please introduce " +INTR_PILL_MSSGS[self.get_counter(user_id)] +" correctly")
+                
         except:
             user_id = update.callback_query.from_user.id
             self.set_pill(user_id, self.get_counter(user_id), update.callback_query.data)
