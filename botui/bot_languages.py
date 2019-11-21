@@ -66,14 +66,14 @@ INTR_PILL_MSSGS = [
     "How many pills have you taken?"]
 PILL_TAGS = ['NAME', 'QUANTITY']
 
-markup['eng'] = ReplyKeyboardMarkup(reply_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
-markup['esp'] = ReplyKeyboardMarkup(reply_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
+markup['eng'] = ReplyKeyboardMarkup(st.reply_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
+markup['esp'] = ReplyKeyboardMarkup(st.reply_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
 # KEYBOARD AND MARKUPS
-reply_keyboard = [
-    [u'New Prescription \U0001F4C3', u'New Medicine \U0001F48A'],
-    [u'Current Treatments \U0001F3E5', u'Delete reminder \U0001F514', u'Take Pill \U0001F48A'],
-    [u'History \U0001F4D6', u'Inventory \U00002696', u'Information \U0001F4AC'],
-    [u'Journey \U0000270D', u'Calendar \U0001F4C6', u'Exit \U0001F6AA']]
+# reply_keyboard = [
+#     [u'New Prescription \U0001F4C3', u'New Medicine \U0001F48A'],
+#     [u'Current Treatments \U0001F3E5', u'Delete reminder \U0001F514', u'Take Pill \U0001F48A'],
+#     [u'History \U0001F4D6', u'Inventory \U00002696', u'Information \U0001F4AC'],
+#     [u'Journey \U0000270D', u'Calendar \U0001F4C6', u'Exit \U0001F6AA']]
 yes_no_reply_keyboard = [['YES', 'NO']]
 taken_pill_keyboard = [['TAKEN', 'POSTPONE']]
 loc_button = KeyboardButton(text="Send Location", request_location=True)
