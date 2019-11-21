@@ -1081,7 +1081,7 @@ class PillDora:
             states={
                 LOGIN: [MessageHandler(Filters.text, self.intr_pwd)],
                 NEW_USER: [MessageHandler(Filters.text, self.new_user)],
-                CHOOSING: [MessageHandler(Filters.regex('^New Prescription'),
+                CHOOSING: [MessageHandler(Filters.regex('^New Prescription')|Filters.regex('^Nueva receta'),
                                           self.intr_prescription),
                            MessageHandler(Filters.regex('^New Medicine'),
                                           self.intr_medicine),
