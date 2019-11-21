@@ -26,12 +26,13 @@ INTR_MEDICINE_MSSGS ={
 reply_keyboard ={
 
 'eng' : [
-    [u'New Prescription \U0001F4C3', u'New Medicine \U0001F48A'],
-    [u'Current Treatments \U0001F3E5', u'Delete reminder \U0001F514'],
-    [u'History \U0001F4D6', u'Inventory \U00002696', u'Information \U0001F4AC'],
-    [u'Journey \U0000270D', u'Calendar \U0001F4C6',  u'Exit \U0001F6AA']] ,
-'esp':[ [u'Nueva receta \U0001F4C3', u'Nuevo medicamento \U0001F48A'],
-    [u'Tratamientos actuales \U0001F3E5', u'Eliminar recordatorio \U0001F514'],
+    [
+        [u'New Prescription \U0001F4C3', u'New Medicine \U0001F48A'],
+        [u'Current Treatments \U0001F3E5', u'Delete reminder \U0001F514', u'Take Pill \U0001F48A'],
+        [u'History \U0001F4D6', u'Inventory \U00002696', u'Information \U0001F4AC'],
+        [u'Journey \U0000270D', u'Calendar \U0001F4C6', u'Exit \U0001F6AA']],
+'esp':[ [u'Nueva Receta \U0001F4C3', u'Nuevo Medicamento \U0001F48A'],
+    [u'Tratamientos ctuales \U0001F3E5', u'Eliminar Recordatorio \U0001F514', u'Tomar Pastilla \U0001F48A'],
     [u'Historial \U0001F4D6', u'Inventorio \U00002696', u'Información \U0001F4AC'],
     [u'Viaje \U0000270D', u'Calendario \U0001F4C6',  u'Salir \U0001F6AA']]
 }
@@ -88,7 +89,7 @@ STR_INTR_PWD_HELPYOU = {
 }
 STR_NEW_USER_VALIDPASS= {
     'eng': 'Alright. Now you are ready! How can I help you?',
-    'esp': 'Perfecto, ya estamos listos! ¿Cómo te puedo ayudar?, reply_markup=markup'
+    'esp': 'Perfecto, ya estamos listos! ¿Cómo te puedo ayudar?'
 }
 STR_NEW_USER_NOTVALIDPASS = {
     'eng': "Not a Valid Password. Enter Password with 6 to 12 characters and minimum 3 of these types of characters: uppercase, lowercase, number and $, # or @",
@@ -117,7 +118,7 @@ STR_MANAGE_RESPONSE_EMPTYINVENTORY = {
     'esp': "En el inventorio no tenemos este medicamento. Por favor, usa la opcion 'Introduce Medicine' cuando la hayas probado "
 }
 
-STR_MANAGE_RESPONSE_FULLNIVENTORY = {
+STR_MANAGE_RESPONSE_FULLINVENTORY = {
     'eng': "In your inventory there is enough of this medicine for this whole treatment. No need to buy it.",
     'esp': "En el inventorio hay suficientes pastillas para todo el tratamiento. No hace falta comprar "
 }
@@ -137,9 +138,9 @@ STR_MANAGE_RESPONSE_JOURNEY = {
     'esp': "'Medicamentos a llevar durante el viaje:\n + response['parameters']['journey_info']"
 }
 
-STR_MANAGERESPONSE_TAKEPILL1 = {
-    'eng': "chat_id=user_id, text='Pills taken correctly introduced in the history'",
-    'esp': "chat_id=user_id, text= 'Pastillas introducidas correctamente en el historial"
+STR_MANAGE_RESPONSE_TAKEPILL1 = {
+    'eng': "Pills taken correctly introduced in the history",
+    'esp': "Pastillas introducidas correctamente en el historial"
 }
 
 STR_MANAGE_RESPONSE_TAKEPILL0 = {
@@ -148,8 +149,8 @@ STR_MANAGE_RESPONSE_TAKEPILL0 = {
 }
 
 STR_MANAGE_RESPONSE_END = {
-    'eng': "'Is there any other way I can help you?', reply_markup=markup",
-    'esp': "'¿Puedo ayudarte de alguna otra manera?', reply_markup= markup"
+    'eng': "Is there any other way I can help you?",
+    'esp': "¿Puedo ayudarte de alguna otra manera?"
 }
 
 

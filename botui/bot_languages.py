@@ -255,10 +255,8 @@ class PillDora:
 
     def define_language(self, language_code):
         if language_code == 'es' or language_code == 'ca':
-            print('ESPANYOOOOOOL')
             return 'esp'
         else:
-            print('INGLEEEEEEEEES')
             return 'eng'
     @staticmethod
     def get_name(user):
@@ -354,7 +352,7 @@ class PillDora:
             self.set_query(user_id, ["new_password"], [password])
             query = self.create_query(user_id)
             self.send_query(user_id, query)
-            update.message.reply_text(eval(st.STR_NEW_USER_VALIDPASS[self.get_language(user_id)]))
+            update.message.reply_text(st.STR_NEW_USER_VALIDPASS[self.get_language(user_id)], reply_markup = markup[self.get_language(user_id)])
             return self.set_state(update.message.from_user.id, CHOOSING)
 
         update.message.reply_text(
@@ -378,25 +376,17 @@ class PillDora:
                 elif response['parameters']["Code"] == "1":
                     logger.info("Medicine already in the database with different frequencies. PROBLEM")
                     update.message.reply_text(
-                        "There is already a prescription of same med that has not expire yet. Different frequencies")
-                    update.message.reply_text(
                         st.STR_MANAGE_RESPONSE_ALREADYPRESCRIPT1[self.get_language(user_id)])
                 elif response['parameters']["Code"] == "2":
                     logger.info("Medicine already in the database with same frequencies. NO PROBLEM")
-                    update.message.reply_text("There is already a prescription of same med with same frequencies")
+                    update.message.reply_text(st.STR_MANAGE_RESPONSE_ALREADYPRESCRIPT2[self.get_language(user_id)])
                 if response['parameters']['inventory'] == "None":
-                    update.message.reply_text(
-                        "In your inventory we do not have any of this medicine. Please 'Introduce Medicine' after "
-                        "getting the med")
+                    update.message.reply_text(st.STR_MANAGE_RESPONSE_EMPTYINVENTORY[self.get_language(user_id)])
                     return self.show_location(user_id=user_id)
                 elif response['parameters']['inventory'] == "Enough":
-                    update.message.reply_text(
-                        "In your inventory there is enough of this medicine for this whole treatment. No need to buy "
-                        "it.")
+                    update.message.reply_text(st.STR_MANAGE_RESPONSE_FULLINVENTORY[self.get_language(user_id)])
                 elif response['parameters']['inventory'] == "Need to buy":
-                    update.message.reply_text(
-                        "In your inventory there is some of this medicine but not enough for the whole treatment. "
-                        "Need to buy it.")
+                    update.message.reply_text(st.STR_MANAGE_RESPONSE_BUYINVENTORY)
                     return self.show_location(user_id=user_id)
 
             elif response['function'] == 'INTRODUCE MEDICINE':
@@ -408,30 +398,30 @@ class PillDora:
                     logger.info("Medicine correctly deleted")
                 else:
                     logger.info("Medicine not deleted as did not exist in the database")
-                    update.message.reply_text("Medicine introduced did not exist in your current Treatment.")
+                    update.message.reply_text(st.STR_MANAGE_RESPONSE_DELETEREMINDER[self.get_language(user_id)])
                     self.delete_reminder()
                     return self.set_state(update.message.from_user.id, CHOOSING)
 
             elif response['function'] == "JOURNEY":
                 logger.info("Medicines to take during journey correctly retrieved")
                 update.message.reply_text(
-                    "Medicines to take during journey:\n" + response['parameters']["journey_info"])
+                    eval(st.STR_MANAGE_RESPONSE_JOURNEY[self.get_language(user_id)]))
 
             elif response['function'] == "TAKE PILL":
                 logger.info("Pills taken correctly introduced to history")
                 if response['parameters']["Code"] == "1":
                     logger.info("Pill taken correctly introduced")
-                    self.bot.send_message(chat_id=user_id, text="Pills taken correctly introduced in the history")
+                    self.bot.send_message(chat_id=user_id, text=st.STR_MANAGE_RESPONSE_TAKEPILL1[self.get_language(user_id)])
                 elif response['parameters']["Code"] == "0":
                     logger.info("Pill taken correctly introduced. However, no inventory for these pills.")
                     self.bot.send_message(chat_id=user_id,
-                                          text="Pills taken correctly introduced in the history. However, there is no record of these pills in the inventory. Please introduce them")
+                                          text=st.STR_MANAGE_RESPONSE_TAKEPILL0[self.get_language(user_id)])
                     return self.show_location(user_id)
 
         self.set_query(user_id, ["None"], ["None"])
         self.set_function(user_id, "None")
         logger.info('User ' + self.get_name(update.message.from_user) + ' in the menu')
-        update.message.reply_text("Is there any other way I can help you?", reply_markup=markup)
+        update.message.reply_text(st.STR_MANAGE_RESPONSE_END[self.get_language(user_id)], reply_markup=markup[self.get_language(user_id)])
         return self.set_state(update.message.from_user.id, CHOOSING)
 
     @run_async
@@ -1081,64 +1071,64 @@ class PillDora:
             states={
                 LOGIN: [MessageHandler(Filters.text, self.intr_pwd)],
                 NEW_USER: [MessageHandler(Filters.text, self.new_user)],
-                CHOOSING: [MessageHandler(Filters.regex('^New Prescription')|Filters.regex('^Nueva receta'),
+                CHOOSING: [MessageHandler(Filters.regex('^New Prescription')|Filters.regex('^Nueva Receta'),
                                           self.intr_prescription),
-                           MessageHandler(Filters.regex('^New Medicine'),
+                           MessageHandler(Filters.regex('^New Medicine')|Filters.regex('^Nuevo Medicamento'),
                                           self.intr_medicine),
-                           MessageHandler(Filters.regex('^Take Pill'),
+                           MessageHandler(Filters.regex('^Take Pill')|Filters.regex('^Tomar Pastilla'),
                                           self.take_pill),
-                           MessageHandler(Filters.regex('^Calendar'),
+                           MessageHandler(Filters.regex('^Calendar')|Filters.regex('^Calendario'),
                                           self.see_calendar),
-                           MessageHandler(Filters.regex('^Current Treatment'),
+                           MessageHandler(Filters.regex('^Current Treatment')|Filters.regex('^Tratamientos Actuales'),
                                           self.see_currentTreatment),
-                           MessageHandler(Filters.regex('^History'),
+                           MessageHandler(Filters.regex('^History')|Filters.regex('^Historial'),
                                           self.see_history),
-                           MessageHandler(Filters.regex('^Inventory'),
+                           MessageHandler(Filters.regex('^Inventory')|Filters.regex('^Inventorio'),
                                           self.see_inventory),
-                           MessageHandler(Filters.regex('^Information'),
+                           MessageHandler(Filters.regex('^Information'|Filters.regex('^Información')),
                                           self.show_information),
-                           MessageHandler(Filters.regex('^Delete reminder'),
+                           MessageHandler(Filters.regex('^Delete reminder')|Filters.regex('^Eliminar Recordatorio'),
                                           self.delete_reminder),
-                           MessageHandler(Filters.regex('^Journey'),
+                           MessageHandler(Filters.regex('^Journey')|Filters.regex('^Viaje'),
                                           self.create_journey),
-                           MessageHandler(Filters.regex('^Exit'), self.exit)
+                           MessageHandler(Filters.regex('^Exit')|Filters.regex('^Salir'), self.exit)
                            ],
-                INTR_PRESCRIPTION: [MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu),
+                INTR_PRESCRIPTION: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
                                     MessageHandler(Filters.text | Filters.photo, self.send_new_prescription)],
-                INTR_MEDICINE: [MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu),
+                INTR_MEDICINE: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
                                 MessageHandler(Filters.text | Filters.photo, self.send_new_medicine)],
-                TAKE_PILL: [MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu),
+                TAKE_PILL: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
                             MessageHandler(Filters.text | Filters.photo, self.send_new_pill)],
-                SHOW_INFORMATION: [MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu),
+                SHOW_INFORMATION: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
                                    MessageHandler(Filters.text | Filters.photo, self.show_infoAbout)],
-                LOCATION: [MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu),
+                LOCATION: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
                             MessageHandler(Filters.location, self.print_location),
                            MessageHandler(Filters.regex("^Don't Send Location"), self.manage_response)],
-                CHECK_PRE: [MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu),
+                CHECK_PRE: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
                             MessageHandler(Filters.regex('^YES$'), self.manage_response),
                             MessageHandler(Filters.regex('^NO$'), self.intr_prescription)],
-                CHECK_MED: [MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu),
+                CHECK_MED: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
                             MessageHandler(Filters.regex('^YES$'), self.manage_response),
                             MessageHandler(Filters.regex('^NO$'), self.intr_medicine)],
-                CHECK_REM: [MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu),
+                CHECK_REM: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
                             MessageHandler(Filters.regex('^YES$'), self.manage_response),
                             MessageHandler(Filters.regex('^NO$'), self.delete_reminder)],
-                CHECK_PILL: [MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu),
+                CHECK_PILL: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
                              MessageHandler(Filters.regex('^YES$'), self.verificate_pill),
                              MessageHandler(Filters.regex('^NO$'), self.take_pill)],
-                CHECK_PILL_PHOTO: [MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu),
+                CHECK_PILL_PHOTO: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
                                    MessageHandler(Filters.photo, self.manage_response),
                                    MessageHandler(Filters.regex('^NO$'), self.delete_reminder)],
-                GET_CN: [MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu),
+                GET_CN: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
                          MessageHandler(Filters.text, self.get_medicine_CN)],
-                JOURNEY: [MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu),
+                JOURNEY: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
                           MessageHandler(Filters.regex('^YES$'), self.manage_response),
                           MessageHandler(Filters.regex('^NO$'), self.create_journey)],
                 END: [MessageHandler(Filters.regex('^TAKEN'), self.intr_history_yes),
                       MessageHandler(Filters.regex('^POSTPONE'), self.intr_history_no)
                       ]
             },
-            fallbacks=[MessageHandler(Filters.regex('^Exit$'), self.exit)]
+            fallbacks=[MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.exit)]
         )
 
         dp.add_handler(conv_handler)
