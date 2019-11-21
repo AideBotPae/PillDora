@@ -1,6 +1,6 @@
 import threading
 
-from botui.bot_languages import PillDora
+from botui.bot import PillDora
 from server.reminders import Reminder
 
 
