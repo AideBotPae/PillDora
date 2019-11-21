@@ -643,7 +643,7 @@ class PillDora:
 
                 if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
                     update.message.reply_text(
-                        "An error has occurred, please repeat the photo or manually introduce the CN")
+                        st.STR_SEND_NEW_PILL_ERROR[self.get_language(user_id)])
                     return TAKE_PILL
                 else:
                     self.set_pill(user_id, self.get_counter(user_id), medicine_cn)
@@ -660,7 +660,7 @@ class PillDora:
         else:
             self.set_counter(user_id, 0)
             context.bot.send_message(chat_id=user_id,
-                                     text='Is the pill taken correctly introduced? ', reply_markup=yes_no_markup)
+                                     text=st.STR_SEND_NEW_PILL_ISTAKENCORRECTLY[self.get_language(user_id)], reply_markup=yes_no_markup)
             context.bot.send_message(chat_id=user_id,
                                      text=self.show_pill(user_id), parse_mode=telegram.ParseMode.MARKDOWN)
             self.set_query(user_id, list(self.get_pill(user_id).keys()), list(self.get_pill(user_id).values()))

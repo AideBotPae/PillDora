@@ -210,8 +210,8 @@ STR_SHOW_MEDICINE_ELDIA={
 STR_SEND_NEW_PILL_ERROR = STR_SEND_NEW_MEDICINE_ERROR
 
 STR_SEND_NEW_PILL_ISTAKENCORRECTLY = {
-    'eng': "chat_id=user_id, text='Is the pill taken correctly introduced? ', reply_markup=yes_no_markup",
-    'esp': "chat_id=user_id, text='¿Se ha introducido correctamente la pastilla tomada? ', reply_markup=yes_no_markup"
+    'eng': "Is the pill taken correctly introduced?",
+    'esp': "¿Se ha introducido correctamente la pastilla tomada?"
 }
 
 STR_SHOW_PILL= {
