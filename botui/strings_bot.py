@@ -82,7 +82,10 @@ STR_INTR_PWD_WELCOME = {
 'esp': "'Bienvenido ' self.get_name(update.message.from_user) + '. ¿Cómo te puedo ayudar?', reply_markup = markup"
 }
 
-
+STR_INTR_PWD_HELPYOU = {
+    'eng' : "'How can I help you? \U0001F914', reply_markup=markup",
+    'esp' : "'¿Cómo puedo ayudarte? \U0001F914', reply_markup=markup"
+}
 STR_NEW_USER_VALIDPASS= {
     'eng': 'Alright. Now you are ready! How can I help you?',
     'esp': 'Perfecto, ya estamos listos! ¿Cómo te puedo ayudar?, reply_markup=markup'

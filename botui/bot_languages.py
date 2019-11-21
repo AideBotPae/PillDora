@@ -311,7 +311,7 @@ class PillDora:
         if self.pwd_verification(password, user_id) == "False":
             update.message.reply_text(st.STR_INTR_PWD_WRONGPASS[self.get_language(user_id)])
             return self.set_state(user_id, LOGIN)
-        update.message.reply_text(eval(st.STR_INTR_PWD_WELCOME[self.get_language(user_id)]))
+        update.message.reply_text(eval(st.STR_INTR_PWD_HELPYOU[self.get_language(user_id)]))
         return self.set_state(user_id, CHOOSING)
 
     @run_async
