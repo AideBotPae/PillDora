@@ -255,8 +255,10 @@ class PillDora:
 
     def define_language(self, language_code):
         if language_code == 'es' or language_code == 'ca':
+            print('ESPANYOOOOOOL')
             return 'esp'
         else:
+            print('INGLEEEEEEEEES')
             return 'eng'
     @staticmethod
     def get_name(user):
