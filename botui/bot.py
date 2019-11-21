@@ -227,7 +227,7 @@ class PillDora:
                                   'query': {},
                                   'reminder': {'cn': "None", 'time': 'None'},
                                   'serverworker': ServerWorker(user_id),
-                                  'language': self.define_language(update.message.from_user.language_code)}
+                                  'language': update.message.from_user.language_code}
         logger.info('User ' + name + ' has connected to AideBot: ID is ' + str(user_id))
         message = update.message.text
         if str(message).startswith("/start"):
@@ -247,11 +247,7 @@ class PillDora:
                                   text="Enter new password for creating your account.\U0001F510")
         return self.set_state(user_id, NEW_USER)
 
-    def define_language(self, language_code):
-        if language_code == 'es' or language_code == 'ca':
-            return 'esp'
-        else:
-            return 'eng'
+
     @staticmethod
     def get_name(user):
         """Resolve message data to a readable name.
@@ -706,6 +702,8 @@ class PillDora:
         lista = []
         for key in arg:
             lista.append([InlineKeyboardButton(text=arg[key], callback_data=key)])
+        if self.get_states(user_id)[0]==SHOW_INFORMATION:
+            lista.append([InlineKeyboardButton(text='Others', callback_data='Others')])
         dyn_markup = InlineKeyboardMarkup(lista)
         return dyn_markup
 
@@ -716,17 +714,17 @@ class PillDora:
             user_id = update.message.from_user.id
         except:
             user_id = update.callback_query.from_user.id
+        self.set_state(user_id=user_id, state=SHOW_INFORMATION)
         dict = self.list_of_current_cn(user_id)
         if 'Boolean' not in dict:
             dyn_markup = self.makeKeyboard(dict, user_id)
             update.message.reply_text(
-                "Introduce CN of the Medicine you want information about or choose it from the ones on your Current Treatment:",
+                "Choose medicine you want information about from the ones on your Current Treatment:",
                 reply_markup=dyn_markup)
-            self.set_state(user_id=user_id, state=SHOW_INFORMATION)
             return self.set_state(user_id=user_id, state=CHOOSING)
         else:
             update.message.reply_text("Introduce CN of the Medicine you want information about:")
-            return self.set_state(user_id=user_id, state=SHOW_INFORMATION)
+            return SHOW_INFORMATION
 
     def show_infoAbout(self, update, context):
         try:
@@ -792,7 +790,11 @@ class PillDora:
         if self.get_states(user_id)[0] == TAKE_PILL:
             self.send_new_pill(update, context)
         elif self.get_states(user_id)[0] == CHOOSING and self.get_states(user_id)[1] == SHOW_INFORMATION:
-            self.show_infoAbout(update, context)
+            medicine_cn = update.callback_query.data
+            if medicine_cn == "Others":
+                self.bot.send_message(chat_id=user_id, text="Please Introduce CN of medicine you want information about, or take a photo of it? \U0001F48A")
+            else:
+                self.show_infoAbout(update, context)
         elif self.get_states(user_id)[0] == CHECK_REM:
             self.get_medicine_CN(update, context)
         elif self.get_states(user_id)[0] == END or self.get_states(user_id)[0] == REMINDERS:
@@ -1112,7 +1114,9 @@ class PillDora:
                                           self.delete_reminder),
                            MessageHandler(Filters.regex('^Journey'),
                                           self.create_journey),
-                           MessageHandler(Filters.regex('^Exit'), self.exit)
+                           MessageHandler(Filters.regex('^Exit'), self.exit),
+                           MessageHandler(Filters.text | Filters.photo, self.show_infoAbout)
+
                            ],
                 INTR_PRESCRIPTION: [MessageHandler(Filters.regex('^Exit$'), self.getToTheMenu),
                                     MessageHandler(Filters.text | Filters.photo, self.send_new_prescription)],
