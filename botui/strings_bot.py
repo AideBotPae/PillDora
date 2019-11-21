@@ -161,8 +161,8 @@ STR_SEND_NEW_PRESCRIPTION_ERROR = {
 }
 
 STR_SEND_NEW_PRESCRIPTION_ISCORRECT = {
-    'eng': "chat_id=user_id, text='Is the medicine correctly introduced? ', reply_markup=yes_no_markup",
-    'esp': "chat_id=user_id, text='¿Está introducida correctamente?, reply_markup=yes_no_markup"
+    'eng': "Is the medicine correctly introduced?",
+    'esp': "¿Está introducida correctamente?"
 }
 
 
@@ -188,8 +188,8 @@ STR_SEND_NEW_MEDICINE_ERROR =  {
 }
 
 STR_SEND_NEW_MEDICINE_ISCORRECT = {
-    'eng': "chat_id=user_id, text='Is the medicine correctly introduced? ', reply_markup=yes_no_markup",
-    'esp': "chat_id=user_id, text='¿Está introducida correctamente?, reply_markup=yes_no_markup"
+    'eng': "Is the medicine correctly introduced?",
+    'esp': "¿Está introducida correctamente?"
 }
 
 STR_SHOW_MEDICINE_INITIALSTRING = {

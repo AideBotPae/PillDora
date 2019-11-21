@@ -454,7 +454,7 @@ class PillDora:
 
                 if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
                     update.message.reply_text(
-                        "An error has occurred, please repeat the photo or manually introduce the CN")
+                        st.STR_SEND_NEW_PRESCRIPTION_ERROR[self.get_language(user_id)])
                     return INTR_PRESCRIPTION
                 else:
                     self.set_prescription(user_id, self.get_counter(user_id), medicine_cn)
@@ -481,7 +481,7 @@ class PillDora:
             b = list(self.get_prescription(user_id).values())
             b.append(cima.get_med_name(self.get_prescription(user_id)['NAME']))
             context.bot.send_message(chat_id=user_id,
-                                     text='Is the medicine correctly introduced? ', reply_markup=yes_no_markup)
+                                     text=st.STR_SEND_NEW_PRESCRIPTION_ISCORRECT, reply_markup=yes_no_markup)
             context.bot.send_message(chat_id=user_id,
                                      text=self.show_prescription(user_id), parse_mode=telegram.ParseMode.MARKDOWN)
 
@@ -526,15 +526,13 @@ class PillDora:
         return res == int(validation_number)
 
     def show_prescription(self, user_id):
-        med_str = "You have to take *" + self.get_prescription(user_id)['QUANTITY'] + "* pills of medicine *" + \
-                  cima.get_med_name(self.get_prescription(user_id)['NAME']).split(' ')[0] + "* each *" + \
-                  self.get_prescription(user_id)['FREQUENCY'] + "* hours"
+        med_str = eval(st.STR_SHOW_PRESCRIPTION_MEDSTR[self.get_language(user_id)])
 
         date_str = self.get_prescription(user_id)['END_DATE']
         if date_str == MAX_DATE:
-            med_str += " *chronically*!"
+            med_str += st.STR_SHOW_PRESCRIPTION_CHRONIC[self.get_language(user_id)]
         else:
-            med_str += " until the end date of *" + date_str + "* !"
+            med_str += eval(STR_SHOW_PRESCRIPTION_UNTIL[self.get_language(user_id)])
         return med_str
 
     @run_async
@@ -567,7 +565,7 @@ class PillDora:
 
                 if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
                     update.message.reply_text(
-                        "An error has occurred, please repeat the photo or manually introduce the CN")
+                        st.STR_SNED_NEW_MEDICINE_ERROR[self.get_language(user_id)])
                     return INTR_MEDICINE
                 else:
                     self.set_medicine(user_id, self.get_counter(user_id), medicine_cn)
@@ -590,7 +588,7 @@ class PillDora:
         else:
             self.set_counter(user_id, 0)
             context.bot.send_message(chat_id=user_id,
-                                     text='Is the medicine correctly introduced? ', reply_markup=yes_no_markup)
+                                     text=st.STR_SEND_NEW_MEDICINE_ISCORRECT, reply_markup=yes_no_markup)
             context.bot.send_message(chat_id=user_id,
                                      text=self.show_medicine(user_id), parse_mode=telegram.ParseMode.MARKDOWN)
             self.set_query(user_id, list(self.get_medicine(user_id).keys()), list(self.get_medicine(user_id).values()))
@@ -598,14 +596,13 @@ class PillDora:
             return self.set_state(user_id, CHECK_MED)
 
     def show_medicine(self, user_id):
-        med_str = "Introducing *" + self.get_medicine(user_id)['QUANTITY'] + "* pills of medicine *" + \
-                  cima.get_med_name(self.get_medicine(user_id)['NAME']).split(' ')[0] + "* which "
+        med_str = st.STR_SHOW_MEDICINE_INITIALSTRING[self.get_language(user_id)]
 
         date_str = self.get_medicine(user_id)['EXP_DATE']
         if date_str == MAX_DATE:
-            med_str += "*never expire*!"
+            med_str += st.STR_SHOW_MEDICINE_NOCADUCA[self.get_language(user_id)]
         else:
-            med_str += " expire on day *" + date_str + "* !"
+            med_str += st.STR_SHOW_MEDICINE_ELDIA[self.get_language(user_id)]
         return med_str
 
     @run_async
