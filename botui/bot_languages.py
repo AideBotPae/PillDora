@@ -1085,7 +1085,7 @@ class PillDora:
                                           self.see_history),
                            MessageHandler(Filters.regex('^Inventory')|Filters.regex('^Inventorio'),
                                           self.see_inventory),
-                           MessageHandler(Filters.regex('^Information'|Filters.regex('^Información')),
+                           MessageHandler(Filters.regex('^Information')|Filters.regex('^Información'),
                                           self.show_information),
                            MessageHandler(Filters.regex('^Delete reminder')|Filters.regex('^Eliminar Recordatorio'),
                                           self.delete_reminder),
