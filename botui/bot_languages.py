@@ -1062,7 +1062,7 @@ class PillDora:
     def main(self):
         # Create the Updater and pass it your bot's token.
         # Make sure to set use_context=True to use the new context based callbacks
-        updater = Updater(token=TOKEN_PILLDORA, use_context=True, workers=50)
+        updater = Updater(token=TOKEN_PROVE, use_context=True, workers=50)
         dp = updater.dispatcher
         conv_handler = ConversationHandler(
             allow_reentry=True,
