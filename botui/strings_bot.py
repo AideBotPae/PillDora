@@ -78,8 +78,8 @@ STR_INTR_PWD_WRONGPASS = {
 }
 
 STR_INTR_PWD_WELCOME = {
-'eng': "'Welcome ' + self.get_name(update.message.from_user) + '. How can I help you?',reply_markup=markup",
-'esp': "'Bienvenido ' self.get_name(update.message.from_user) + '. ¿Cómo te puedo ayudar?',reply_markup=markup"
+'eng': "'Welcome ' + self.get_name(update.message.from_user) + '. How can I help you?', reply_markup = markup",
+'esp': "'Bienvenido ' self.get_name(update.message.from_user) + '. ¿Cómo te puedo ayudar?', reply_markup = markup"
 }
 
 
