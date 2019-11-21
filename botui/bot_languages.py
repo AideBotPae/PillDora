@@ -318,7 +318,7 @@ class PillDora:
 
     @run_async
     def new_user(self, update, context):
-        """ Function used to create user account --> associates a UserID with a new password.
+        """ Function used to create user account --> associates a UserID with a new password.pu
 
         :param update: Updater for bot token
         :param context: Handler's context
