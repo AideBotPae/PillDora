@@ -511,6 +511,7 @@ class PillDora:
 
     @staticmethod
     def split_code(cn):
+        print(type(cn))
         if '.' in cn:
             return cn.split('.')[0], cn.split('.')[-1]
         elif len(cn) == 7:
