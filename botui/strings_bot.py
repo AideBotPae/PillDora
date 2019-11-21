@@ -83,8 +83,8 @@ STR_INTR_PWD_WELCOME = {
 }
 
 STR_INTR_PWD_HELPYOU = {
-    'eng' : "'How can I help you? \U0001F914', reply_markup=markup",
-    'esp' : "'¿Cómo puedo ayudarte? \U0001F914', reply_markup=markup"
+    'eng' : "How can I help you? \U0001F914",
+    'esp' : "¿Cómo puedo ayudarte? \U0001F914"
 }
 STR_NEW_USER_VALIDPASS= {
     'eng': 'Alright. Now you are ready! How can I help you?',

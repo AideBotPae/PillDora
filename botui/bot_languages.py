@@ -66,6 +66,8 @@ INTR_PILL_MSSGS = [
     "How many pills have you taken?"]
 PILL_TAGS = ['NAME', 'QUANTITY']
 
+markup['eng'] = ReplyKeyboardMarkup(reply_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
+markup['esp'] = ReplyKeyboardMarkup(reply_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
 # KEYBOARD AND MARKUPS
 reply_keyboard = [
     [u'New Prescription \U0001F4C3', u'New Medicine \U0001F48A'],
@@ -77,7 +79,7 @@ taken_pill_keyboard = [['TAKEN', 'POSTPONE']]
 loc_button = KeyboardButton(text="Send Location", request_location=True)
 location_keyboard = [[loc_button, "Don't Send Location"]]
 
-markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
+# markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 taken_pill_markup = ReplyKeyboardMarkup(taken_pill_keyboard, one_time_keyboard=True, resize_keyboard=True)
 loc_markup = ReplyKeyboardMarkup(location_keyboard, one_time_keyboard=True, resize_keyboard=True)
@@ -311,7 +313,7 @@ class PillDora:
         if self.pwd_verification(password, user_id) == "False":
             update.message.reply_text(st.STR_INTR_PWD_WRONGPASS[self.get_language(user_id)])
             return self.set_state(user_id, LOGIN)
-        update.message.reply_text(eval(st.STR_INTR_PWD_HELPYOU[self.get_language(user_id)]))
+        update.message.reply_text(st.STR_INTR_PWD_HELPYOU[self.get_language(user_id)], reply_markup = markup[self.get_language(user_id)])
         return self.set_state(user_id, CHOOSING)
 
     @run_async

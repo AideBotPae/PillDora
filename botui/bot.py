@@ -251,9 +251,6 @@ class PillDora:
         if language_code == 'es' or language_code == 'ca':
             return 'esp'
         else:
-            return 'eng'
-    @staticmethod
-    def get_name(user):
         """Resolve message data to a readable name.
 
         :param user: User identifier
