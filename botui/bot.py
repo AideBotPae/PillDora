@@ -451,7 +451,12 @@ class PillDora:
                 if update.message.photo:  # If user sent a photo, we apply
                     medicine_cn, validation_num = self.handle_pic(update, context, user_id)
                 else:
-                    medicine_cn, validation_num = self.split_code(update.message.text)
+                    if self.valid_input(update.message.text):
+                        medicine_cn, validation_num = self.split_code(update.message.text)
+                    else:
+                        update.message.reply_text(
+                            "Metacharacters entered, please repeat the photo or manually introduce the CN correctly")
+                        return INTR_PRESCRIPTION
 
                 if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
                     update.message.reply_text(
@@ -460,7 +465,11 @@ class PillDora:
                 else:
                     self.set_prescription(user_id, self.get_counter(user_id), medicine_cn)
             else:
-                self.set_prescription(user_id, self.get_counter(user_id), update.message.text)
+                if self.valid_input(update.message.text):
+                    self.set_prescription(user_id, self.get_counter(user_id), update.message.text)
+                else:
+                    update.message.reply_text("Metacharacters entered, please introduce " +INTR_PRESCRIPTION_MSSGS[self.get_counter(user_id)] +" correctly")
+                
         except:
             user_id = update.callback_query.from_user.id
 
@@ -671,7 +680,7 @@ class PillDora:
                     self.set_pill(user_id, self.get_counter(user_id), update.message.text)
                 else:
                     update.message.reply_text("Metacharacters entered, please introduce " +INTR_PILL_MSSGS[self.get_counter(user_id)] +" correctly")
-                
+
         except:
             user_id = update.callback_query.from_user.id
             self.set_pill(user_id, self.get_counter(user_id), update.callback_query.data)
