@@ -25,7 +25,7 @@ INTR_MEDICINE_MSSGS ={
 
 reply_keyboard ={
 
-'eng' : [
+'eng' : 
     [
         [u'New Prescription \U0001F4C3', u'New Medicine \U0001F48A'],
         [u'Current Treatments \U0001F3E5', u'Delete reminder \U0001F514', u'Take Pill \U0001F48A'],
