@@ -511,13 +511,15 @@ class PillDora:
 
     @staticmethod
     def split_code(cn):
-        print(type(cn))
         if '.' in cn:
             return cn.split('.')[0], cn.split('.')[-1]
         elif len(cn) == 7:
             return cn[:6], cn[6]
         else:
             return 'error', 'error'
+
+    def valid_input(self, text):
+        return not ("'" in text or '"' in text or '*' in text)
 
     @staticmethod
     def verify_code(medicine, validation_number):
@@ -565,8 +567,12 @@ class PillDora:
                 if update.message.photo:  # If user sent a photo, we apply
                     medicine_cn, validation_num = self.handle_pic(update, context, user_id)
                 else:
-                    medicine_cn, validation_num = self.split_code(update.message.text)
-
+                    if self.valid_input(update.message.text):
+                        medicine_cn, validation_num = self.split_code(update.message.text)
+                    else:
+                        update.message.reply_text(
+                            "Metacharacters entered, please repeat the photo or manually introduce the CN correctly")
+                        return INTR_MEDICINE
                 if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
                     update.message.reply_text(
                         "An error has occurred, please repeat the photo or manually introduce the CN")
@@ -644,7 +650,12 @@ class PillDora:
                 if update.message.photo:  # If user sent a photo, we apply
                     medicine_cn, validation_num = self.handle_pic(update, context, user_id)
                 else:
-                    medicine_cn, validation_num = self.split_code(update.message.text)
+                    if self.valid_input(update.message.text):
+                        medicine_cn, validation_num = self.split_code(update.message.text)
+                    else:
+                        update.message.reply_text(
+                            "Metacharacters entered, please repeat the photo or manually introduce the CN correctly")
+                        return TAKE_PILL
 
                 if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
                     update.message.reply_text(
@@ -733,7 +744,12 @@ class PillDora:
             if update.message.photo:  # If user sent a photo, we apply
                 medicine_cn, validation_num = self.handle_pic(update, context, user_id)
             else:
-                medicine_cn, validation_num = self.split_code(update.message.text)
+                if self.valid_input(update.message.text):
+                    medicine_cn, validation_num = self.split_code(update.message.text)
+                else:
+                    update.message.reply_text(
+                        "Metacharacters entered, please repeat the photo or manually introduce the CN correctly")
+                    return SHOW_INFORMATION
 
             if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
                 update.message.reply_text(
@@ -927,7 +943,12 @@ class PillDora:
     # Method that asks for a CN and prints all the information and asks about if it should be removed or not
     def get_medicine_CN(self, update, context):
         try:
-            medicine_CN = update.message.text
+            if self.valid_input(update.message.text):
+                medicine_CN = update.message.text
+            else:
+                update.message.reply_text(
+                    "Metacharacters entered, please repeat the photo or manually introduce the CN correctly")
+                return GET_CN
             user_id = update.message.from_user.id
         except:
             user_id = update.callback_query.from_user.id
