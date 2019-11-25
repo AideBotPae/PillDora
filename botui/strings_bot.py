@@ -22,7 +22,17 @@ INTR_MEDICINE_MSSGS ={
             '¿Cúantas pastillas contiene cada caja?',
             '¿Qué día caduca el medicamento?']
 }
+INTR_PILL_MSSGS = {
+    'eng' : ["What is the medicine's name (CN)?\nChoose it from your current treatment, introduce it or you can also send me a photo of the package!",
+    "How many pills have you taken?"],
+    'esp' : ["¿Cuál es el nombre del medicamento (CN)?\nPuedes seleccionarlo desde la lista de tratamientos actuales, introducirlo manualmente o incluso enviarme una foto del paquete!",
+    "¿Cuántas pastillas has tomado?"]
+}
 
+INTR_MEDICINE_MSSGS = {
+    'eng' :  ["What is the medicine's name (CN)?\nYou can also send me a photo of the package!", "How many pills are contained in the box?", "When does the medicine expire?"],
+    'esp' : ["¿Cuál es el nombre del medicamento (CN)?\n¡También puedes enviarme una foto del paquete!", "¿Cuántas pastillas hay en la caja?", "¿Cuádo caduca el medicamento?"]
+}
 reply_keyboard ={
 
 'eng' : 
@@ -45,17 +55,17 @@ yes_no_reply_keyboard = {
 taken_pill_keyboard = {'eng': [['TAKEN','POSTPONE']],
                        'esp' : [['TOMADA', 'POSPONER']]}
 
-loc_button = {
-    'eng': 'KeyboardButton(text="Send Location", request_location=True)',
-    'esp': 'KeyboardButton(text="Enviar ubicación", request_location=True)'
-}
+
 
 location_keyboard = {
     'eng': [[loc_button['eng'], "Don't Send Location"]],
     'esp': [[loc_button['esp'], "No enviar ubicación"]]
 
 }
-
+day_keyboard= {
+    'eng' : [[u'Fantastic! \U0001F601', u'I have had better days \U0001F641']],
+    'esp' : [[u'¡Fantástico! \U0001F601', u'He tenido días mejores \U0001F641']],
+}
 #Usar eval() o to_do '', ALOMEJOR HAY QUE INCLUIR MENSAJE DONDE PREGUNTAR POR IDIOMA AQUI
 STR_START_WELCOME =  {
     'eng': "'Welcome ' + name + ' ! My name is AideBot'",
@@ -88,7 +98,7 @@ STR_INTR_PWD_HELPYOU = {
     'esp' : "¿Cómo puedo ayudarte? \U0001F914"
 }
 STR_NEW_USER_VALIDPASS= {
-    'eng': 'Alright. Now you are ready! How can I help you?',
+    'eng': 'Alright. Now we are ready! How can I help you?',
     'esp': 'Perfecto, ya estamos listos! ¿Cómo te puedo ayudar?'
 }
 STR_NEW_USER_NOTVALIDPASS = {
@@ -144,8 +154,8 @@ STR_MANAGE_RESPONSE_TAKEPILL1 = {
 }
 
 STR_MANAGE_RESPONSE_TAKEPILL0 = {
-    'eng': "chat_id=user_id, text='Pills taken correctly introduced in the history. However, there is no record of these pills in the inventory. Please introduce them'",
-    'esp': "chat_id=user_id, text='Pastillas tomadas introduciadas correctamente en el historial. Sin embargo, no hay registro de estas en el inventorio. Porfavor introducelas usando la función Introducir Medicamento'"
+    'eng': "Pills taken correctly introduced in the history. However, there is no record of these pills in the inventory. Please introduce them",
+    'esp': "Pastillas tomadas introduciadas correctamente en el historial. Sin embargo, no hay registro de estas en el inventorio. Porfavor introducelas usando la función Introducir Medicamento"
 }
 
 STR_MANAGE_RESPONSE_END = {
@@ -161,11 +171,18 @@ STR_SEND_NEW_PRESCRIPTION_ERROR = {
 }
 
 STR_SEND_NEW_PRESCRIPTION_ISCORRECT = {
-    'eng': "Is the medicine correctly introduced?",
-    'esp': "¿Está introducida correctamente?"
+    'eng': "Is the medicine correctly introduced?\U0001F914",
+    'esp': "¿Está introducida correctamente?\U0001F914"
+}
+STR_SEND_NEW_PRESCRIPTION_METACHARACTERS = {
+    'eng': "Metacharacters entered, please repeat the photo or manually introduce the CN correctly.",
+    'esp': "Metacarácteres introducidos, por favor, repite la foto o introduce el CN manualmente."
 }
 
-
+STR_SEND_NEW_PRESCRIPTION_META_RESPOND = {
+    'eng': "'Metacharacters entered, please respond ' + INTR_PRESCRIPTION_MSSGS[self.get_counter(user_id)] + ' correctly'",
+    'esp': "'Metacarácteres introducidos, por favor, responde ' + INTR_PRESCRIPTION_MSSGS[self.get_counter(user_id)] + ' correctamente'",
+}
 STR_SHOW_PRESCRIPTION_MEDSTR = {
     'eng': "'You have to take *' + self.get_prescription(user_id)['QUANTITY'] + '* pills of medicine *' + cima.get_med_name(self.get_prescription(user_id)['NAME']).split(' ')[0] + '* each *' + self.get_prescription(user_id)['FREQUENCY'] + '* hours'",
     'esp': "'Debes tomar *' + self.get_prescription(user_id)['QUANTITY'] + '* pastillas del medicamento *' + cima.get_med_name(self.get_prescription(user_id)['NAME']).split(' ')[0] + '* cada *' + self.get_prescription(user_id)['FREQUENCY'] + '* horas'"

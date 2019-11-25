@@ -45,45 +45,37 @@ crossIcon = u"\u274C"
 # FUNCTIONS FOR COMMUNICATING WITH DATA BASE
 QUERIES = ['CHECK USER', 'CHECK PASSWORD', 'NEW PASSWORD', 'INTRODUCE PRESCRIPTION', 'INTRODUCE MEDICINE', 'TAKE PILL',
            'CHECK PILL', 'VERIFICATE PILL'
-                         'TASKS CALENDAR', 'CURRENT TREATMENT', 'JOURNEY', 'HISTORY', 'INVENTORY'
-                                                                                      'GET REMINDER', 'DELETE REMINDER']
+                         'TASKS CALENDAR', 'CURRENT TREATMENT', 'JOURNEY', 'HISTORY', 'INVENTORY']
 
-# TAGS TO MANAGE INTRODUCING PRESIPTION
-INTR_PRESCRIPTION_MSSGS = ["What is the medicine's name (CN)?\nYou can also send me a photo of the package!",
-                           "How many pills do you have to take each time?",
-                           "How often do you take your pill (in hours)?",
-                           "Which day does treatment end?"]
 PRESCRIPTION_TAGS = ['NAME', 'QUANTITY', 'FREQUENCY', 'END_DATE']
 
-# TAGS TO MANAGE INTRODUCING MEDICINES
-INTR_MEDICINE_MSSGS = ["What is the medicine's name (CN)?\nYou can also send me a photo of the package!",
-                       "How many pills are contained in the box?", "When does the medicine expire?"]
+
 MEDICINE_TAGS = ['NAME', 'QUANTITY', 'EXP_DATE']
 
-# TAGS TO MANAGE INTRODUCING PILL TAKEN
-INTR_PILL_MSSGS = [
-    "What is the medicine's name (CN)?\nChoose it from your current treatment, introduce it or you can also send me a photo of the package!",
-    "How many pills have you taken?"]
+
+
 PILL_TAGS = ['NAME', 'QUANTITY']
 markup = {}
 markup['eng'] = ReplyKeyboardMarkup(st.reply_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
 markup['esp'] = ReplyKeyboardMarkup(st.reply_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
-# KEYBOARD AND MARKUPS
-# reply_keyboard = [
-#     [u'New Prescription \U0001F4C3', u'New Medicine \U0001F48A'],
-#     [u'Current Treatments \U0001F3E5', u'Delete reminder \U0001F514', u'Take Pill \U0001F48A'],
-#     [u'History \U0001F4D6', u'Inventory \U00002696', u'Information \U0001F4AC'],
-#     [u'Journey \U0000270D', u'Calendar \U0001F4C6', u'Exit \U0001F6AA']]
-yes_no_reply_keyboard = [['YES', 'NO']]
-taken_pill_keyboard = [['TAKEN', 'POSTPONE']]
-loc_button = KeyboardButton(text="Send Location", request_location=True)
-location_keyboard = [[loc_button, "Don't Send Location"]]
+
+loc_button = {}
+loc_button['eng'] = KeyboardButton(text="Send Location", request_location=True)
+loc_button['esp'] = KeyboardButton(text="Enviar ubicación", request_location=True)
+location_keyboard = {}
+location_keyboard['eng'] = [[loc_button['eng'], "Don't Send Location"]]
+location_keyboard['esp'] = [[loc_button['esp'], "Don't Send Location"]]
 
 # markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
-yes_no_markup = ReplyKeyboardMarkup(yes_no_reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
-taken_pill_markup = ReplyKeyboardMarkup(taken_pill_keyboard, one_time_keyboard=True, resize_keyboard=True)
-loc_markup = ReplyKeyboardMarkup(location_keyboard, one_time_keyboard=True, resize_keyboard=True)
-
+yes_no_markup['eng'] = ReplyKeyboardMarkup(yes_no_reply_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
+yes_no_markup['esp'] = ReplyKeyboardMarkup(yes_no_reply_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
+taken_pill_markup['eng'] = ReplyKeyboardMarkup(taken_pill_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
+taken_pill_markup['esp'] = ReplyKeyboardMarkup(taken_pill_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
+loc_markup['eng'] = ReplyKeyboardMarkup(location_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
+loc_markup['esp'] = ReplyKeyboardMarkup(location_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
+start_keyboard=[[InlineKeyboardButton(text="START", callback_data="/start")]]
+day_markup['eng']= ReplyKeyboardMarkup(day_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
+day_markup['esp']= ReplyKeyboardMarkup(day_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
 
 class PillDora:
     """
@@ -433,7 +425,7 @@ class PillDora:
         :return: new state INTR_PRESCRIPTION
         """
         logger.info('User introducing new prescription')
-        update.message.reply_text(INTR_PRESCRIPTION_MSSGS[self.get_counter(update.message.from_user.id)])
+        update.message.reply_text(st.INTR_PRESCRIPTION_MSSGS[self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, INTR_PRESCRIPTION)
 
     def send_new_prescription(self, update, context):
@@ -450,7 +442,12 @@ class PillDora:
                 if update.message.photo:  # If user sent a photo, we apply
                     medicine_cn, validation_num = self.handle_pic(update, context, user_id)
                 else:
-                    medicine_cn, validation_num = self.split_code(update.message.text)
+                    if self.valid_input(update.message.text):
+                        medicine_cn, validation_num = self.split_code(update.message.text)
+                    else:
+                        update.message.reply_text(
+                            st.STR_INTR_PWD_METACHARACTERS[self.get_language(user_id)])
+                        return INTR_PRESCRIPTION
 
                 if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
                     update.message.reply_text(
@@ -459,19 +456,23 @@ class PillDora:
                 else:
                     self.set_prescription(user_id, self.get_counter(user_id), medicine_cn)
             else:
-                self.set_prescription(user_id, self.get_counter(user_id), update.message.text)
+                if self.valid_input(update.message.text):
+                    self.set_prescription(user_id, self.get_counter(user_id), update.message.text)
+                else:
+                    update.message.reply_text(eval(st.STR_SEND_NEW_PRESCRIPTION_META_RESPOND[self.get_language(user_id)]))
+                    return INTR_PRESCRIPTION
         except:
             user_id = update.callback_query.from_user.id
 
         self.set_counter(user_id, self.get_counter(user_id) + 1)
         logger.info(self.get_prescription(user_id))
-        if self.get_counter(user_id) != len(INTR_PRESCRIPTION_MSSGS):
+        if self.get_counter(user_id) != len(st.INTR_PRESCRIPTION_MSSGS):
             if self.get_counter(user_id) < 3:
-                update.message.reply_text(INTR_PRESCRIPTION_MSSGS[self.get_counter(user_id)])
+                update.message.reply_text(st.INTR_PRESCRIPTION_MSSGS[self.get_counter(user_id)])
                 return INTR_PRESCRIPTION
             else:
                 context.bot.send_message(chat_id=user_id,
-                                         text=INTR_PRESCRIPTION_MSSGS[self.get_counter(user_id)],
+                                         text=st.INTR_PRESCRIPTION_MSSGS[self.get_counter(user_id)],
                                          reply_markup=telegramcalendar.create_calendar())
                 return CHECK_PRE
         else:
@@ -707,18 +708,21 @@ class PillDora:
     @run_async
     def show_information(self, update, context):
         logger.info('User ' + self.get_name(update.message.from_user) + '  searching for information')
-        user_id = update.message.from_user.id
+        try:
+            user_id = update.message.from_user.id
+        except:
+            user_id = update.callback_query.from_user.id
+        self.set_state(user_id=user_id, state=SHOW_INFORMATION)
         dict = self.list_of_current_cn(user_id)
-        print(dict)
-        if dict is not "False":
+        if 'Boolean' not in dict:
             dyn_markup = self.makeKeyboard(dict, user_id)
             update.message.reply_text(
-                "Introduce CN of the Medicine you want information about or choose it from the ones on your Current Treatment:",
+                "Choose medicine you want information about from the ones on your Current Treatment:",
                 reply_markup=dyn_markup)
+            return self.set_state(user_id=user_id, state=CHOOSING)
         else:
             update.message.reply_text("Introduce CN of the Medicine you want information about:")
-        print(self.get_handling(user_id))
-        return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
+            return SHOW_INFORMATION
 
     def show_infoAbout(self, update, context):
         try:
