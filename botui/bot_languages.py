@@ -67,6 +67,10 @@ location_keyboard['eng'] = [[loc_button['eng'], "Don't Send Location"]]
 location_keyboard['esp'] = [[loc_button['esp'], "Don't Send Location"]]
 
 # markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
+yes_no_markup = {}
+taken_pill_markup = {}
+loc_markup = {}
+day_markup = {}
 yes_no_markup['eng'] = ReplyKeyboardMarkup(st.yes_no_reply_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
 yes_no_markup['esp'] = ReplyKeyboardMarkup(st.yes_no_reply_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
 taken_pill_markup['eng'] = ReplyKeyboardMarkup(taken_pill_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
