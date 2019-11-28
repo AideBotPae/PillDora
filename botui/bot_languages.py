@@ -467,8 +467,9 @@ class PillDora:
                     update.message.reply_text(eval(st.STR_SEND_NEW_PRESCRIPTION_META_RESPOND[self.get_language(user_id)]))
                     return INTR_PRESCRIPTION
         except Exception as e:
-            user_id = update.callback_query.from_user.id
             print(e)
+            user_id = update.callback_query.from_user.id
+            
 
         self.set_counter(user_id, self.get_counter(user_id) + 1)
         logger.info(self.get_prescription(user_id))
