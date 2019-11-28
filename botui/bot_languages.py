@@ -73,8 +73,8 @@ loc_markup = {}
 day_markup = {}
 yes_no_markup['eng'] = ReplyKeyboardMarkup(st.yes_no_reply_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
 yes_no_markup['esp'] = ReplyKeyboardMarkup(st.yes_no_reply_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
-taken_pill_markup['eng'] = ReplyKeyboardMarkup(taken_pill_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
-taken_pill_markup['esp'] = ReplyKeyboardMarkup(taken_pill_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
+taken_pill_markup['eng'] = ReplyKeyboardMarkup(st.taken_pill_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
+taken_pill_markup['esp'] = ReplyKeyboardMarkup(st.taken_pill_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
 loc_markup['eng'] = ReplyKeyboardMarkup(location_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
 loc_markup['esp'] = ReplyKeyboardMarkup(location_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
 start_keyboard=[[InlineKeyboardButton(text="START", callback_data="/start")]]
