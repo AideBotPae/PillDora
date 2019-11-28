@@ -79,7 +79,7 @@ loc_markup['eng'] = ReplyKeyboardMarkup(location_keyboard['eng'], one_time_keybo
 loc_markup['esp'] = ReplyKeyboardMarkup(location_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
 start_keyboard=[[InlineKeyboardButton(text="START", callback_data="/start")]]
 day_markup['eng']= ReplyKeyboardMarkup(st.day_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
-day_markup['esp']= ReplyKeyboardMarkup(stday_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
+day_markup['esp']= ReplyKeyboardMarkup(st.day_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
 
 class PillDora:
     """
