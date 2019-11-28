@@ -524,6 +524,8 @@ class PillDora:
             return cn[:6], cn[6]
         else:
             return 'error', 'error'
+    def valid_input(self, text):
+        return not ("'" in text or '"' in text or '*' in text)
 
     @staticmethod
     def verify_code(medicine, validation_number):
