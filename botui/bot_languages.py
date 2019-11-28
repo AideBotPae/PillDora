@@ -428,7 +428,7 @@ class PillDora:
         :param context: Handler's context
         :return: new state INTR_PRESCRIPTION
         """
-        user_id = update.message.from_user.idget_
+        user_id = update.message.from_user.id
         logger.info('User introducing new prescription')
         update.message.reply_text(st.INTR_PRESCRIPTION_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, INTR_PRESCRIPTION)
