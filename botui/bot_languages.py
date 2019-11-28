@@ -417,7 +417,7 @@ class PillDora:
         self.set_query(user_id, ["None"], ["None"])
         self.set_function(user_id, "None")
         logger.info('User ' + self.get_name(update.message.from_user) + ' in the menu')
-        update.message.reply_text(st.STR_MANAGE_RESPONSE_END[self.get_language(user_id)], reply_markup=markup[self.get_language(user_id)][self.get_language(user_id)])
+        update.message.reply_text(st.STR_MANAGE_RESPONSE_END[self.get_language(user_id)], reply_markup=markup[self.get_language(user_id)])
         return self.set_state(update.message.from_user.id, CHOOSING)
 
     @run_async
