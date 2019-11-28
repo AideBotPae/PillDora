@@ -489,7 +489,7 @@ class PillDora:
             b = list(self.get_prescription(user_id).values())
             b.append(cima.get_med_name(self.get_prescription(user_id)['NAME']))
             context.bot.send_message(chat_id=user_id,
-                                     text=st.STR_SEND_NEW_PRESCRIPTION_ISCORRECT, reply_markup=yes_no_markup[self.get_language(user_id)])
+                                     text=st.STR_SEND_NEW_PRESCRIPTION_ISCORRECT[self.get_language(user_id)], reply_markup=yes_no_markup[self.get_language(user_id)])
             context.bot.send_message(chat_id=user_id,
                                      text=self.show_prescription(user_id), parse_mode=telegram.ParseMode.MARKDOWN)
 
