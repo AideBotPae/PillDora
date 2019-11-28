@@ -42,7 +42,7 @@ reply_keyboard ={
         [u'History \U0001F4D6', u'Inventory \U00002696', u'Information \U0001F4AC'],
         [u'Journey \U0000270D', u'Calendar \U0001F4C6', u'Exit \U0001F6AA']],
 'esp':[ [u'Nueva Receta \U0001F4C3', u'Nuevo Medicamento \U0001F48A'],
-    [u'Tratamientos ctuales \U0001F3E5', u'Eliminar Recordatorio \U0001F514', u'Tomar Pastilla \U0001F48A'],
+    [u'Tratamientos Actuales \U0001F3E5', u'Eliminar Recordatorio \U0001F514', u'Tomar Pastilla \U0001F48A'],
     [u'Historial \U0001F4D6', u'Inventorio \U00002696', u'Información \U0001F4AC'],
     [u'Viaje \U0000270D', u'Calendario \U0001F4C6',  u'Salir \U0001F6AA']]
 }
