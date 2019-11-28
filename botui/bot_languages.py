@@ -417,7 +417,7 @@ class PillDora:
         self.set_query(user_id, ["None"], ["None"])
         self.set_function(user_id, "None")
         logger.info('User ' + self.get_name(update.message.from_user) + ' in the menu')
-        update.message.reply_text(st.STR_MANAGE_RESPONSE_END[self.get_language(user_id)], reply_markup=markup[self.get_language(user_id)])
+        update.message.reply_text(st.STR_MANAGE_RESPONSE_END[self.get_language(user_id)], reply_markup=markup[self.get_language(user_id)][self.get_language(user_id)])
         return self.set_state(update.message.from_user.id, CHOOSING)
 
     @run_async
@@ -489,7 +489,7 @@ class PillDora:
             b = list(self.get_prescription(user_id).values())
             b.append(cima.get_med_name(self.get_prescription(user_id)['NAME']))
             context.bot.send_message(chat_id=user_id,
-                                     text=st.STR_SEND_NEW_PRESCRIPTION_ISCORRECT, reply_markup=yes_no_markup)
+                                     text=st.STR_SEND_NEW_PRESCRIPTION_ISCORRECT, reply_markup=yes_no_markup[self.get_language(user_id)])
             context.bot.send_message(chat_id=user_id,
                                      text=self.show_prescription(user_id), parse_mode=telegram.ParseMode.MARKDOWN)
 
@@ -598,7 +598,7 @@ class PillDora:
         else:
             self.set_counter(user_id, 0)
             context.bot.send_message(chat_id=user_id,
-                                     text=st.STR_SEND_NEW_MEDICINE_ISCORRECT, reply_markup=yes_no_markup)
+                                     text=st.STR_SEND_NEW_MEDICINE_ISCORRECT, reply_markup=yes_no_markup[self.get_language(user_id)])
             context.bot.send_message(chat_id=user_id,
                                      text=self.show_medicine(user_id), parse_mode=telegram.ParseMode.MARKDOWN)
             self.set_query(user_id, list(self.get_medicine(user_id).keys()), list(self.get_medicine(user_id).values()))
@@ -670,7 +670,7 @@ class PillDora:
         else:
             self.set_counter(user_id, 0)
             context.bot.send_message(chat_id=user_id,
-                                     text=st.STR_SEND_NEW_PILL_ISTAKENCORRECTLY[self.get_language(user_id)], reply_markup=yes_no_markup)
+                                     text=st.STR_SEND_NEW_PILL_ISTAKENCORRECTLY[self.get_language(user_id)], reply_markup=yes_no_markup[self.get_language(user_id)])
             context.bot.send_message(chat_id=user_id,
                                      text=self.show_pill(user_id), parse_mode=telegram.ParseMode.MARKDOWN)
             self.set_query(user_id, list(self.get_pill(user_id).keys()), list(self.get_pill(user_id).values()))
@@ -686,7 +686,7 @@ class PillDora:
         user_id = update.message.from_user.id
         context.bot.send_message(chat_id=user_id,
                                  text='Please introduce photo of the pills you proceed to take. If you can not do so, click on NO',
-                                 reply_markup=yes_no_markup)
+                                 reply_markup=yes_no_markup[self.get_language(user_id)])
         return self.set_state(user_id, CHECK_PILL_PHOTO)
 
     def verificate_pill(self, update, context):
@@ -750,7 +750,7 @@ class PillDora:
                 else:
                     update.message.reply_text(cima.get_info_about(medicine_cn))
                     update.message.reply_text(chat_id=user_id, text="Is there any other way I can help you?",
-                                              reply_markup=markup)
+                                              reply_markup=markup[self.get_language(user_id)])
                     return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
         except:
             user_id = update.callback_query.from_user.id
@@ -759,7 +759,7 @@ class PillDora:
             print(medicine_cn)
             self.bot.send_message(text=cima.get_info_about(medicine_cn), chat_id=user_id)
             self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?",
-                                  reply_markup=markup)
+                                  reply_markup=markup[self.get_language(user_id)])
             self.set_pill(user_id, 0, "None")
             return self.set_state(user_id=user_id, state=CHOOSING)
 
@@ -770,7 +770,7 @@ class PillDora:
 
     def show_location(self, user_id):
         self.bot.send_message(chat_id=user_id, text="Would you like to search for nearest pharmacies?",
-                              reply_markup=loc_markup)
+                              reply_markup=loc_markup[self.get_language(user_id)])
         # to clear all queries possibly made
         self.set_query(user_id, ["None"], ["None"])
         self.set_function(user_id, "None")
@@ -791,7 +791,7 @@ class PillDora:
             self.event.set()
             return self.set_state(user_id, END)
         else:
-            self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?", reply_markup=markup)
+            self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?", reply_markup=markup[self.get_language(user_id)])
             return self.set_state(user_id, CHOOSING)
 
     @run_async
@@ -857,7 +857,7 @@ class PillDora:
                                  text="Reminders for " + date_str + " :\n")
         context.bot.send_message(chat_id=user_id, text=response['parameters']['tasks'])
         context.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?",
-                                 reply_markup=markup)
+                                 reply_markup=markup[self.get_language(user_id)])
 
     @run_async
     # Method that prints systematically the current Treatment for a certain user_id
@@ -932,7 +932,7 @@ class PillDora:
         reminder_info = response['parameters']
         if reminder_info['CN'] == "False":
             update.message.reply_text('CN introduced is wrong, there is not any med with this CN')
-            update.message.reply_text("Is there any other way I can help you?", reply_markup=markup)
+            update.message.reply_text("Is there any other way I can help you?", reply_markup=markup[self.get_language(user_id)])
             return self.set_state(user_id, CHOOSING)
         end_date = response['parameters']['end_date']
         if end_date == MAX_DATE:
@@ -944,7 +944,7 @@ class PillDora:
                 response['parameters']['CN']) + " taken with a frequency of " + \
                             response['parameters']['frequency'] + " hours until the date of " + end_date + "."
         update.message.reply_text('Reminder asked to be removed:\n ->\t' + reminder_info)
-        update.message.reply_text('Is this the reminder you want to remove? ', reply_markup=yes_no_markup)
+        update.message.reply_text('Is this the reminder you want to remove? ', reply_markup=yes_no_markup[self.get_language(user_id)])
         self.set_query(user_id, ["CN"], [response['parameters']['CN']])
         self.set_function(user_id, 'DELETE REMINDER')
         return self.set_state(user_id, CHECK_REM)
@@ -980,7 +980,7 @@ class PillDora:
             self.set_dates(user_id, "arrival", date)
             context.bot.send_message(chat_id=user_id,
                                      text="The arrival Date is on " + date_str + "\nIs this information correct?",
-                                     reply_markup=yes_no_markup)
+                                     reply_markup=yes_no_markup[self.get_language(user_id)])
             self.set_query(user_id, ["departure_date", "arrival_date"],
                            [self.get_dates(user_id)[0], self.get_dates(user_id)[1]])
             self.set_function(user_id, 'JOURNEY')
@@ -996,7 +996,7 @@ class PillDora:
             reminder = "Remember to take " + cima.get_med_name(cn) + " at " + str(time)
             self.bot.send_message(chat_id=user_id,
                                   text="*`" + reminder + "`*\n",
-                                  parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=taken_pill_markup)
+                                  parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=taken_pill_markup[self.get_language(user_id)])
             self.event.clear()
             return self.set_state(user_id, REMINDERS)
         else:
@@ -1065,7 +1065,7 @@ class PillDora:
         self.set_dates(user_id=user_id, text="arrival", date="None")
         self.set_counter(user_id=user_id, num=0)
         logger.info('User ' + self.get_name(update.message.from_user) + ' in the menu after quitting from function')
-        update.message.reply_text("Is there any other way I can help you?", reply_markup=markup)
+        update.message.reply_text("Is there any other way I can help you?", reply_markup=markup[self.get_language(user_id)])
         return self.set_state(user_id=user_id, state=CHOOSING)
 
     # Main of the Client.py, where the bot is activated and creates the transition to the different functionalities
