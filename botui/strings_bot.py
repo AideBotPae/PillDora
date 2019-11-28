@@ -57,11 +57,7 @@ taken_pill_keyboard = {'eng': [['TAKEN','POSTPONE']],
 
 
 
-location_keyboard = {
-    'eng': [[loc_button['eng'], "Don't Send Location"]],
-    'esp': [[loc_button['esp'], "No enviar ubicación"]]
 
-}
 day_keyboard= {
     'eng' : [[u'Fantastic! \U0001F601', u'I have had better days \U0001F641']],
     'esp' : [[u'¡Fantástico! \U0001F601', u'He tenido días mejores \U0001F641']],
