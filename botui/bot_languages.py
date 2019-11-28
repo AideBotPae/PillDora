@@ -469,7 +469,7 @@ class PillDora:
         except Exception as e:
             print(e)
             user_id = update.callback_query.from_user.id
-            
+
 
         self.set_counter(user_id, self.get_counter(user_id) + 1)
         logger.info(self.get_prescription(user_id))
