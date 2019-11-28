@@ -574,7 +574,6 @@ class PillDora:
                 self.set_medicine(user_id, self.get_counter(user_id), update.message.text)
         except:
             user_id = update.callback_query.from_user.id
-
         self.set_counter(user_id, self.get_counter(user_id) + 1)
         logger.info(self.get_medicine(user_id))
         if self.get_counter(user_id) != len(INTR_MEDICINE_MSSGS):
@@ -597,7 +596,7 @@ class PillDora:
             return self.set_state(user_id, CHECK_MED)
 
     def show_medicine(self, user_id):
-        med_str = st.STR_SHOW_MEDICINE_INITIALSTRING[self.get_language(user_id)]
+        med_str = eval(st.STR_SHOW_MEDICINE_INITIALSTRING[self.get_language(user_id)])
 
         date_str = self.get_medicine(user_id)['EXP_DATE']
         if date_str == MAX_DATE:
