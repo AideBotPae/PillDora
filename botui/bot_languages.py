@@ -542,7 +542,7 @@ class PillDora:
         if date_str == MAX_DATE:
             med_str += st.STR_SHOW_PRESCRIPTION_CHRONIC[self.get_language(user_id)]
         else:
-            med_str += eval(STR_SHOW_PRESCRIPTION_UNTIL[self.get_language(user_id)])
+            med_str += eval(st.STR_SHOW_PRESCRIPTION_UNTIL[self.get_language(user_id)])
         return med_str
 
     @run_async
