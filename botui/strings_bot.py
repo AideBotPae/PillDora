@@ -190,8 +190,8 @@ STR_SEND_NEW_PRESCRIPTION_META_RESPOND = {
     'esp': "'Metacarácteres introducidos, por favor, responde ' + INTR_PRESCRIPTION_MSSGS[self.get_counter(user_id)] + ' correctamente'",
 }
 STR_SHOW_PRESCRIPTION_MEDSTR = {
-    'eng': "'You have to take *' + self.get_prescription(user_id)['QUANTITY'] + '* pills of medicine *' + cima.get_med_name(self.get_prescription(user_id)['NAME']).split(' ')[0] + '* each *' + self.get_prescription(user_id)['FREQUENCY'] + '* hours'",
-    'esp': "'Debes tomar *' + self.get_prescription(user_id)['QUANTITY'] + '* pastillas del medicamento *' + cima.get_med_name(self.get_prescription(user_id)['NAME']).split(' ')[0] + '* cada *' + self.get_prescription(user_id)['FREQUENCY'] + '* horas'"
+    'eng': "'You have to take *' + self.get_prescription(user_id)['QUANTITY'] + '* pills of medicine *' + cima.get_med_name(self.get_prescription(user_id)['NAME']).split(' ')[0] + '* each *' + self.get_prescription(user_id)['FREQUENCY'] + '* hours '",
+    'esp': "'Debes tomar *' + self.get_prescription(user_id)['QUANTITY'] + '* pastillas del medicamento *' + cima.get_med_name(self.get_prescription(user_id)['NAME']).split(' ')[0] + '* cada *' + self.get_prescription(user_id)['FREQUENCY'] + '* horas '"
 }
 
 STR_SHOW_PRESCRIPTION_CHRONIC = {
@@ -226,8 +226,8 @@ STR_SHOW_MEDICINE_NOCADUCA = {
 }
 
 STR_SHOW_MEDICINE_ELDIA={
-    'eng': "' expire on day *'+ date_str + '* !'",
-    'esp': "' caducan el día *'+ date_str + '* !'"
+    'eng': "' expire on day *' + date_str + '* !'",
+    'esp': "' caducan el día *' + date_str+'* !'"
 }
 
 STR_SEND_NEW_PILL_ERROR = STR_SEND_NEW_MEDICINE_ERROR
