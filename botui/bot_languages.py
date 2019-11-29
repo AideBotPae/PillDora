@@ -443,7 +443,7 @@ class PillDora:
         :param context: Handler's context
         :return: state INTR_PRESCRIPTION while form not completed, state CHECK_PRE once completed
         """
-        voice=false
+        voice=False
         try:
             user_id = update.message.from_user.id
             if self.get_counter(user_id) == 0:  # If we are in the first field of the form
@@ -643,9 +643,9 @@ class PillDora:
 
         self.set_counter(user_id, self.get_counter(user_id) + 1)
         logger.info(self.get_medicine(user_id))
-        if self.get_counter(user_id) != len(INTR_MEDICINE_MSSGS[self.get_language(user_id)]):
+        if self.get_counter(user_id) != len(st.INTR_MEDICINE_MSSGS[self.get_language(user_id)]):
             if self.get_counter(user_id) < 2:
-                update.message.reply_text(INTR_MEDICINE_MSSGS[self.get_language(user_id)][self.get_counter(user_id)])
+                update.message.reply_text(st.INTR_MEDICINE_MSSGS[self.get_language(user_id)][self.get_counter(user_id)])
                 return INTR_MEDICINE
             else:
                 update.message.reply_text(st.INTR_MEDICINE_MSSGS[self.get_language(user_id)][self.get_counter(user_id)])
