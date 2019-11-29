@@ -660,7 +660,7 @@ class PillDora:
         else:
             self.set_counter(user_id, 0)
             context.bot.send_message(chat_id=user_id,
-                                     text=st.STR_SEND_NEW_MEDICINE_ISCORRECT, reply_markup=yes_no_markup[self.get_language(user_id)])
+                                     text=st.STR_SEND_NEW_MEDICINE_ISCORRECT[self.get_language(user_id)], reply_markup=yes_no_markup[self.get_language(user_id)])
             context.bot.send_message(chat_id=user_id,
                                      text=self.show_medicine(user_id), parse_mode=telegram.ParseMode.MARKDOWN)
             self.set_query(user_id, list(self.get_medicine(user_id).keys()), list(self.get_medicine(user_id).values()))
