@@ -687,6 +687,7 @@ class PillDora:
         :param context: Handler's context
         :return: new state INTR_MEDICINE
         """
+        user_id = update.message.from_user.id
         logger.info('User using NLP mode')
         update.message.reply_text(st.INTR_NLP_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, NLP)
