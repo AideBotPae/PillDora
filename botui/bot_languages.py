@@ -384,7 +384,7 @@ class PillDora:
                 elif response['parameters']['inventory'] == "Enough":
                     update.message.reply_text(st.STR_MANAGE_RESPONSE_FULLINVENTORY[self.get_language(user_id)])
                 elif response['parameters']['inventory'] == "Need to buy":
-                    update.message.reply_text(st.STR_MANAGE_RESPONSE_BUYINVENTORY)
+                    update.message.reply_text(st.STR_MANAGE_RESPONSE_BUYINVENTORY[self.get_language(user_id)])
                     return self.show_location(user_id=user_id)
 
             elif response['function'] == 'INTRODUCE MEDICINE':

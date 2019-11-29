@@ -226,8 +226,8 @@ STR_SHOW_MEDICINE_NOCADUCA = {
 }
 
 STR_SHOW_MEDICINE_ELDIA={
-    'eng': "' expire on day *' + date_str + '* !'",
-    'esp': "' caducan el día *' + date_str+'* !'"
+    'eng': "'expire on day *'+ date_str+'* !'",
+    'esp': "'caducan el día *'+ date_str+'* !'"
 }
 
 STR_SEND_NEW_PILL_ERROR = STR_SEND_NEW_MEDICINE_ERROR
