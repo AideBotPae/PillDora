@@ -177,8 +177,8 @@ STR_SEND_NEW_PRESCRIPTION_ERROR = {
 }
 
 STR_SEND_NEW_PRESCRIPTION_ISCORRECT = {
-    'eng': "Is the medicine correctly introduced?\U0001F914",
-    'esp': "¿Está introducida correctamente?\U0001F914"
+    'eng': "Is the medicine correctly introduced? \U0001F914",
+    'esp': "¿Está introducida correctamente? \U0001F914"
 }
 STR_SEND_NEW_PRESCRIPTION_METACHARACTERS = {
     'eng': "Metacharacters entered, please repeat the photo or manually introduce the CN correctly.",
