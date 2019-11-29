@@ -247,28 +247,50 @@ STR_CHECK_PILL = {
 'esp': "chat_id=user_id,text='Por favor, introduce una foto de las pastillas que te vas a tomar. Si no puedes realizarla ahora, apreta NO',reply_markup=yes_no_markup"
 }
 
+STR_MAKEKEYBOARD = {
+    'eng': 'Others',
+    'esp': 'Otros'
+}
+
+STR_SHOW_INFORMATION_CHOOSEMED = {
+    'eng' : "Introduce CN of the Medicine you want information about:",
+    'esp' : "Introduce el CN del medicamento del que quieres más información"
+}
+
+STR_SHOW_INFORMATION_CNINFO = {
+    'eng' : "Choose medicine you want information about from the ones on your Current Treatment:",
+    'esp' : "Elige el medicamento del cuál qioeres más infromacion de los que tienes en Tratamientos Actuales"
+}
+
 STR_SHOW_INFOABOUT_ERROR = STR_SEND_NEW_MEDICINE_ERROR
 
+STR_SHOW_INFOABOUT_METACHARACTERS = STR_SEND_NEW_PRESCRIPTION_METACHARACTERS
 
 STR_SHOW_INFOABOUT_HELPEND= STR_MANAGE_RESPONSE_END
 
+
 STR_SHOW_LOCATION = {
-    'eng' : "chat_id=user_id, text='Would you like to search for nearest pharmacies?',reply_markup=loc_markup",
-    'esp' : "chat_id=user_id, text='¿Te gustaría buscar las farmacias más cercanas?',reply_markup=loc_markup"
+    'eng' :'Would you like to search for nearest pharmacies?',
+    'esp' :'¿Te gustaría buscar las farmacias más cercanas?'
 }
 
 STR_PRINT_LOCATION_HELPEND = STR_SHOW_INFOABOUT_HELPEND
 
 STR_SEE_CALENDAR = {
-    'eng' : "'Please select a date: ', reply_markup=telegramcalendar.create_calendar()",
-    'esp' : "'Por favor, selecciona una fecha: ', reply_markup=telegramcalendar.create_calendar()"
+    'eng' : 'Please select a date: ',
+    'esp' : 'Por favor, selecciona una fecha: '
 }
 
 STR_GET_CALENDAR_TASKS_REMINDERS = {
-    'eng' : "chat_id=user_id, text='Reminders for ' + date_str + ' :\n'",
-    'esp' : "chat_id=user_id, text='Recordatorios para ' + date_str + ' :\n'"
+    'eng' : "'Reminders for ' + date_str + ' :\n' + response['parameters']['tasks']",
+    'esp' : "'Recordatorios para ' + date_str + ' :\n' + response['parameters']['tasks']"
 }
 STR_GET_CALENDAR_TASKS_HELPEND = STR_MANAGE_RESPONSE_END
+STR_GET_CALENDAR_TASKS_CHRONIC = {
+    'eng': "CHRONIC",
+    'esp': "CRÓNICO"
+}
+
 
 STR_SEE_CURRENTTREATMENT_IF = {
     'eng': 'There is actually no Current Treatment about you in the DataBase',
@@ -290,10 +312,6 @@ STR_SEE_HISTORY_ELSE = {
     'esp': "'En resumen, este es el historial de tus últimos recordatorios\n' + response['parameters']['history']"
 }
 
-STR_SEE_HISTORY_IF = {
-    'eng': "There is actually no history about you in the DataBase",
-    'esp': "Actualmente, no disponemos de información sobre tu historial en la base de datos"
-}
 
 STR_SEE_INVENTORY_IF = {
     'eng': "Currently, there is no inventory about you in the DataBase",
@@ -305,16 +323,25 @@ STR_SEE_INVENTORY_ELSE = {
     'esp': "'En resumen, tu inventario está formado por:\n' + response['parameters']['inventory']"
 }
 
-STR_DELETE_REMINDER = {
-    'eng' : 'Please Introduce CN of the Medicine you want to delete the reminder:',
-    'esp' : 'Por favor, introduce el CN del medicamento del cuál quieres eliminar el recordatorio:'
+STR_DELETE_REMINDER_CHOOSEMED = {
+    'eng' : 'Choose medicine you want to delete from your current treatment:',
+    'esp' : 'Elige el medicamento que deseas eliminar de tus tratamientos actuales'
 }
+STR_DELETE_REMINDER_ANYMED = {
+    'eng':"There isn't any medicine in the current treatment, so any reminder can be deleted.",
+    'esp':"No hay ningún medicamento en tus tratamientos actuales, así que no se puede eliminar ningún recordatorio"
+}
+STR_DELETE_REMINDER_HELPEND = STR_SHOW_INFOABOUT_HELPEND
 
+STR_GETMEDICINECN_METACHARACTERS = STR_SEND_NEW_PRESCRIPTION_METACHARACTERS
 STR_GETMEDICINECN_IFFALSE = {
-    'eng' : 'CN introduced is wrong, there is not any med with this CN',
-    'esp' : "'Is there any other way I can help you?', reply_markup=markup"
+    'eng' : 'CN introduced is wrong, there is not any med with this CN Is there any other way I can help you? \U0001F914',
+    'esp' : 'El CN introducido es incorrecto, no hay ningún medicamento con este CN. ¿Te puedo ayudar de alguna otra manera? \U0001F914'
 }
-
+STR_GETMEDICINECN_REMINDERINFOIF ={
+    'eng': "'Medicine *' + cima.get_med_name(response['parameters']['CN']) + '* taken with a frequency of *'response['parameters']['frequency'] + '* hours *chronically*.'",
+    'esp': "'Medicamento *' + cima.get_med_name(response['parameters']['CN']) + '* tomado con una frecuencia de *'response['parameters']['frequency'] + '* horas *crónicamente*.'"
+}
 STR_GETMEDICINECN_SHOULDREMOVE = {
     'eng' : "'Reminder asked to be removed:\n ->\t' + reminder_info",
     'esp' : "'Recordatorio solicitado para eliminar:\n -> \t' + reminder_info"

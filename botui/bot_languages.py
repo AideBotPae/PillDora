@@ -598,7 +598,7 @@ class PillDora:
         """
         user_id = update.message.from_user.id
         logger.info('User introducing new medicine')
-        update.message.reply_text(INTR_MEDICINE_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)])
+        update.message.reply_text(st.INTR_MEDICINE_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, INTR_MEDICINE)
 
     def send_new_medicine(self, update, context):
@@ -648,7 +648,7 @@ class PillDora:
                 update.message.reply_text(INTR_MEDICINE_MSSGS[self.get_language(user_id)][self.get_counter(user_id)])
                 return INTR_MEDICINE
             else:
-                update.message.reply_text(INTR_MEDICINE_MSSGS[self.get_language(user_id)][self.get_counter(user_id)])
+                update.message.reply_text(st.INTR_MEDICINE_MSSGS[self.get_language(user_id)][self.get_counter(user_id)])
 
                 if voice==False:
                     context.bot.send_message(chat_id=user_id,
@@ -688,7 +688,7 @@ class PillDora:
         :return: new state INTR_MEDICINE
         """
         logger.info('User using NLP mode')
-        update.message.reply_text(INTR_NLP_MSSGS[self.get_counter(update.message.from_user.id)])
+        update.message.reply_text(st.INTR_NLP_MSSGS[self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, NLP)
 
     def nlp_mode(self, update, context):
@@ -833,14 +833,13 @@ class PillDora:
             return self.set_state(user_id, CHECK_PILL)
 
     def show_pill(self, user_id):
-        med_str = "You are taking *" + self.get_pill(user_id)['QUANTITY'] + "* pills of medicine *" + \
-                  cima.get_med_name(self.get_pill(user_id)['NAME']).split(' ')[0] + "* !"
+        med_str = eval(st.STR_SHOW_PILL[self.get_language(user_id)])
         return med_str
 
     def check_pill(self, update, context):
         user_id = update.message.from_user.id
         context.bot.send_message(chat_id=user_id,
-                                 text='Please introduce photo of the pills you proceed to take. If you can not do so, click on NO',
+                                 text=st.STR_CHECK_PILL[self.get_language(user_id)],
                                  reply_markup=yes_no_markup[self.get_language(user_id)])
         return self.set_state(user_id, CHECK_PILL_PHOTO)
 
@@ -861,11 +860,9 @@ class PillDora:
     def makeKeyboard(self, arg, user_id):
         lista = []
         for key in arg:
-            lista.append([InlineKeyboardButton(text=arg[key],
-                                               callback_data=self.set_pill(user_id=user_id, num=0, text=key)),
-                          InlineKeyboardButton(text=crossIcon,
-                                               callback_data=self.set_pill(user_id=user_id, num=0, text=key))])
-        print(lista)
+            lista.append([InlineKeyboardButton(text=arg[key], callback_data=key)])
+        if self.get_states(user_id)[0]==SHOW_INFORMATION:
+            lista.append([InlineKeyboardButton(text=st.STR_MAKEKEYBOARD, callback_data='Others')])
         dyn_markup = InlineKeyboardMarkup(lista)
         return dyn_markup
 
@@ -881,7 +878,7 @@ class PillDora:
         if 'Boolean' not in dict:
             dyn_markup = self.makeKeyboard(dict, user_id)
             update.message.reply_text(
-                "Choose medicine you want information about from the ones on your Current Treatment:",
+                st.STR_SHOW_INFORMATION_CHOOSEMED,
                 reply_markup=dyn_markup)
             return self.set_state(user_id=user_id, state=CHOOSING)
         else:
@@ -891,40 +888,35 @@ class PillDora:
     def show_infoAbout(self, update, context):
         try:
             user_id = update.message.from_user.id
-            print(self.get_handling(user_id))
-            if self.get_handling(user_id) == "False":
-                if update.message.photo:  # If user sent a photo, we apply
-                    medicine_cn, validation_num = self.handle_pic(update, context, user_id)
-                else:
+            if update.message.photo:  # If user sent a photo, we apply
+                medicine_cn, validation_num = self.handle_pic(update, context, user_id)
+            else:
+                if self.valid_input(update.message.text):
                     medicine_cn, validation_num = self.split_code(update.message.text)
-
-                if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
-                    update.message.reply_text(
-                        "An error has occurred, please repeat the photo or manually introduce the CN")
-                    return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
                 else:
-                    update.message.reply_text(cima.get_info_about(medicine_cn))
-                    update.message.reply_text(chat_id=user_id, text="Is there any other way I can help you?",
-                                              reply_markup=markup[self.get_language(user_id)])
-                    return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
+                    update.message.reply_text(
+                        st.STR_SHOW_INFOABOUT_METACHARACTERS[self.get_language(user_id)])
+                    return SHOW_INFORMATION
+
+            if "error" in [medicine_cn, validation_num] or not self.verify_code(medicine_cn, validation_num):
+                update.message.reply_text(
+                    st.STR_SHOW_INFOABOUT_ERROR[self.get_language(user_id)])
+                return self.set_state(user_id=update.message.from_user.id, state=SHOW_INFORMATION)
+            else:
+                update.message.reply_text(cima.get_info_about(medicine_cn))
+                update.message.reply_text(text=st.STR_SHOW_INFOABOUT_HELPEND[self.get_language(user_id)],
+                                          reply_markup=markup[self.get_language(user_id)])
+                return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
         except:
             user_id = update.callback_query.from_user.id
-            print(self.get_handling(user_id))
-            medicine_cn = self.get_pill(user_id)['NAME']
-            print(medicine_cn)
+            medicine_cn = update.callback_query.data
             self.bot.send_message(text=cima.get_info_about(medicine_cn), chat_id=user_id)
-            self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?",
+            self.bot.send_message(chat_id=user_id, text=st.STR_SHOW_INFOABOUT_HELPEND[self.get_language(user_id)],
                                   reply_markup=markup[self.get_language(user_id)])
-            self.set_pill(user_id, 0, "None")
             return self.set_state(user_id=user_id, state=CHOOSING)
 
-        print(self.get_handling(user_id))
-        if self.get_handling(user_id) == "True":
-            print("True")
-            return self.set_state(user_id=update.message.from_user.id, state=CHOOSING)
-
     def show_location(self, user_id):
-        self.bot.send_message(chat_id=user_id, text="Would you like to search for nearest pharmacies?",
+        self.bot.send_message(chat_id=user_id, text=st.STR_SHOW_LOCATION[self.get_language(user_id)],
                               reply_markup=loc_markup[self.get_language(user_id)])
         # to clear all queries possibly made
         self.set_query(user_id, ["None"], ["None"])
@@ -946,7 +938,7 @@ class PillDora:
             self.event.set()
             return self.set_state(user_id, END)
         else:
-            self.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?", reply_markup=markup[self.get_language(user_id)])
+            self.bot.send_message(chat_id=user_id, text=st.STR_PRINT_LOCATION_HELPEND[self.get_language(user_id)], reply_markup=markup[self.get_language(user_id)])
             return self.set_state(user_id, CHOOSING)
 
     @run_async
@@ -961,9 +953,19 @@ class PillDora:
         user_id = update.callback_query.from_user.id
         if self.get_states(user_id)[0] == TAKE_PILL:
             self.send_new_pill(update, context)
-        elif self.get_states(user_id)[0] == SHOW_INFORMATION:
-            self.show_infoAbout(update, context)
-            self.set_handling(user_id, "True")
+        elif self.get_states(user_id)[0] == CHOOSING and self.get_states(user_id)[1] == SHOW_INFORMATION:
+            medicine_cn = update.callback_query.data
+            if medicine_cn == "Others":
+                self.bot.send_message(chat_id=user_id,
+                                      text="Please Introduce CN of medicine you want information about, or take a photo of it? \U0001F48A")
+            else:
+                self.show_infoAbout(update, context)
+        elif self.get_states(user_id)[0] == CHECK_REM:
+            self.get_medicine_CN(update, context)
+        elif self.get_states(user_id)[0] == END or self.get_states(user_id)[0] == REMINDERS:
+            name = update.callback_query.from_user.first_name
+            self.bot.send_message(chat_id=user_id, text="Welcome " + name + "! How is your day going? \U0001F603",
+                                  reply_markup=day_markup)
         else:
             selected, date = telegramcalendar.process_calendar_selection(context.bot, update)
             if date is not None:
@@ -972,9 +974,11 @@ class PillDora:
                     date_str = "CHRONIC"
             if selected:
                 if self.get_states(user_id)[0] == CHOOSING:
+                    '''
                     context.bot.send_message(chat_id=user_id,
                                              text="You selected %s" % date_str,
                                              reply_markup=ReplyKeyboardRemove())
+                                             '''
                 if self.get_states(user_id)[0] == CHOOSING:
                     self.get_calendar_tasks(update, context, date.strftime("%Y-%m-%d"), user_id)
                     self.set_state(user_id, CHOOSING)
@@ -1010,17 +1014,19 @@ class PillDora:
     def get_calendar_tasks(self, update, context, date, user_id):
         date_str = date
         if date_str == MAX_DATE:
-            date_str = "CHRONIC"
+            date_str = st.GET_CALENDAR_TASKJS_CHRONIC[self.get_language(user_id)]
         # connects to DataBase with Date and UserId asking for all the tasks of this date
         self.set_function(user_id, "TASKS CALENDAR")
         self.set_query(user_id, ["date"], [date])
         query = self.create_query(user_id)
         response = json.loads(self.send_query(user_id, query))
-        context.bot.send_message(chat_id=user_id,
-                                 text="Reminders for " + date_str + " :\n")
-        context.bot.send_message(chat_id=user_id, text=response['parameters']['tasks'])
-        context.bot.send_message(chat_id=user_id, text="Is there any other way I can help you?",
-                                 reply_markup=markup[self.get_language(user_id)])
+        message_id = update.callback_query.message.message_id
+        self.bot.delete_message(chat_id=user_id, message_id=message_id)
+        self.bot.send_message(chat_id=user_id,
+                              text=eval(st.STR_GET_CALENDAR_TASKS_REMINDERS[self.get_language(user_id)]))
+        self.bot.send_message(chat_id=user_id, text=st.STR_GET_CALENDAR_TASKS_HELPEND[self.get_language(user_id)],
+                              reply_markup=markup[self.get_language(user_id)])
+
 
     @run_async
     # Method that prints systematically the current Treatment for a certain user_id
@@ -1033,10 +1039,9 @@ class PillDora:
         query = self.create_query(user_id)
         response = json.loads(self.send_query(user_id, query))
         if response['parameters']['reminder_info'] == "False":
-            update.message.reply_text("There is actually no Current Treatment about you in the DataBase")
+            self.bot.send_message(chat_id=user_id, text=st.STR_SEE_CURRENTTREATMENT_IF[self.get_language(user_id)])
         else:
-            update.message.reply_text(
-                "To sum up, you are currently taking these meds:\n" + response['parameters']['reminder_info'])
+            self.bot.send_message(chat_id=user_id, text=eval(st.STR_SEE_CURRENTTREATMENT_ELSE[self.get_language(user_id)]), parse_mode=telegram.ParseMode.MARKDOWN)
         self.set_query(user_id, ["None"], ["None"])
         return self.manage_response(update, context)
 
@@ -1051,10 +1056,10 @@ class PillDora:
         query = self.create_query(user_id)
         response = json.loads(self.send_query(user_id, query))
         if response['parameters']['history'] == "False":
-            update.message.reply_text("There is actually no history about you in the DataBase")
+            update.message.reply_text(st.STR_SEE_HISTORY_IF[self.get_language(user_id)])
         else:
             update.message.reply_text(
-                "To sum up, history of your last reminders:\n" + response['parameters']['history'])
+                eval(st.STR_SEE_HISTORY_ELSE[self.get_language(user_id)]))
         self.set_query(user_id, ["None"], ["None"])
         return self.manage_response(update, context)
 
@@ -1069,10 +1074,10 @@ class PillDora:
         query = self.create_query(user_id)
         response = json.loads(self.send_query(user_id, query))
         if response['parameters']['inventory'] == "False":
-            update.message.reply_text("There is actually no Inventory about you in the DataBase")
+            update.message.reply_text(st.STR_SEE_INVENTORY_IF[self.get_language(user_id)])
         else:
             update.message.reply_text(
-                "To sum up, your inventory consists on:\n" + response['parameters']['inventory'])
+                eval(st.STR_SEE_INVENTORY[self.get_language(user_id)]))
         self.set_query(user_id, ["None"], ["None"])
         return self.manage_response(update, context)
 
@@ -1080,13 +1085,32 @@ class PillDora:
     # Deletes a reminder using a CN for a certain user_id
     def delete_reminder(self, update, context):
         logger.info('User ' + self.get_name(update.message.from_user) + ' deleting reminder')
-        update.message.reply_text('Please Introduce CN of the Medicine you want to delete the reminder:')
-        return self.set_state(update.message.from_user.id, GET_CN)
+        user_id = update.message.from_user.id
+        dict = self.list_of_current_cn(user_id)
+        if 'Boolean' not in dict:
+            dyn_markup = self.makeKeyboard(dict, user_id)
+            update.message.reply_text(st.STR_DELETE_REMINDER_CHOOSEMED[self.get_language(user_id)],
+                                      reply_markup=dyn_markup)
+            return self.set_state(user_id, CHECK_REM)
+        else:
+            update.message.reply_text(st.STR_DELETE_REMINDER_ANYMED[self.get_language(user_id)])
+            update.message.reply_text(text=st.STR_DELETE_REMINDER_HELPEND[self.get_language(user_id)], reply_markup=markup)
+            return self.set_state(user_id, CHOOSING)
 
     # Method that asks for a CN and prints all the information and asks about if it should be removed or not
     def get_medicine_CN(self, update, context):
-        medicine_CN = update.message.text
-        user_id = update.message.from_user.id
+        try:
+            if self.valid_input(update.message.text):
+                medicine_CN = update.message.text
+            else:
+                update.message.reply_text(
+                    st.STR_GETMEDICINECN_METACHARACTERS[self.get_language(user_id)])
+                return GET_CN
+            user_id = update.message.from_user.id
+        except:
+            user_id = update.callback_query.from_user.id
+            medicine_CN = update.callback_query.data
+
         # connects to DataBase with UserId and get the current reminder for this medicine_CN.
         self.set_function(user_id, "GET REMINDER")
         self.set_query(user_id, ["CN"], [medicine_CN])
@@ -1094,20 +1118,20 @@ class PillDora:
         response = json.loads(self.send_query(user_id, query))
         reminder_info = response['parameters']
         if reminder_info['CN'] == "False":
-            update.message.reply_text('CN introduced is wrong, there is not any med with this CN')
-            update.message.reply_text("Is there any other way I can help you?", reply_markup=markup[self.get_language(user_id)])
+            self.bot.send_message(chat_id=user_id, text=st.STR_GETMEDICINECN_IFFALSE[self.get_language(user_id)],
+                                  reply_markup=markup[self.get_language(user_id)])
             return self.set_state(user_id, CHOOSING)
         end_date = response['parameters']['end_date']
         if end_date == MAX_DATE:
-            reminder_info = "Medicine " + cima.get_med_name(
-                response['parameters']['CN']) + " taken with a frequency of " + \
-                            response['parameters']['frequency'] + " hours chronically."
+            reminder_info = eval(st.STR_GETMEDICINECN_REMINDERINFOIF[self.get_language(user_id)])
         else:
-            reminder_info = "Medicine " + cima.get_med_name(
-                response['parameters']['CN']) + " taken with a frequency of " + \
-                            response['parameters']['frequency'] + " hours until the date of " + end_date + "."
-        update.message.reply_text('Reminder asked to be removed:\n ->\t' + reminder_info)
-        update.message.reply_text('Is this the reminder you want to remove? ', reply_markup=yes_no_markup[self.get_language(user_id)])
+            reminder_info = "Medicine *" + cima.get_med_name(
+                response['parameters']['CN']) + "* taken with a frequency of *" + \
+                            response['parameters']['frequency'] + "* hours until the date of *" + end_date + "*."
+        self.bot.send_message(chat_id=user_id, text='Reminder asked to be removed:\n ->\t' + reminder_info,
+                              parse_mode=telegram.ParseMode.MARKDOWN)
+        self.bot.send_message(chat_id=user_id, text='Is this the reminder you want to remove? ',
+                              reply_markup=yes_no_markup[self.get_language(user_id)])
         self.set_query(user_id, ["CN"], [response['parameters']['CN']])
         self.set_function(user_id, 'DELETE REMINDER')
         return self.set_state(user_id, CHECK_REM)
