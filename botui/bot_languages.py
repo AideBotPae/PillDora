@@ -697,7 +697,6 @@ class PillDora:
         try:
             user_id = update.message.from_user.id
             if self.get_counter(user_id) == 0:  # If we are in the first field of the form
-                print("aqui no entro")
                 if update.message.photo:  # If user sent a photo, we apply
                     medicine_cn, validation_num = self.handle_pic(update, context, user_id)
                 else:
@@ -747,7 +746,7 @@ class PillDora:
             if intent_detected==NLP_OPTION[0]:
                 self.set_counter(user_id, 0)
                 context.bot.send_message(chat_id=user_id,
-                                        text='Is the medicine correctly introduced? ', reply_markup=yes_no_markup)
+                                     text=st.STR_SEND_NEW_MEDICINE_ISCORRECT[self.get_language(user_id)], reply_markup=yes_no_markup[self.get_language(user_id)])
                 context.bot.send_message(chat_id=user_id,
                                         text=self.show_medicine(user_id), parse_mode=telegram.ParseMode.MARKDOWN)
                 self.set_query(user_id, list(self.get_medicine(user_id).keys()), list(self.get_medicine(user_id).values()))
@@ -761,12 +760,12 @@ class PillDora:
                 b = list(self.get_prescription(user_id).values())
                 b.append(cima.get_med_name(self.get_prescription(user_id)['NAME']))
                 context.bot.send_message(chat_id=user_id,
-                                        text='Is the medicine correctly introduced? ', reply_markup=yes_no_markup)
+                                        text=st.STR_SEND_NEW_PRESCRIPTION_ISCORRECT[self.get_language(user_id)], reply_markup=yes_no_markup[self.get_language(user_id)])
                 context.bot.send_message(chat_id=user_id,
                                         text=self.show_prescription(user_id), parse_mode=telegram.ParseMode.MARKDOWN)
 
                 self.set_query(user_id, a, b)
-                self.set_function(user_id, 'INTRODUCE PRESCRIPTION')
+                self.set_function(user_id, intent_detected)
                 return self.set_state(user_id, CHECK_PRE)
 
 
