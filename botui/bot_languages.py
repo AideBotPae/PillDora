@@ -674,7 +674,7 @@ class PillDora:
         if date_str == MAX_DATE:
             med_str += st.STR_SHOW_MEDICINE_NOCADUCA[self.get_language(user_id)]
         else:
-            med_str += st.STR_SHOW_MEDICINE_ELDIA[self.get_language(user_id)]
+            med_str += eval(st.STR_SHOW_MEDICINE_ELDIA[self.get_language(user_id)])
         return med_str
 
 
