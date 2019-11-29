@@ -688,7 +688,7 @@ class PillDora:
         :return: new state INTR_MEDICINE
         """
         logger.info('User using NLP mode')
-        update.message.reply_text(st.INTR_NLP_MSSGS[self.get_counter(update.message.from_user.id)])
+        update.message.reply_text(st.INTR_NLP_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, NLP)
 
     def nlp_mode(self, update, context):
@@ -740,7 +740,7 @@ class PillDora:
         logger.info(self.get_medicine(user_id))
         
         if self.get_counter(user_id)==1: #si acaba de introducir un medicamento
-            update.message.reply_text(st.INTR_NLP_MSSGS[self.get_counter(user_id)])
+            update.message.reply_text(st.INTR_NLP_MSSGS[self.get_language(user_id)][self.get_counter(user_id)])
             return NLP
         else:
             if intent_detected==NLP_OPTION[0]:
