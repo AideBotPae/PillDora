@@ -319,8 +319,8 @@ STR_SEE_INVENTORY_IF = {
 }
 
 STR_SEE_INVENTORY_ELSE = {
-    'eng': "'To sum up, your inventory consists on' + ':\n' + *'response['parameters']['inventory']",
-    'esp': "'En resumen, tu inventario está formado por' + ':\n' + *'response['parameters']['inventory']"
+    'eng': """'To sum up, your inventory consists on\n' + *'response['parameters']['inventory']""",
+    'esp': """'En resumen, tu inventario está formado por\n' + *'response['parameters']['inventory']"""
 }
 
 STR_DELETE_REMINDER_CHOOSEMED = {
