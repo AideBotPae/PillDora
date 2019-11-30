@@ -1293,9 +1293,9 @@ class PillDora:
                            MessageHandler(Filters.regex('^Exit')|Filters.regex('^Salir'), self.exit)
                            ],
                 INTR_PRESCRIPTION: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
-                                    MessageHandler(Filters.text | Filters.photo, self.send_new_prescription)],
+                                    MessageHandler(Filters.text | Filters.photo | Filters.voice, self.send_new_prescription)],
                 INTR_MEDICINE: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
-                                MessageHandler(Filters.text | Filters.photo, self.send_new_medicine)],
+                                MessageHandler(Filters.text | Filters.photo | Filters.voice, self.send_new_medicine)],
                 NLP: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
                                 MessageHandler(Filters.text | Filters.photo | Filters.voice, self.nlp_mode)],
                 TAKE_PILL: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
