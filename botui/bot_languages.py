@@ -1076,8 +1076,7 @@ class PillDora:
         if response['parameters']['inventory'] == "False":
             update.message.reply_text(st.STR_SEE_INVENTORY_IF[self.get_language(user_id)])
         else:
-            update.message.reply_text(
-                eval(st.STR_SEE_INVENTORY_ELSE[self.get_language(user_id)]))
+            update.message.reply_text(eval(st.STR_SEE_INVENTORY_ELSE[self.get_language(user_id)]))
         self.set_query(user_id, ["None"], ["None"])
         return self.manage_response(update, context)
 
