@@ -783,10 +783,10 @@ class PillDora:
         dict = self.list_of_current_cn(user_id)
         if dict is not "False":
             dyn_markup = self.makeKeyboard(dict, user_id)
-            update.message.reply_text(INTR_PILL_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)],
+            update.message.reply_text(st.INTR_PILL_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)],
                                       reply_markup=dyn_markup)
         else:
-            update.message.reply_text(INTR_PILL_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)])
+            update.message.reply_text(st.INTR_PILL_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, TAKE_PILL)
 
     def send_new_pill(self, update, context):
@@ -819,8 +819,8 @@ class PillDora:
 
         self.set_counter(user_id, self.get_counter(user_id) + 1)
         logger.info(self.get_pill(user_id))
-        if self.get_counter(user_id) != len(INTR_PILL_MSSGS[self.get_language(user_id)]):
-            self.bot.send_message(chat_id=user_id, text=INTR_PILL_MSSGS[self.get_language(user_id)][self.get_counter(user_id)])
+        if self.get_counter(user_id) != len(st.INTR_PILL_MSSGS[self.get_language(user_id)]):
+            self.bot.send_message(chat_id=user_id, text=st.INTR_PILL_MSSGS[self.get_language(user_id)][self.get_counter(user_id)])
             return TAKE_PILL
         else:
             self.set_counter(user_id, 0)
