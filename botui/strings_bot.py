@@ -288,8 +288,8 @@ STR_SEE_CURRENTTREATMENT_IF = {
 }
 
 STR_SEE_CURRENTTREATMENT_ELSE = {
-    'eng': "'To sum up, you are currently taking these meds:\n' + response['parameters']['reminder_info']",
-    'esp': "'Actualmente, estás tomando estos medicamentos:\n' + response['parameters']['reminder_info']"
+    'eng': "'To sum up, you are currently taking these meds: \n' + response['parameters']['reminder_info']",
+    'esp': "'Actualmente, estás tomando estos medicamentos: \n' + response['parameters']['reminder_info']"
 }
 
 STR_SEE_HISTORY_IF = {
@@ -332,6 +332,11 @@ STR_GETMEDICINECN_REMINDERINFOIF ={
     'eng': "'Medicine *' + cima.get_med_name(response['parameters']['CN']) + '* taken with a frequency of *'response['parameters']['frequency'] + '* hours *chronically*.'",
     'esp': "'Medicamento *' + cima.get_med_name(response['parameters']['CN']) + '* tomado con una frecuencia de *'response['parameters']['frequency'] + '* horas *crónicamente*.'"
 }
+
+STR_GETMEDICINECN_REMINDERINFOELSE ={
+    'eng': "'Medicine *' + cima.get_med_name(response['parameters']['CN']) + '* taken with a frequency of *' + response['parameters']['frequency'] + '* hours until the date of *' + end_date + '*.'",
+    'esp': "'Medicamento *' + cima.get_med_name(response['parameters']['CN']) + '* tomado con una frecuencia de*' + response['parameters']['frequency'] + '* horas hasta el día *' + end_date + '*.'"
+}
 STR_GETMEDICINECN_SHOULDREMOVE = {
     'eng' : "'Reminder asked to be removed:\n ->\t' + reminder_info",
     'esp' : "'Recordatorio solicitado para eliminar:\n -> \t' + reminder_info"
@@ -350,15 +355,15 @@ STR_CREATE_JOURNEY_ELSE = {
     'eng' : "'Wow fantastic! So you are going on a trip...\nWhen are you leaving?',reply_markup=telegramcalendar.create_calendar()",
     'esp' : "'Uala fantśatico! Así que te vas de viaje...\n¿Cuándo te vas?',reply_markup=telegramcalendar.create_calendar()"
 }
-
+STR_SET_JOURNEY_CHRONIC = STR_SHOW_PRESCRIPTION_CHRONIC
 STR_SET_JOURNEY_DEPARTURE = {
-'eng' : "chat_id=user_id,text='Alright. I see you are leaving on ' + date_str + '.\n When will you come back?', reply_markup=telegramcalendar.create_calendar()",
-'esp' : "chat_id=user_id,text='Estupendo. Veo que te vas el ' + date_str + '.\n ¿Cuándo vas a volver?', reply_markup=telegramcalendar.create_calendar()"
+'eng' : "'Alright. I see you are leaving on ' + date_str + '.\n When will you come back?'",
+'esp' : "'Estupendo. Veo que te vas el ' + date_str + '.\n ¿Cuándo vas a volver?'"
 }
 
 STR_SET_JOURNEY_ARRIVAL = {
-    'eng' : "chat_id=user_id, text='The arrival Date is on '+ date_str + '\nIs this information correct?',reply_markup=yes_no_markup",
-    'esp' : "chat_id=user_id, text='TLa fecha de llegada es el  '+ date_str + '\n¿Es correcta la información?',reply_markup=yes_no_markup"
+    'eng' : "'The arrival Date is on '+ date_str + '\nIs this information correct?'",
+    'esp' : "'La fecha de llegada es el  '+ date_str + '\n¿Es correcta la información?'"
 }
 
 STR_SEND_REMINDER_REMINDER = {
@@ -372,7 +377,7 @@ STR_SEND_REMINDER_SENDMESSAGE = {
 }
 
 STR_INTR_HISTORY_YES_IFFALSE = {
-    'eng' : "There is no Inventory for this medicine. Please introduce Medication or buy it if not done",
+    'eng' : "There is no Inventory for this medicine. Please introduce medicine or buy it if not done",
     'esp' : "En el inventario no tenemos constancia de este medicamaento. Por favor introdúcelo o cómpralo si aún no lo has hecho"
 }
 
@@ -388,13 +393,13 @@ STR_INTR_HISTORY_YES_ELIFNOREMINDER = {
 }
 
 STR_INTR_HISTORY_NO_IFPOSTPONE = {
-    'eng' : "chat_id=user_id, text='Message has been postponed correctly.'",
-    'esp' : "chat_id=user_id, text='El mensaje se ha pospuesto correctamente .'"
+    'eng' : "Message has been postponed correctly.",
+    'esp' : "El mensaje se ha pospuesto correctamente ."
 }
 
 STR_INTR_HISTORY_NO_ELSE = {
-'eng' :"chat_id=user_id,text='Message has already been postponed 3 times and not taken.\nNo more notiifcations will be set of this reminder.\n Choose Take pill to introduce it'",
-'esp' : "chat_id=user_id,text='El mensaje ya se ha pospuesto 3 veces, y aun no se ha tomad.\nNo se van a crear más notifcaciones d eeste recordatorio.\n Usa la opción Tomar Pastilla, cuando te la tomes'"
+'eng' :"Message has already been postponed 3 times and not taken.\nNo more notiifcations will be set of this reminder.\n Choose Take pill to introduce it",
+'esp' : "El mensaje ya se ha pospuesto 3 veces, y aun no se ha tomad.\nNo se van a crear más notifcaciones d eeste recordatorio.\n Usa la opción Tomar Pastilla, cuando te la tomes"
 }
 
 STR_EXIT = {
