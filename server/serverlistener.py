@@ -13,12 +13,13 @@ class MyThread(Thread):
 
     def run(self):
         while True:
-            query = self.conn.recv(2048)
-            if query == b'Exit':
-                break
+            query = str(self.conn.recv(2048), "utf-8")[2:]
             print(query)
+            if query == 'Exit':
+                self.conn.send(bytes("end", "utf-8"))
+                break
             user_id = json.loads(query)['user_id']
-            print(user_id)
+            #print(user_id)
 
             if self.server_worker is None:
                 self.server_worker = ServerWorker(user_id)
@@ -27,7 +28,7 @@ class MyThread(Thread):
 
 
 if __name__ == "__main__":
-    HOST, PORT = "localhost", 9001
+    HOST, PORT = "0.0.0.0", 12346
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((HOST, PORT))
     s.listen()
