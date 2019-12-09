@@ -1208,17 +1208,17 @@ class PillDora:
             self.send_reminder(user_id=message[2], cn=str(message[0]), time=str(message[1]))
 
     # Sends a reminder using parsing
-       def send_reminder(self, user_id, cn, time):
-        if self.in_end(user_id):
-            self.set_reminder(user_id, str(cn), str(time))
-            reminder = st.STR_SEND_REMINDER_REMIDNER[self.get_language(user_id)]
-            self.bot.send_message(chat_id=user_id,
-                                  text="*`" + reminder + "`*\n",
-                                  parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=taken_pill_markup[self.get_language(user_id)])
-            self.event.clear()
-            return self.set_state(user_id, REMINDERS)
-        else:
-            return self.delay_reminder(user_id, cn, time)
+    def send_reminder(self, user_id, cn, time):
+    if self.in_end(user_id):
+        self.set_reminder(user_id, str(cn), str(time))
+        reminder = st.STR_SEND_REMINDER_REMIDNER[self.get_language(user_id)]
+        self.bot.send_message(chat_id=user_id,
+                                text="*`" + reminder + "`*\n",
+                                parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=taken_pill_markup[self.get_language(user_id)])
+        self.event.clear()
+        return self.set_state(user_id, REMINDERS)
+    else:
+        return self.delay_reminder(user_id, cn, time)
 
     def delay_reminder(self, user_id, cn, time):
         self.event.wait()
