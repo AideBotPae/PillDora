@@ -1158,12 +1158,10 @@ Prescription
         if end_date == MAX_DATE:
             reminder_info = eval(st.STR_GETMEDICINECN_REMINDERINFOIF[self.get_language(user_id)])
         else:
-            reminder_info = "Medicine *" + cima.get_med_name(
-                response['parameters']['CN']) + "* taken with a frequency of *" + \
-                            response['parameters']['frequency'] + "* hours until the date of *" + end_date + "*."
-        self.bot.send_message(chat_id=user_id, text='Reminder asked to be removed:\n ->\t' + reminder_info,
+            reminder_info = eval(st.STR_GETMEDICINECN_REMINDERINFOELSE[self.get_language(user_id)])
+        self.bot.send_message(chat_id=user_id, text=st.STR_GETMEDICINECN_SHOULDREMOVE[self.get_language(user_id)],
                               parse_mode=telegram.ParseMode.MARKDOWN)
-        self.bot.send_message(chat_id=user_id, text='Is this the reminder you want to remove? ',
+        self.bot.send_message(chat_id=user_id, text=st.STR_GETMEDICINECN_ISTHIS[self.get_language(user_id)],
                               reply_markup=yes_no_markup[self.get_language(user_id)])
         self.set_query(user_id, ["CN"], [response['parameters']['CN']])
         self.set_function(user_id, 'DELETE REMINDER')
@@ -1177,29 +1175,29 @@ Prescription
         logger.info('User ' + self.get_name(update.message.from_user) + ' creating journey')
         self.set_state(update.message.from_user.id, JOURNEY)
         if boolean:
-            update.message.reply_text("Wow fantastic! So you are going on a trip...\nWhen are you leaving?",
+            update.message.reply_text(st.STR_CREATE_JOURNEY_IF[sef.get_language(user_id)],
                                       reply_markup=telegramcalendar.create_calendar())
         else:
-            update.message.reply_text("No worries. Introduce right departure date:",
+            update.message.reply_text(st.STR_CREATE_JOURNEY_ELSE[sef.get_language(user_id)],
                                       reply_markup=telegramcalendar.create_calendar())
         return JOURNEY
 
-    # Method that asks for the dates needed for a journey and changes the state of the bot to JOURNEY
+   # Method that asks for the dates needed for a journey and changes the state of the bot to JOURNEY
     def set_journey(self, update, context, date):
         date_str = date
         if date == MAX_DATE:
-            date_str = "CHRONIC"
+            date_str = st.STR_SET_JOURNEY_CHRONIC[self.get_language(user_id)]
         user_id = update.callback_query.from_user.id
         if self.get_states(user_id)[1] == CHOOSING:
             self.set_dates(user_id, "departure", date)
             context.bot.send_message(chat_id=user_id,
-                                     text="Alright. I see you are leaving on " + date_str + ".\n When will you come back?",
+                                     text=eval(st.STR_SET_JOURNEY_DEPARTURE[self.get_language(user_id)]),
                                      reply_markup=telegramcalendar.create_calendar())
 
         if self.get_states(user_id)[1] == JOURNEY:
             self.set_dates(user_id, "arrival", date)
             context.bot.send_message(chat_id=user_id,
-                                     text="The arrival Date is on " + date_str + "\nIs this information correct?",
+                                     text=st.STR_SET_JOURNEY_ARRIVAL[self.get_language(user_id)],
                                      reply_markup=yes_no_markup[self.get_language(user_id)])
             self.set_query(user_id, ["departure_date", "arrival_date"],
                            [self.get_dates(user_id)[0], self.get_dates(user_id)[1]])
@@ -1210,10 +1208,10 @@ Prescription
             self.send_reminder(user_id=message[2], cn=str(message[0]), time=str(message[1]))
 
     # Sends a reminder using parsing
-    def send_reminder(self, user_id, cn, time):
+       def send_reminder(self, user_id, cn, time):
         if self.in_end(user_id):
             self.set_reminder(user_id, str(cn), str(time))
-            reminder = "Remember to take " + cima.get_med_name(cn) + " at " + str(time)
+            reminder = st.STR_SEND_REMINDER_REMIDNER[self.get_language(user_id)]
             self.bot.send_message(chat_id=user_id,
                                   text="*`" + reminder + "`*\n",
                                   parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=taken_pill_markup[self.get_language(user_id)])
@@ -1237,15 +1235,14 @@ Prescription
         response = json.loads(self.send_query(user_id, query))
         if response['parameters']['boolean'] == "False":
             update.message.reply_text(
-                "There is no Inventory for this medicine. Please introduce Medication or buy it if not done")
+                STR_INTR_HISTORY_YES_IFFALSE[self.get_language(user_id)])
             return self.show_location(user_id=user_id)
         if response['parameters']['remind'] == "Remind to buy":
             update.message.reply_text(
-                "Alert! You will actually run out of pills of " + cima.get_med_name(
-                    reminder['cn']) + ". Please buy it and introduce to your Inventory")
+                st.STR_INTR_HISTORY_YES_IFREMINDTOBUY[self.get_language(user_id)])
             return self.show_location(user_id=user_id)
         elif response['parameters']['remind'] == "No reminder":
-            update.message.reply_text("Good Job")
+            update.message.reply_text([st.STR_INTR_HISTORY_YES_ELIFNOREMINDER[self.get_language(user_id)])
         self.event.set()
         return self.set_state(user_id, END)
 
@@ -1258,19 +1255,20 @@ Prescription
         query = self.create_query(user_id)
         response = json.loads(self.send_query(user_id, query))
         if (response["parameters"]["boolean"] == "Postpone"):
-            self.bot.send_message(chat_id=user_id, text="Message has been postponed correctly.")
+            self.bot.send_message(chat_id=user_id, text=st.STR_INTR_HISTORY_NO_IFPOSTPONE[self.get_language(user_id)])
         else:
             self.bot.send_message(chat_id=user_id,
-                                  text="Message has already been postponed 3 times and not taken.\nNo more notiifcations will be set of this reminder.\n Choose 'Take pill' to introduce it")
+                                  text=st.STR_INTR_HISTORY_NO_ELSE[self.get_language(user_id)])
         self.event.set()
         return self.set_state(user_id, END)
-
+        
     # Ends the communication between the user and the bot
     def exit(self, update, context):
-        update.message.reply_text("See you next time")
+        update.message.reply_text(st.STR_EXIT[self.get_language(user_id)])
         logger.info('User ' + self.get_name(update.message.from_user) + ' finish with AideBot')
         self.event.set()
         return self.set_state(update.message.chat_id, END)
+
 
     def getToTheMenu(self, update, context):
         try:
