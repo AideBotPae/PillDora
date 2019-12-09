@@ -151,7 +151,8 @@ class ServerWorker:
 
         # THE USER ASKS FOR THE HISTORY OF PILLS TAKEN
         elif instruction == "HISTORY":
-            history = self.checker.get_history(user_id=user_id)
+            last_date = parsed_string["parameters"]["date"]
+            history = self.checker.get_history(user_id=user_id, date=last_date)
             if history is not ():
                 history_info = "History of last meds :\\n"
                 for output in history:
