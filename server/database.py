@@ -221,12 +221,13 @@ class DBMethods:
                                                                                         ))
             return "True"
 
-    def get_history(self, user_id):
+    def get_history(self, user_id, date):
         with Database() as db:
             data = db.query(''' SELECT national_code, last_taken_pill, taken
                 FROM aidebot.history 
                 WHERE user_id={id}
-                '''.format(id=user_id))
+                and last_taken_pill='{date}'
+                '''.format(id=user_id, date=date))
             return data
 
     def get_inventory(self, user_id):
