@@ -374,7 +374,7 @@ class PillDora:
             return self.set_state(update.message.from_user.id, NEW_USER)
 
         elif self.get_counter(user_id) == 2:
-            gender=reply_markup
+            gender=update.message.text
             self.set_query(user_id, [""], [gender])
             update.message.reply_text(st.STR_NEW_USER_POSTAL_CODE[self.get_language(user_id)])
             #string del postal code
