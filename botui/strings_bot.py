@@ -298,8 +298,8 @@ STR_SEE_CURRENTTREATMENT_IF = {
 }
 
 STR_SEE_CURRENTTREATMENT_ELSE = {
-    'eng': "'To sum up, you are currently taking these meds:\n' + response['parameters']['reminder_info']",
-    'esp': "'Actualmente, estás tomando estos medicamentos:\n' + response['parameters']['reminder_info']"
+    'eng': "'To sum up, you are currently taking these meds: \\n ' + response['parameters']['reminder_info']",
+    'esp': "'Actualmente, estás tomando estos medicamentos: \\n ' + response['parameters']['reminder_info']"
 }
 
 STR_SEE_HISTORY_IF = {
@@ -308,8 +308,8 @@ STR_SEE_HISTORY_IF = {
 }
 
 STR_SEE_HISTORY_ELSE = {
-    'eng': "'To sum up, history of your last reminders:\n' + response['parameters']['history']",
-    'esp': "'En resumen, este es el historial de tus últimos recordatorios\n' + response['parameters']['history']"
+    'eng': "'To sum up, history of your last reminders: \\n ' + response['parameters']['history']",
+    'esp': "'En resumen, este es el historial de tus últimos recordatorios \\n ' + response['parameters']['history']"
 }
 
 
@@ -319,8 +319,8 @@ STR_SEE_INVENTORY_IF = {
 }
 
 STR_SEE_INVENTORY_ELSE = {
-    'eng': """'To sum up, your inventory consists on\n' + *'response['parameters']['inventory']""",
-    'esp': """'En resumen, tu inventario está formado por\n' + *'response['parameters']['inventory']"""
+    'eng': "'To sum up, your inventory consists on'+'\\n ' + response['parameters']['inventory']",
+    'esp': "'En resumen, tu inventario está formado por '+ '\\n ' +response['parameters']['inventory']"
 }
 
 STR_DELETE_REMINDER_CHOOSEMED = {
