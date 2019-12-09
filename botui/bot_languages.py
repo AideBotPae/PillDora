@@ -1242,7 +1242,7 @@ class PillDora:
                 st.STR_INTR_HISTORY_YES_IFREMINDTOBUY[self.get_language(user_id)])
             return self.show_location(user_id=user_id)
         elif response['parameters']['remind'] == "No reminder":
-            update.message.reply_text([st.STR_INTR_HISTORY_YES_ELIFNOREMINDER[self.get_language(user_id)])
+            update.message.reply_text(st.STR_INTR_HISTORY_YES_ELIFNOREMINDER[self.get_language(user_id)])
         self.event.set()
         return self.set_state(user_id, END)
 
