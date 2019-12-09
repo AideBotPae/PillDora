@@ -62,6 +62,11 @@ yes_no_reply_keyboard = {
     'esp': [['SÍ', 'NO']]
 }
 
+gender_reply_keyboard = {
+  'eng':  [['Woman', 'Man', 'Other']],
+    'esp': [['Mujer', 'Hombre', 'Otros']]
+}
+
 taken_pill_keyboard = {'eng': [['TAKEN','POSTPONE']],
                        'esp' : [['TOMADA', 'POSPONER']]}
 
@@ -104,9 +109,30 @@ STR_INTR_PWD_HELPYOU = {
     'esp' : "¿Cómo puedo ayudarte? \U0001F914"
 }
 STR_NEW_USER_VALIDPASS= {
-    'eng': 'Alright. Now we are ready! How can I help you?',
-    'esp': 'Perfecto, ya estamos listos! ¿Cómo te puedo ayudar?'
+    'eng': 'Alright. Now we are almost ready!',
+    'esp': 'Perfecto, ya casi estamos listos!'
 }
+
+STR_NEW_USER_AGE={
+    'eng': 'For a better user experience please introduce your age',
+    'esp': 'Para una mejor experiencia de usuario por favor introduce tu edad'
+}
+
+STR_NEW_USER_GENDER={
+    'eng': 'Please select your gender',
+    'esp': 'Por favor selecciona tu género'
+}
+
+STR_NEW_USER_POSTAL_CODE={
+    'eng': 'Introduce your postal code',
+    'esp': 'Introduce tu código postal'
+}
+
+STR_NEW_USER_VALIDREGISTER= {
+    'eng': 'Alright. Now we are ready! How can I help you?',
+    'esp': 'Perfecto, ya estamos listos! Como te puedo ayudar?'
+}
+
 STR_NEW_USER_NOTVALIDPASS = {
     'eng': "Not a Valid Password. Enter Password with 6 to 12 characters and minimum 3 of these types of characters: uppercase, lowercase, number and $, # or @",
     'esp': "No es una contraseña válida. Introduce una contraseña de 6 a 12 carácteres que contengo al menos 3 de estos tipos: minúsuclas, mayúsculas, numeros y $, # o @"

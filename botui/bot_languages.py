@@ -70,11 +70,14 @@ location_keyboard['esp'] = [[loc_button['esp'], "Don't Send Location"]]
 
 # markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 yes_no_markup = {}
+gender_markup = {}
 taken_pill_markup = {}
 loc_markup = {}
 day_markup = {}
 yes_no_markup['eng'] = ReplyKeyboardMarkup(st.yes_no_reply_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
 yes_no_markup['esp'] = ReplyKeyboardMarkup(st.yes_no_reply_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
+gender_markup['eng'] = ReplyKeyboardMarkup(st.gender_reply_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
+gender_markup['esp'] = ReplyKeyboardMarkup(st.gender_reply_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
 taken_pill_markup['eng'] = ReplyKeyboardMarkup(st.taken_pill_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
 taken_pill_markup['esp'] = ReplyKeyboardMarkup(st.taken_pill_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
 loc_markup['eng'] = ReplyKeyboardMarkup(location_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
@@ -104,7 +107,7 @@ class PillDora:
     # Returns the state of the bot for a specific user_id
     def get_states(self, user_id):
         return self.aide_bot[user_id]['states']
-
+Prescription
     def set_handling(self, user_id, text):
         self.aide_bot[user_id]['handling'] = text
 
@@ -322,40 +325,71 @@ class PillDora:
         :param context: Handler's context
         :return: the new state to be on (NEW_USER if fails, CHOOSING if succeeds)
         """
-        password = update.message.text
-        logger.info('User introduced new password:  ' + password)
         user_id = update.message.from_user.id
-        self.bot.delete_message(chat_id=user_id, message_id=update.message.message_id - 1)
-        self.bot.delete_message(chat_id=user_id, message_id=update.message.message_id)
+        if self.get_counter(user_id) == 0:
+            password = update.message.text
+            logger.info('User introduced new password:  ' + password)
+            user_id = update.message.from_user.id
+            self.bot.delete_message(chat_id=user_id, message_id=update.message.message_id - 1)
+            self.bot.delete_message(chat_id=user_id, message_id=update.message.message_id)
 
-        # Check for password difficulty:
-        i = 0
-        if re.search("[a-z]", password):
-            i = i + 1
-        if re.search("[0-9]", password):
-            i = i + 1
-        if re.search("[A-Z]", password):
-            i = i + 1
-        if re.search("[$#@]", password):
-            i = i + 1
-        if re.search("\s", password):
+            # Check for password difficulty:
             i = 0
-        if len(password) < 6 or len(password) > 12:
-            i = 0
+            if re.search("[a-z]", password):
+                i = i + 1
+            if re.search("[0-9]", password):
+                i = i + 1
+            if re.search("[A-Z]", password):
+                i = i + 1
+            if re.search("[$#@]", password):
+                i = i + 1
+            if re.search("\s", password):
+                i = 0
+            if len(password) < 6 or len(password) > 12:
+                i = 0
 
-        if i > 2:
-            # update.message.reply_text("Valid Password")
-            # Introduce new UserID-Password to DataBase
-            self.set_function(user_id, 'NEW PASSWORD')
-            self.set_query(user_id, ["new_password"], [password])
-            query = self.create_query(user_id)
-            self.send_query(user_id, query)
-            update.message.reply_text(st.STR_NEW_USER_VALIDPASS[self.get_language(user_id)], reply_markup = markup[self.get_language(user_id)])
+            if i > 2:
+                # update.message.reply_text("Valid Password")
+                # Introduce new UserID-Password to DataBase
+                self.set_function(user_id, 'NEW PASSWORD')
+                self.set_query(user_id, ["new_password"], [password])
+                query = self.create_query(user_id)
+                self.send_query(user_id, query)
+                #update.message.reply_text(st.STR_NEW_USER_VALIDPASS[self.get_language(user_id)], reply_markup = markup[self.get_language(user_id)])
+                update.message.reply_text(st.STR_NEW_USER_VALIDPASS[self.get_language(user_id)])
+                update.message.reply_text(st.STR_NEW_USER_AGE[self.get_language(user_id)])
+                self.set_counter(user_id, self.get_counter(user_id) + 1)
+
+                return self.set_state(update.message.from_user.id, NEW_USER)
+
+            update.message.reply_text(
+                st.STR_NEW_USER_NOTVALIDPASS[self.get_language(user_id)])
+            return self.set_state(update.message.from_user.id, NEW_USER)
+
+        elif self.get_counter(user_id) == 1:
+            age=update.message.text
+            self.set_query(user_id, [""], [age])
+            update.message.reply_text(st.STR_NEW_USER_GENDER[self.get_language(user_id)], reply_markup = gender_markup[self.get_language(user_id)])
+            self.set_counter(user_id, self.get_counter(user_id) + 1)
+            return self.set_state(update.message.from_user.id, NEW_USER)
+
+        elif self.get_counter(user_id) == 2:
+            gender=reply_markup
+            self.set_query(user_id, [""], [gender])
+            update.message.reply_text(st.STR_NEW_USER_POSTAL_CODE[self.get_language(user_id)])
+            #string del postal code
+            self.set_counter(user_id, self.get_counter(user_id) + 1)
+            return self.set_state(update.message.from_user.id, NEW_USER)
+
+        elif self.get_counter(user_id) == 3:
+            postal_code=update.message.text
+            self.set_query(user_id, [""], [postal_code])
+            self.set_counter(user_id,0)
+            update.message.reply_text(st.STR_NEW_USER_VALIDREGISTER[self.get_language(user_id)], reply_markup = markup[self.get_language(user_id)])
             return self.set_state(update.message.from_user.id, CHOOSING)
 
-        update.message.reply_text(
-            st.STR_NEW_USER_NOTVALIDPASS[self.get_language(user_id)])
-        return self.set_state(update.message.from_user.id, NEW_USER)
+
+
 
     def manage_response(self, update, context):
         """Sends a query and gets the response, deciding what to do depending on the response 'function' field.
