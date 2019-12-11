@@ -16,7 +16,8 @@ class NLP:
             print("Speak anything: ")
             audio= r.record(source)
         try:
-            text= r.recognize_google(audio,language=self.getLanguage(language,1))
+            language1=self.getLanguage(language,1)
+            text= r.recognize_google(audio,language=language1)
             print(text)
         except:
             print("Sorry")
