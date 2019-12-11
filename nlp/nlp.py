@@ -53,13 +53,13 @@ class NLP:
         return respuesta
 
     def getLanguage(language_in,type):
-        if language_in='esp':
-            if(type=1): 
+        if language_in=='esp':
+            if(type==1): 
                 return 'es-ES'
             else: 
                 return 'es'
         else:
-            if(type=1): 
+            if(type==1): 
                 return 'en-US'
             else: 
                 return 'en'
