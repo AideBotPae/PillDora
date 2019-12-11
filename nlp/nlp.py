@@ -21,7 +21,7 @@ class NLP:
         except:
             print("Sorry")
     
-        respuesta=self.detect_intent_texts('telegramtranscription-qypmiv','125',text,getLanguage(language_in,2))
+        respuesta=self.detect_intent_texts('telegramtranscription-qypmiv','125',text,self.getLanguage(language_in,2))
         #print(respuesta)
         return respuesta
     
