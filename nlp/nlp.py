@@ -17,7 +17,7 @@ class NLP:
             audio= r.record(source)
         try:
             language1=self.getLanguage(language,1)
-            text= r.recognize_google(audio,language='es-ES')
+            text= r.recognize_google(audio,language=self.getLanguage(language,1))
             print(text)
         except:
             print("Sorry")
@@ -53,7 +53,7 @@ class NLP:
         respuesta=self.detect_intent_texts('telegramtranscription-qypmiv','125',text,'es')
         return respuesta
 
-    def getLanguage(language_in,type):
+    def getLanguage(self,language_in,type):
         if language_in=='esp':
             if(type==1): 
                 return 'es-ES'
