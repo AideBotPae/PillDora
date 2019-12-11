@@ -16,13 +16,12 @@ class NLP:
             print("Speak anything: ")
             audio= r.record(source)
         try:
-            language1=self.getLanguage(language_in,1)
-            text= r.recognize_google(audio,language=language1)
+            text= r.recognize_google(audio,language=self.getLanguage(language,1))
             print(text)
         except:
             print("Sorry")
-        language2=self.getLanguage(language_in,2)
-        respuesta=self.detect_intent_texts('telegramtranscription-qypmiv','125',text,language2)
+
+        respuesta=self.detect_intent_texts('telegramtranscription-qypmiv','125',text,self.getLanguage(language,2))
         #print(respuesta)
         return respuesta
     
