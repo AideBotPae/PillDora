@@ -749,7 +749,7 @@ class PillDora:
                     answer=self.handle_voice(update, context, user_id)
 
                 else: #text detection
-                    answer=NLP().text_input(update.message.text)
+                    answer=NLP().text_input(update.message.text,self.get_language(user_id))
 
                 intent_detected=answer.intent.display_name
                 print(intent_detected)
