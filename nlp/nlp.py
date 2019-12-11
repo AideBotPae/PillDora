@@ -17,7 +17,7 @@ class NLP:
             audio= r.record(source)
         try:
             language1=self.getLanguage(language,1)
-            text= r.recognize_google(audio,language=language1)
+            text= r.recognize_google(audio,language='es-ES')
             print(text)
         except:
             print("Sorry")
