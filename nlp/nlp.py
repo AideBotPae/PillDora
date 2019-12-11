@@ -50,7 +50,7 @@ class NLP:
         return response.query_result
 
     def text_input(self, text):
-        respuesta=self.detect_intent_texts('telegramtranscription-qypmiv','125',text,'es')
+        respuesta=self.detect_intent_texts('telegramtranscription-qypmiv','125',text,self.getLanguage(language,2))
         return respuesta
 
     def getLanguage(self,language_in,type):
