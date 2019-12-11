@@ -25,11 +25,9 @@ INTR_MEDICINE_MSSGS ={
 
 INTR_NLP_MSSGS ={
     'eng' :["What is the medicine's name (CN)?\nYou can also send me a photo of the package!",
-                    "You can add a new medicine in your inventory:\nHow many pills are contained in the box? \nWhen does the medicine expire?\n\n\n\n Or you can add a new receipt:\nHow many pills do you have to take each time?\nHow often do you take your pill (in hours)?",
-                           "Which day does treatment end?"],
-    'esp' :["What is the medicine's name (CN)?\nYou can also send me a photo of the package!",
-                    "You can add a new medicine in your inventory:\nHow many pills are contained in the box? \nWhen does the medicine expire?\n\n\n\n Or you can add a new receipt:\nHow many pills do you have to take each time?\nHow often do you take your pill (in hours)?",
-                           "Which day does treatment end?"] # pendiente de corregir
+                    "You can add a new medicine in your inventory:\nHow many pills are contained in the box? \nWhen does the medicine expire?\n\n\n\n Or you can add a new receipt:\nHow many pills do you have to take each time?\nHow often do you take your pill (in hours)? \nWhich day does treatment end?"],
+    'esp' :["¿Cuál es el nombre del medicamento? (CN)\nPuedes enviarme una foto del paquete, si lo prefieres!",
+                    "Puedes añadir una nueva medicina a tu inventario: \n¿Cúantas pastillas contiene cada caja? \n¿Qué día caduca el medicamento?\n\n\n\n O puedes añadir una nueva receta: \n¿Cúantas pastillas ingieres en cada toma? \n¿Cada cuánto tiempo tomas la pastilla?(en horas) \n¿Que día acaba el tratamiento?"] # pendiente de corregir
 }
 
 INTR_PILL_MSSGS = {
@@ -109,7 +107,7 @@ STR_INTR_PWD_HELPYOU = {
     'esp' : "¿Cómo puedo ayudarte? \U0001F914"
 }
 STR_NEW_USER_VALIDPASS= {
-    'eng': 'Alright. Now we are almost ready!',
+    'eng': 'Alright. We are almost ready!',
     'esp': 'Perfecto, ya casi estamos listos!'
 }
 
