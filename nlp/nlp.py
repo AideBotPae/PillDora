@@ -52,7 +52,7 @@ class NLP:
         respuesta=self.detect_intent_texts('telegramtranscription-qypmiv','125',text,'es')
         return respuesta
 
-    def getLanguage(language_in,type)
+    def getLanguage(language_in,type):
         if language_in='esp':
             if(type=1): 
                 return 'es-ES'
