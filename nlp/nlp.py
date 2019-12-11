@@ -7,7 +7,7 @@ import dialogflow_v2 as dialogflow
 class NLP:
     
 
-    def init(self,filename_src,filename_out):
+    def init(self,filename_src,filename_out,language):
         self.converttowav(filename_src,filename_out)
 
         r=sr.Recognizer()
@@ -16,12 +16,12 @@ class NLP:
             print("Speak anything: ")
             audio= r.record(source)
         try:
-            text= r.recognize_google(audio,language='es-ES')
+            text= r.recognize_google(audio,language=getLanguage(language_in,1))
             print(text)
         except:
             print("Sorry")
     
-        respuesta=self.detect_intent_texts('telegramtranscription-qypmiv','125',text,'es')
+        respuesta=self.detect_intent_texts('telegramtranscription-qypmiv','125',text,getLanguage(language_in,2))
         #print(respuesta)
         return respuesta
     
@@ -51,3 +51,15 @@ class NLP:
     def text_input(self, text):
         respuesta=self.detect_intent_texts('telegramtranscription-qypmiv','125',text,'es')
         return respuesta
+
+    def getLanguage(language_in,type)
+        if language_in='esp':
+            if(type=1): 
+                return 'es-ES'
+            else: 
+                return 'es'
+        else:
+            if(type=1): 
+                return 'en-US'
+            else: 
+                return 'en'

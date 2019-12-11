@@ -574,8 +574,7 @@ class PillDora:
         filename_src = f"/home/paesav/PAET2019/PillDora/Voice/{user_id}.ogg"
         filename_out =f"/home/paesav/PAET2019/PillDora/Voice/{user_id}.wav"
         newFile.download(filename_src)
-        text=NLP().init(filename_src,filename_out)
-        print(self.get_language(user_id))
+        text=NLP().init(filename_src,filename_out,self.get_language(user_id))
         return text
 
     @staticmethod
