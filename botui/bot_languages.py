@@ -127,6 +127,12 @@ class PillDora:
     def get_reminder(self, user_id):
         return self.aide_bot[user_id]['reminder']
 
+    def set_new_user(self, user_id, key, value):
+        self.aide_bot[user_id]['new_user'][key] = value
+
+    def get_new_user(self, user_id):
+        return self.aide_bot[user_id]['new_user']
+
     # Returns the last prescription associated for a specific user_id
     def get_prescription(self, user_id):
         return self.aide_bot[user_id]['prescription']
@@ -238,6 +244,7 @@ class PillDora:
                                   'function': 'none',
                                   'query': {},
                                   'reminder': {'cn': "None", 'time': 'None'},
+                                  'new_user': {'new_password': 'None', 'new_age': "None", 'new_gender': 'None', 'new_postalcode': 'None'},
                                   'serverworker': ServerWorker(user_id),
                                   'language': self.define_language(update.message.from_user.language_code),
                                   'handling': 'False'}
@@ -351,8 +358,7 @@ class PillDora:
             if i > 2:
                 # update.message.reply_text("Valid Password")
                 # Introduce new UserID-Password to DataBase
-                self.set_function(user_id, 'NEW PASSWORD')
-                self.set_query(user_id, ["new_password"], [password])
+                self.set_new_user(user_id,'new_password',password)
                 #query = self.create_query(user_id)
                 #self.send_query(user_id, query)
                 #update.message.reply_text(st.STR_NEW_USER_VALIDPASS[self.get_language(user_id)], reply_markup = markup[self.get_language(user_id)])
@@ -369,14 +375,14 @@ class PillDora:
         elif self.get_counter(user_id) == 1:
             age=update.message.text
             #self.set_query(user_id, [""], [age])
-            self.set_query(user_id, ["new_age"], [age])
+            self.set_new_user(user_id,'new_age',age)
             update.message.reply_text(st.STR_NEW_USER_GENDER[self.get_language(user_id)], reply_markup = gender_markup[self.get_language(user_id)])
             self.set_counter(user_id, self.get_counter(user_id) + 1)
             return self.set_state(update.message.from_user.id, NEW_USER)
 
         elif self.get_counter(user_id) == 2:
             gender=update.message.text
-            self.set_query(user_id, ["new_gender"], [gender])
+            self.set_new_user(user_id,'new_gender',gender)
             update.message.reply_text(st.STR_NEW_USER_POSTAL_CODE[self.get_language(user_id)])
             #string del postal code
             self.set_counter(user_id, self.get_counter(user_id) + 1)
@@ -386,10 +392,13 @@ class PillDora:
             postal_code=update.message.text
             self.set_counter(user_id,0)
             #add to database
+            self.set_new_user(user_id,'new_postalcode',postal_code)
             self.set_function(user_id, 'NEW PASSWORD')
-            self.set_query(user_id, ["new_postalcode"],[postal_code])
+
+            user = self.get_new_user(user_id)
+            self.set_query(user_id, ["user_id", "new_password", "new_age", "new_gender","new_postalcode"],
+                       [str(user_id), user['new_password'], user['new_age'], user['new_gender'],user['new_postalcode']])
             query = self.create_query(user_id)
-            self.send_query(user_id, query)
 
             update.message.reply_text(st.STR_NEW_USER_VALIDREGISTER[self.get_language(user_id)], reply_markup = markup[self.get_language(user_id)])
             return self.set_state(update.message.from_user.id, CHOOSING)
