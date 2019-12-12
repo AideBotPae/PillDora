@@ -401,7 +401,7 @@ class PillDora:
                        [str(user_id), user['new_password'], user['new_age'], user['new_gender'],user['new_postalcode']])
             query = self.create_query(user_id)
             response = json.loads(self.send_query(user_id, query))
-            
+
             update.message.reply_text(st.STR_NEW_USER_VALIDREGISTER[self.get_language(user_id)], reply_markup = markup[self.get_language(user_id)])
             return self.set_state(update.message.from_user.id, CHOOSING)
 
@@ -1281,6 +1281,7 @@ class PillDora:
         
     # Ends the communication between the user and the bot
     def exit(self, update, context):
+        user_id = update.message.from_user.id
         update.message.reply_text(st.STR_EXIT[self.get_language(user_id)])
         logger.info('User ' + self.get_name(update.message.from_user) + ' finish with AideBot')
         self.event.set()
