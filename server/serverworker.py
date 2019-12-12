@@ -2,8 +2,8 @@ import datetime
 import json
 import logging
 
-import server.cima as cima
-from server.database import DBMethods
+import cima as cima
+from database import DBMethods
 
 MAX_DATE = "2036-12-31"
 

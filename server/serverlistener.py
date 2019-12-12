@@ -1,7 +1,7 @@
 import socket
 import json
 from threading import Thread
-from server.serverworker import ServerWorker
+from serverworker import ServerWorker
 
 
 class MyThread(Thread):
@@ -14,10 +14,10 @@ class MyThread(Thread):
     def run(self):
         while True:
             query = str(self.conn.recv(2048), "utf-8")[2:]
-            print(query)
-            if query == 'Exit':
+            print(query, type(query))
+            if "Exit" in query:
                 self.conn.send(bytes("end", "utf-8"))
-                break
+                return
             user_id = json.loads(query)['user_id']
             #print(user_id)
 
