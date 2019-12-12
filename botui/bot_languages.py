@@ -396,7 +396,7 @@ class PillDora:
             self.set_function(user_id, 'NEW PASSWORD')
 
             user = self.get_new_user(user_id)
-            print(str(user)
+            print(str(user))
             self.set_query(user_id, ["user_id", "new_password", "new_age", "new_gender","new_postalcode"],
                        [str(user_id), user['new_password'], user['new_age'], user['new_gender'],user['new_postalcode']])
             query = self.create_query(user_id)
