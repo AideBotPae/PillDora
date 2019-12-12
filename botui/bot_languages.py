@@ -400,7 +400,8 @@ class PillDora:
             self.set_query(user_id, ["user_id", "new_password", "new_age", "new_gender","new_postalcode"],
                        [str(user_id), user['new_password'], user['new_age'], user['new_gender'],user['new_postalcode']])
             query = self.create_query(user_id)
-
+            response = json.loads(self.send_query(user_id, query))
+            
             update.message.reply_text(st.STR_NEW_USER_VALIDREGISTER[self.get_language(user_id)], reply_markup = markup[self.get_language(user_id)])
             return self.set_state(update.message.from_user.id, CHOOSING)
 
