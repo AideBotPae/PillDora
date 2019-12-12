@@ -67,7 +67,7 @@ class DBMethods:
         with Database() as db:
             hash_pwd = encr.hash(new_password)
             db.execute(
-                "INSERT INTO aidebot.users (id, password, age, gender, postalcode) VALUES ({id},'{pwd}',{age},'{gender}',{postalcode})".format(id=new_user,
+                "INSERT INTO aidebot.users (id, password, age, gender, postalcode) VALUES ({id},'{pwd}',{age},'{gender}','{postalcode}')".format(id=new_user,
                                                                                         pwd=hash_pwd, age=new_age, gender=new_gender, postalcode=new_postalcode))
             data = db.query("SELECT id FROM aidebot.users where id={id}".format(id=new_user))
 
