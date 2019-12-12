@@ -38,9 +38,12 @@ class ServerWorker:
         # ADDING A NEW USER
         elif instruction == "NEW PASSWORD":
             new_password = parsed_string["parameters"]["new_password"]
-            user_added = self.checker.add_user(new_user=user_id, new_password=new_password)
+            new_age=parsed_string["parameters"]["new_age"]
+            new_gender=parsed_string["parameters"]["new_gender"]
+            new_postalcode=parsed_string["parameters"]["new_postalcode"]
+            user_added = self.checker.add_user(new_user=user_id, new_password=new_password, new_age=new_age, new_gender=new_gender, new_postalcode=new_postalcode)
             while not user_added:
-                user_added = self.checker.add_user(new_user=user_id, new_password=new_password)
+                user_added = self.checker.add_user(new_user=user_id, new_password=new_password, new_age=new_age, new_gender=new_gender, new_postalcode=new_postalcode)
             response = self.bot_parser(user_id=user_id, function="NEW PASSWORD") + ' "boolean": "' + str(
                 user_added) + '"}}'
 

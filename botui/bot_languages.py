@@ -351,10 +351,10 @@ class PillDora:
             if i > 2:
                 # update.message.reply_text("Valid Password")
                 # Introduce new UserID-Password to DataBase
-                self.set_function(user_id, 'NEW PASSWORD')
+                """self.set_function(user_id, 'NEW PASSWORD')
                 self.set_query(user_id, ["new_password"], [password])
                 query = self.create_query(user_id)
-                self.send_query(user_id, query)
+                self.send_query(user_id, query)"""
                 #update.message.reply_text(st.STR_NEW_USER_VALIDPASS[self.get_language(user_id)], reply_markup = markup[self.get_language(user_id)])
                 update.message.reply_text(st.STR_NEW_USER_VALIDPASS[self.get_language(user_id)])
                 update.message.reply_text(st.STR_NEW_USER_AGE[self.get_language(user_id)])
@@ -385,6 +385,12 @@ class PillDora:
             postal_code=update.message.text
             self.set_query(user_id, [""], [postal_code])
             self.set_counter(user_id,0)
+            #add to database
+            self.set_function(user_id, 'NEW PASSWORD')
+            self.set_query(user_id, ["new_password","new_age","new_gender","new_postalcode"], [password,age,gender,postal_code])
+            query = self.create_query(user_id)
+            self.send_query(user_id, query)
+
             update.message.reply_text(st.STR_NEW_USER_VALIDREGISTER[self.get_language(user_id)], reply_markup = markup[self.get_language(user_id)])
             return self.set_state(update.message.from_user.id, CHOOSING)
 

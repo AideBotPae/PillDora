@@ -63,12 +63,12 @@ class DBMethods:
             else:
                 return True
 
-    def add_user(self, new_user, new_password):
+    def add_user(self, new_user, new_password, new_age, new_gender, new_postalcode):
         with Database() as db:
             hash_pwd = encr.hash(new_password)
             db.execute(
-                "INSERT INTO aidebot.users (id, password) VALUES ({id},'{pwd}')".format(id=new_user,
-                                                                                        pwd=hash_pwd))
+                "INSERT INTO aidebot.users (id, password, age, gender, postalcode) VALUES ({id},'{pwd}',{age},'{gender}',{postalcode})".format(id=new_user,
+                                                                                        pwd=hash_pwd, age=new_age, gender=new_gender, postalcode=new_postalcode))
             data = db.query("SELECT id FROM aidebot.users where id={id}".format(id=new_user))
 
             if not data:
