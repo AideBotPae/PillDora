@@ -254,9 +254,9 @@ class PillDora:
         if str(message).startswith("/start"):
             self.bot.send_message(chat_id=user_id, text=(eval(st.STR_START_WELCOME[self.get_language(user_id)])))
         elif str(message).startswith("I have had"):
-            self.bot.send_message(chat_id=user_id, text="No worries, I am with you! Sure you will get better! \U0001F4AA")
+            self.bot.send_message(chat_id=user_id, text=st.STR_WELCOME_NOT_GOOD[self.get_language(user_id)])
         else:
-            self.bot.send_message(chat_id=user_id, text="That's what I love to hear! Keep like that! \U0001F44D")
+            self.bot.send_message(chat_id=user_id, text=st.STR_WELCOME_YES_GOOD[self.get_language(user_id)])
 
         if self.user_verification(user_id) == "True":
             update.message.reply_text(st.STR_START_ENTERPASSWORD[self.get_language(user_id)])
