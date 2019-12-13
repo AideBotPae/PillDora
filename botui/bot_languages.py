@@ -251,9 +251,9 @@ class PillDora:
                                   'handling': 'False'}
         logger.info('User ' + name + ' has connected to AideBot: ID is ' + str(user_id))
         message = update.message.text
-        if str(message).startswith("/start"):
+        if str(message).startswith("/start") or  str(message).startswith("/START"):
             self.bot.send_message(chat_id=user_id, text=(eval(st.STR_START_WELCOME[self.get_language(user_id)])))
-        elif str(message).startswith("I have had"):
+        elif str(message).startswith("I have had") or str(message).startswith("He tenido"):
             self.bot.send_message(chat_id=user_id, text=st.STR_WELCOME_NOT_GOOD[self.get_language(user_id)])
         else:
             self.bot.send_message(chat_id=user_id, text=st.STR_WELCOME_YES_GOOD[self.get_language(user_id)])
