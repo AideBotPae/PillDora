@@ -1290,10 +1290,10 @@ class PillDora:
     # Ends the communication between the user and the bot
     def exit(self, update, context):
         user_id = update.message.from_user.id
-        update.message.reply_text(chat_id=user_id, text=st.STR_EXIT[self.get_language(user_id)], reply_markup=start_markup)
+        self.bot.send_message(chat_id=user_id, text=st.STR_EXIT[self.get_language(user_id)], reply_markup=start_markup)
         logger.info('User ' + self.get_name(update.message.from_user) + ' finish with AideBot')
         self.event.set()
-        return self.set_state(update.message.chat_id, END)
+        return self.set_state(user_id, END)
 
 
     def getToTheMenu(self, update, context):
