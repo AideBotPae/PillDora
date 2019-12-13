@@ -83,6 +83,7 @@ taken_pill_markup['esp'] = ReplyKeyboardMarkup(st.taken_pill_keyboard['esp'], on
 loc_markup['eng'] = ReplyKeyboardMarkup(location_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
 loc_markup['esp'] = ReplyKeyboardMarkup(location_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
 start_keyboard=[[InlineKeyboardButton(text="START", callback_data="/start")]]
+start_markup = InlineKeyboardMarkup(start_keyboard)
 day_markup['eng']= ReplyKeyboardMarkup(st.day_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
 day_markup['esp']= ReplyKeyboardMarkup(st.day_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
 
@@ -249,7 +250,13 @@ class PillDora:
                                   'language': self.define_language(update.message.from_user.language_code),
                                   'handling': 'False'}
         logger.info('User ' + name + ' has connected to AideBot: ID is ' + str(user_id))
-        context.bot.send_message(chat_id=user_id, text=(eval(st.STR_START_WELCOME[self.get_language(user_id)])))
+        message = update.message.text
+        if str(message).startswith("/start"):
+            self.bot.send_message(chat_id=user_id, text=(eval(st.STR_START_WELCOME[self.get_language(user_id)])))
+        elif str(message).startswith("I have had"):
+            self.bot.send_message(chat_id=user_id, text="No worries, I am with you! Sure you will get better! \U0001F4AA")
+        else:
+            self.bot.send_message(chat_id=user_id, text="That's what I love to hear! Keep like that! \U0001F44D")
 
         if self.user_verification(user_id) == "True":
             update.message.reply_text(st.STR_START_ENTERPASSWORD[self.get_language(user_id)])
@@ -266,6 +273,7 @@ class PillDora:
             return 'esp'
         else:
             return 'eng'
+
     @staticmethod
     def get_name(user):
         """Resolve message data to a readable name.
@@ -1282,7 +1290,7 @@ class PillDora:
     # Ends the communication between the user and the bot
     def exit(self, update, context):
         user_id = update.message.from_user.id
-        update.message.reply_text(st.STR_EXIT[self.get_language(user_id)])
+        update.message.reply_text(chat_id=user_id, text=st.STR_EXIT[self.get_language(user_id)], reply_markup=start_markup)
         logger.info('User ' + self.get_name(update.message.from_user) + ' finish with AideBot')
         self.event.set()
         return self.set_state(update.message.chat_id, END)
@@ -1375,7 +1383,8 @@ class PillDora:
                           MessageHandler(Filters.regex('^YES$')|Filters.regex('^SÍ'), self.manage_response),
                           MessageHandler(Filters.regex('^NO$'), self.create_journey)],
                 END: [MessageHandler(Filters.regex('^TAKEN'), self.intr_history_yes),
-                      MessageHandler(Filters.regex('^POSTPONE'), self.intr_history_no)
+                      MessageHandler(Filters.regex('^POSTPONE'), self.intr_history_no),
+                      MessageHandler(Filters.text, self.start)
                       ]
             },
             fallbacks=[MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.exit)]
