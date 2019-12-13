@@ -1024,7 +1024,7 @@ class PillDora:
         elif self.get_states(user_id)[0] == END or self.get_states(user_id)[0] == REMINDERS:
             name = update.callback_query.from_user.first_name
             self.bot.send_message(chat_id=user_id, text="Welcome " + name + "! How is your day going? \U0001F603",
-                                  reply_markup=day_markup)
+                                  reply_markup=day_markup[self.get_language(user_id)])
         else:
             selected, date = telegramcalendar.process_calendar_selection(context.bot, update)
             if date is not None:
