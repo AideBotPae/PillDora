@@ -81,6 +81,12 @@ STR_START_WELCOME =  {
     'esp': "'Bienvenido '+ name+ ' ! Mi nombre es AideBot'"
 }
 
+STR_START_WELCOME_2 =  {
+    'eng': "'Welcome ' + name + ' !  How is your day going? \U0001F603'",
+    'esp': "'Bienvenido '+ name+ ' !  ¿Qué tal tu día? \U0001F603'"
+}
+
+
 STR_START_ENTERPASSWORD = {
     'eng': "Enter your password in order to get Assistance: ",
     'esp': "Introduce tu contraseña para que pueda ayudarte:"
