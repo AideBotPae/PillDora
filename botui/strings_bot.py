@@ -204,7 +204,7 @@ STR_WELCOME_NOT_GOOD = {
 }
 
 STR_WELCOME_YES_GOOD = {
-     'eng': "That's what I love to hear! Keep like that! \U0001F44D"",
+     'eng': "That's what I love to hear! Keep like that! \U0001F44D",
     'esp': "Me encanta oir eso! Continúa así! \U0001F44D""
 }
 
