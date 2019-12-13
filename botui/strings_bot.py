@@ -192,6 +192,15 @@ STR_MANAGE_RESPONSE_END = {
     'eng': "Is there any other way I can help you?",
     'esp': "¿Puedo ayudarte de alguna otra manera?"
 }
+STR_WELCOME_NOT_GOOD = {
+     'eng': "No worries, I am with you! Sure you will get better! \U0001F4AA",
+    'esp': "No te preocupes, te ayudaré! Seguro que en nada te encontrarás mejor! \U0001F4AA"
+}
+
+STR_WELCOME_YES_GOOD = {
+     'eng': "That's what I love to hear! Keep like that! \U0001F44D"",
+    'esp': "Me encanta oir eso! Continúa así! \U0001F44D""
+}
 
 
 STR_SEND_NEW_PRESCRIPTION_ERROR = {
