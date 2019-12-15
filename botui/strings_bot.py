@@ -81,6 +81,12 @@ STR_START_WELCOME =  {
     'esp': "'Bienvenido '+ name+ ' ! Mi nombre es AideBot'"
 }
 
+STR_START_WELCOME_2 =  {
+    'eng': "'Welcome ' + name + ' !  How is your day going? \U0001F603'",
+    'esp': "'Bienvenido '+ name+ ' !  ¿Qué tal tu día? \U0001F603'"
+}
+
+
 STR_START_ENTERPASSWORD = {
     'eng': "Enter your password in order to get Assistance: ",
     'esp': "Introduce tu contraseña para que pueda ayudarte:"
@@ -191,6 +197,15 @@ STR_MANAGE_RESPONSE_TAKEPILL0 = {
 STR_MANAGE_RESPONSE_END = {
     'eng': "Is there any other way I can help you?",
     'esp': "¿Puedo ayudarte de alguna otra manera?"
+}
+STR_WELCOME_NOT_GOOD = {
+     'eng': "No worries, I am with you! Sure you will get better! \U0001F4AA",
+    'esp': "No te preocupes, te ayudaré! Seguro que en nada te encontrarás mejor! \U0001F4AA"
+}
+
+STR_WELCOME_YES_GOOD = {
+     'eng': "That's what I love to hear! Keep like that! \U0001F44D",
+    'esp': "Me encanta oir eso! Continúa así! \U0001F44D"
 }
 
 
