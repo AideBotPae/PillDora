@@ -386,8 +386,8 @@ STR_GETMEDICINECN_REMINDERINFOELSE ={
     'esp': "'Medicamento ' + cima.get_med_name(response['parameters']['CN']) + ' tomado con una frecuencia de' + response['parameters']['frequency'] + ' horas hasta el día ' + response['parameters']['end_date'] + '.'"
 }
 STR_GETMEDICINECN_SHOULDREMOVE = {
-    'eng' : "'Reminder asked to be removed:\n ->\t' + reminder_info",
-    'esp' : "'Recordatorio solicitado para eliminar:\n -> \t' + reminder_info"
+    'eng' : "'Reminder asked to be removed: ' + reminder_info",
+    'esp' : "'Recordatorio solicitado para eliminar: ' + reminder_info"
 }
 STR_GETMEDICINECN_ISTHIS = {
     'eng' : "'Is this the reminder you want to remove? ', reply_markup=yes_no_markup",
