@@ -692,7 +692,10 @@ class PillDora:
                     voice=True
                     answer=self.handle_voice(update, context, user_id)
                     answer= answer.parameters[MEDICINE_TAGS[self.get_counter(user_id)]] #De todos los parametros que recibimos solo quiere analizar el que pertenece a esa KEYWORD
-                    if self.get_counter(user_id)==2:
+                    if len(str(answer))==0 :
+                        update.message.reply_text("An error has occurred, please repeat the audio")
+                        return INTR_MEDICINE
+                    elif self.get_counter(user_id)==2:
                         answer=self.split_date(answer)
                     update.message.reply_text(answer) #se podra borrar luego
                     self.set_medicine(user_id, self.get_counter(user_id), str(answer))
