@@ -378,12 +378,12 @@ STR_GETMEDICINECN_IFFALSE = {
     'esp' : 'El CN introducido es incorrecto, no hay ningún medicamento con este CN. ¿Te puedo ayudar de alguna otra manera? \U0001F914'
 }
 STR_GETMEDICINECN_REMINDERINFOIF ={
-    'eng': "'Medicine *' + cima.get_med_name(response['parameters']['CN']) + '* taken with a frequency of *'response['parameters']['frequency'] + '* hours *chronically*.'",
-    'esp': "'Medicamento *' + cima.get_med_name(response['parameters']['CN']) + '* tomado con una frecuencia de *'response['parameters']['frequency'] + '* horas *crónicamente*.'"
+    'eng': "'Medicine ' + cima.get_med_name(response['parameters']['CN']) + ' taken with a frequency of ' + response['parameters']['frequency'] + ' hours chronically.'",
+    'esp': "'Medicamento ' + cima.get_med_name(response['parameters']['CN']) + ' tomado con una frecuencia de ' + response['parameters']['frequency'] + ' horas crónicamente.'"
 }
 STR_GETMEDICINECN_REMINDERINFOELSE ={
-    'eng': "'Medicine *' + cima.get_med_name(response['parameters']['CN']) + '* taken with a frequency of *' + response['parameters']['frequency'] + '* hours until the date of *' + response['parameters']['end_date'] + '*.'",
-    'esp': "'Medicamento ' + cima.get_med_name(response['parameters']['CN']) + ' tomado con una frecuencia de' + response['parameters']['frequency'] + ' horas hasta el día ' + response['parameters']['end_date'] + '.'"
+    'eng': "'Medicine ' + cima.get_med_name(response['parameters']['CN']) + ' taken with a frequency of ' + response['parameters']['frequency'] + ' hours until the date of ' + response['parameters']['end_date'] + '.'",
+    'esp': "'Medicamento ' + cima.get_med_name(response['parameters']['CN']) + ' tomado con una frecuencia de ' + response['parameters']['frequency'] + ' horas hasta el día ' + response['parameters']['end_date'] + '.'"
 }
 STR_GETMEDICINECN_SHOULDREMOVE = {
     'eng' : "'Reminder asked to be removed: ' + reminder_info",
