@@ -523,29 +523,29 @@ class PillDora:
                 else:
                     self.set_prescription(user_id, self.get_counter(user_id), medicine_cn)
             else:
-                if self.valid_input(update.message.text):
-                    if update.message.voice:
-                        voice=True
-                        answer=self.handle_voice(update, context, user_id)
-                        answer_key= answer.parameters[PRESCRIPTION_TAGS[self.get_counter(user_id)]] #De todos los parametros que recibimos solo quiere analizar el que pertenece a esa KEYWORD
+                if update.message.voice:
+                    voice=True
+                    answer=self.handle_voice(update, context, user_id)
+                    answer_key= answer.parameters[PRESCRIPTION_TAGS[self.get_counter(user_id)]] #De todos los parametros que recibimos solo quiere analizar el que pertenece a esa KEYWORD
                         """if len(str(answer_key))==0 :
                             update.message.reply_text("An error has occurred, please repeat the audio")
                             return INTR_PRESCRIPTION"""
-                        print(str(answer_key))
-                        if self.get_counter(user_id)==1: #trata la cantidad
-                            answer_key=str(answer_key)
-                            answer_key=answer_key.split('.')[0]
-                        elif self.get_counter(user_id)==2: # trata la frequencia
-                            answer_key=answer.parameters['FREQUENCY']['amount']
-                            answer_key=str(answer_key)
-                            answer_key=answer_key.split('.')[0]
-                        elif self.get_counter(user_id)==3: # trata la fecha
-                            answer_key=self.split_date(answer_key)
+                    print(str(answer_key))
+                    if self.get_counter(user_id)==1: #trata la cantidad
+                        answer_key=str(answer_key)
+                        answer_key=answer_key.split('.')[0]
+                    elif self.get_counter(user_id)==2: # trata la frequencia
+                        answer_key=answer.parameters['FREQUENCY']['amount']
+                        answer_key=str(answer_key)
+                        answer_key=answer_key.split('.')[0]
+                    elif self.get_counter(user_id)==3: # trata la fecha
+                        answer_key=self.split_date(answer_key)
                         
-                        update.message.reply_text(answer_key) #se podra borrar luego
-                        self.set_prescription(user_id, self.get_counter(user_id), str(answer_key))
-                    else:
-                        self.set_prescription(user_id, self.get_counter(user_id), update.message.text)
+                    update.message.reply_text(answer_key) #se podra borrar luego
+                    self.set_prescription(user_id, self.get_counter(user_id), str(answer_key))
+
+                elif update.message.text and self.valid_input(update.message.text):
+                    self.set_prescription(user_id, self.get_counter(user_id), update.message.text)
                 else:
                     update.message.reply_text(eval(st.STR_SEND_NEW_PRESCRIPTION_META_RESPOND[self.get_language(user_id)]))
                     return INTR_PRESCRIPTION
@@ -699,7 +699,7 @@ class PillDora:
                     self.set_medicine(user_id, self.get_counter(user_id), str(answer))
 
                 else:
-                    print("no detecto vox")
+                    print("no detecto voz")
                     self.set_medicine(user_id, self.get_counter(user_id), update.message.text)
         except:
             user_id = update.callback_query.from_user.id
