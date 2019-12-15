@@ -789,7 +789,7 @@ class PillDora:
 
                 elif intent_detected==NLP_OPTION[1]: #itnroduce prescription
                     print("estoy entrando aqui")
-                    if(len(answer.parameters[PRESCRIPTION_TAGS[1]])==0 or len(answer.parameters[PRESCRIPTION_TAGS[2]]['amount'])==0 or len(answer.parameters[PRESCRIPTION_TAGS[3]])==0):
+                    if(len(str(answer.parameters[PRESCRIPTION_TAGS[1]]))==0 or len(str(answer.parameters[PRESCRIPTION_TAGS[2]]['amount']))==0 or len(answer.parameters[PRESCRIPTION_TAGS[3]])==0):
                         update.message.reply_text("An error has occurred, please repeat the audio")
                         return NLP
 
