@@ -1200,11 +1200,9 @@ class PillDora:
             print("qui2")
             reminder_info = eval(st.STR_GETMEDICINECN_REMINDERINFOELSE[self.get_language(user_id)])
             print("pritn3")
-        self.bot.send_message(chat_id=user_id, text=st.STR_GETMEDICINECN_SHOULDREMOVE[self.get_language(user_id)],
-                              parse_mode=telegram.ParseMode.MARKDOWN)
+        self.bot.send_message(chat_id=user_id, text=st.STR_GETMEDICINECN_SHOULDREMOVE[self.get_language(user_id)], parse_mode=telegram.ParseMode.MARKDOWN)
         print("4")
-        self.bot.send_message(chat_id=user_id, text=st.STR_GETMEDICINECN_ISTHIS[self.get_language(user_id)],
-                              reply_markup=yes_no_markup[self.get_language(user_id)])
+        self.bot.send_message(chat_id=user_id, text=st.STR_GETMEDICINECN_ISTHIS[self.get_language(user_id)], reply_markup=yes_no_markup[self.get_language(user_id)])
         print("5")
         self.set_query(user_id, ["CN"], [response['parameters']['CN']])
         print("6")
