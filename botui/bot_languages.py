@@ -789,12 +789,16 @@ class PillDora:
 
                 elif intent_detected==NLP_OPTION[1]: #itnroduce prescription
                     print("estoy entrando aqui")
+                    if(len(answer.parameters[PRESCRIPTION_TAGS[1]])==0 or len(answer.parameters[PRESCRIPTION_TAGS[2]]['amount'])==0 or len(answer.parameters[PRESCRIPTION_TAGS[3]])==0):
+                        update.message.reply_text("An error has occurred, please repeat the audio")
+                        return NLP
 
-                    self.set_prescription(user_id, 1, self.split_value(answer.parameters[PRESCRIPTION_TAGS[1]])) # cantidad de pastillas cada vez
+                    else:
+                        self.set_prescription(user_id, 1, self.split_value(answer.parameters[PRESCRIPTION_TAGS[1]])) # cantidad de pastillas cada vez
 
-                    self.set_prescription(user_id, 2, self.split_value(answer.parameters[PRESCRIPTION_TAGS[2]]['amount']) ) # frequencia de pastillas cada vez
+                        self.set_prescription(user_id, 2, self.split_value(answer.parameters[PRESCRIPTION_TAGS[2]]['amount']) ) # frequencia de pastillas cada vez
 
-                    self.set_prescription(user_id, 3, self.split_date(answer.parameters[PRESCRIPTION_TAGS[3]])) #fecha
+                        self.set_prescription(user_id, 3, self.split_date(answer.parameters[PRESCRIPTION_TAGS[3]])) #fecha
                     
         except:
             user_id = update.callback_query.from_user.id
