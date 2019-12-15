@@ -377,6 +377,7 @@ STR_GETMEDICINECN_IFFALSE = {
     'eng' : 'CN introduced is wrong, there is not any med with this CN Is there any other way I can help you? \U0001F914',
     'esp' : 'El CN introducido es incorrecto, no hay ningún medicamento con este CN. ¿Te puedo ayudar de alguna otra manera? \U0001F914'
 }
+"""
 STR_GETMEDICINECN_REMINDERINFOIF ={
     'eng': "'Medicine ' + cima.get_med_name(response['parameters']['CN']) + ' taken with a frequency of ' + response['parameters']['frequency'] + ' hours chronically.'",
     'esp': "'Medicamento ' + cima.get_med_name(response['parameters']['CN']) + ' tomado con una frecuencia de ' + response['parameters']['frequency'] + ' horas crónicamente.'"
@@ -389,6 +390,21 @@ STR_GETMEDICINECN_SHOULDREMOVE = {
     'eng' : "'Reminder asked to be removed: ' + reminder_info",
     'esp' : "'Recordatorio solicitado para eliminar: ' + reminder_info"
 }
+"""
+STR_GETMEDICINECN_REMINDERINFOIF ={
+    'eng': "'Medicine'",
+    'esp': "'Medicamento '"
+}
+STR_GETMEDICINECN_REMINDERINFOELSE ={
+    'eng': "'Medicine ' ",
+    'esp': "'Medicamento ' "
+}
+STR_GETMEDICINECN_SHOULDREMOVE = {
+    'eng' : "'Reminder asked to be removed:'",
+    'esp' : "'Recordatorio solicitado para eliminar: '"
+}
+
+
 STR_GETMEDICINECN_ISTHIS = {
     'eng' : "'Is this the reminder you want to remove? ', reply_markup=yes_no_markup",
     'esp' : "'Es este el recordatorio que quieres eliminar? ', reply_markup=yes_no_markup"
