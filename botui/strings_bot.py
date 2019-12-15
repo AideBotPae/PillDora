@@ -381,6 +381,10 @@ STR_GETMEDICINECN_REMINDERINFOIF ={
     'eng': "'Medicine *' + cima.get_med_name(response['parameters']['CN']) + '* taken with a frequency of *'response['parameters']['frequency'] + '* hours *chronically*.'",
     'esp': "'Medicamento *' + cima.get_med_name(response['parameters']['CN']) + '* tomado con una frecuencia de *'response['parameters']['frequency'] + '* horas *crónicamente*.'"
 }
+STR_GETMEDICINECN_REMINDERINFOELSE ={
+    'eng': "'Medicine *' + cima.get_med_name(response['parameters']['CN']) + '* taken with a frequency of *' + response['parameters']['frequency'] + '* hours until the date of *' + end_date + '*.'",
+    'esp': "'Medicamento *' + cima.get_med_name(response['parameters']['CN']) + '* tomado con una frecuencia de*' + response['parameters']['frequency'] + '* horas hasta el día *' + end_date + '*.'"
+}
 STR_GETMEDICINECN_SHOULDREMOVE = {
     'eng' : "'Reminder asked to be removed:\n ->\t' + reminder_info",
     'esp' : "'Recordatorio solicitado para eliminar:\n -> \t' + reminder_info"
