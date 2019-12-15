@@ -39,7 +39,7 @@ INTR_PILL_MSSGS = {
 
 INTR_MEDICINE_MSSGS = {
     'eng' :  ["What is the medicine's name (CN)?\nYou can also send me a photo of the package!", "How many pills are contained in the box?", "When does the medicine expire?"],
-    'esp' : ["¿Cuál es el nombre del medicamento (CN)?\n¡También puedes enviarme una foto del paquete!", "¿Cuántas pastillas hay en la caja?", "¿Cuádo caduca el medicamento?"]
+    'esp' : ["¿Cuál es el nombre del medicamento (CN)?\n¡También puedes enviarme una foto del paquete!", "¿Cuántas pastillas hay en la caja?", "¿Cuándo caduca el medicamento?"]
 }
 reply_keyboard ={
 
