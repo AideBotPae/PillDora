@@ -380,7 +380,7 @@ STR_GETMEDICINECN_IFFALSE = {
 
 STR_GETMEDICINECN_REMINDERINFOIF ={
     'eng': "'Medicine ' + cima.get_med_name(response['parameters']['CN']) + ' taken with a frequency of ' + response['parameters']['frequency'] + ' hours chronically.'",
-    'esp': "'Medicamento ' + cima.get_med_name(response['parameters']['CN']) + ' tomado con una frecuencia de ' + response['parameters']['frequency'] + ' horas crónicamente.'"
+    'esp': "'Medicamento *' + cima.get_med_name(response['parameters']['CN']) + '* tomado con una frecuencia de *' + response['parameters']['frequency'] + '* horas crónicamente.'"
 }
 STR_GETMEDICINECN_REMINDERINFOELSE ={
     'eng': "'Medicine ' + cima.get_med_name(response['parameters']['CN']) + ' taken with a frequency of ' + response['parameters']['frequency'] + ' hours until the date of ' + response['parameters']['end_date'] + '.'",
