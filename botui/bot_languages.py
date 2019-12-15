@@ -772,8 +772,12 @@ class PillDora:
                 print(intent_detected)
                 if intent_detected==NLP_OPTION[0]: #itnroduce medicine
                     #self.set_medicine(user_id, 0, name)
-                    self.set_medicine(user_id, 1, str(answer.parameters[MEDICINE_TAGS[1]]))
-                    self.set_medicine(user_id, 2,self.split_date(answer.parameters[MEDICINE_TAGS[2]]))                            
+                    if(len(str(answer.parameters[MEDICINE_TAGS[1]])) or len(answer.parameters[MEDICINE_TAGS[2]])):
+                        update.message.reply_text("An error has occurred, please repeat the audio")
+                        return NLP
+                    else:
+                        self.set_medicine(user_id, 1, str(answer.parameters[MEDICINE_TAGS[1]]))
+                        self.set_medicine(user_id, 2,self.split_date(answer.parameters[MEDICINE_TAGS[2]]))                            
 
                 elif intent_detected==NLP_OPTION[1]: #itnroduce prescription
                     print("estoy entrando aqui")
