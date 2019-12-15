@@ -528,7 +528,7 @@ class PillDora:
                         voice=True
                         answer=self.handle_voice(update, context, user_id)
                         answer_key= answer.parameters[PRESCRIPTION_TAGS[self.get_counter(user_id)]] #De todos los parametros que recibimos solo quiere analizar el que pertenece a esa KEYWORD
-                        if(len(str(answer_key))==0 ):
+                        if len(str(answer_key))==0 :
                             update.message.reply_text("An error has occurred, please repeat the audio")
                             return INTR_PRESCRIPTION
                         elif self.get_counter(user_id)==1: #trata la cantidad
