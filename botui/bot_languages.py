@@ -1212,6 +1212,7 @@ class PillDora:
     # Method that creates a journey to be handled later and asks for the information
     @run_async
     def create_journey(self, update, context):
+	user_id =update.message.from_user
         boolean = self.get_states(update.message.from_user.id)[0] == CHOOSING
         self.set_state(update.message.from_user.id, CHOOSING)
         logger.info('User ' + self.get_name(update.message.from_user) + ' creating journey')
