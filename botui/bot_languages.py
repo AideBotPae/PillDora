@@ -1207,6 +1207,7 @@ class PillDora:
         try:
             if self.valid_input(update.message.text):
                 medicine_CN = update.message.text
+                print(str(medicine_CN))
             else:
                 update.message.reply_text(
                     st.STR_GETMEDICINECN_METACHARACTERS[self.get_language(user_id)])
