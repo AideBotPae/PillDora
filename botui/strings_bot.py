@@ -321,8 +321,8 @@ STR_SEE_CALENDAR = {
 }
 
 STR_GET_CALENDAR_TASKS_REMINDERS = {
-    'eng' : "'Reminders for ' + date_str + ' : ' + response['parameters']['tasks']",
-    'esp' : "'Recordatorios para ' + date_str + ' : ' + response['parameters']['tasks']"
+    'eng' : "'Reminders for ' + date_str + ' : \\n' + response['parameters']['tasks']",
+    'esp' : "'Recordatorios para ' + date_str + ' : \\n ' + response['parameters']['tasks']"
 }
 STR_GET_CALENDAR_TASKS_HELPEND = STR_MANAGE_RESPONSE_END
 STR_GET_CALENDAR_TASKS_CHRONIC = {
