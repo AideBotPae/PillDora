@@ -1217,10 +1217,10 @@ class PillDora:
         logger.info('User ' + self.get_name(update.message.from_user) + ' creating journey')
         self.set_state(update.message.from_user.id, JOURNEY)
         if boolean:
-            update.message.reply_text(st.STR_CREATE_JOURNEY_IF[sef.get_language(user_id)],
+            update.message.reply_text(st.STR_CREATE_JOURNEY_IF[self.get_language(user_id)],
                                       reply_markup=telegramcalendar.create_calendar())
         else:
-            update.message.reply_text(st.STR_CREATE_JOURNEY_ELSE[sef.get_language(user_id)],
+            update.message.reply_text(st.STR_CREATE_JOURNEY_ELSE[self.get_language(user_id)],
                                       reply_markup=telegramcalendar.create_calendar())
         return JOURNEY
 
