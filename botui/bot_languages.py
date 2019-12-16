@@ -1204,11 +1204,12 @@ class PillDora:
 
     # Method that asks for a CN and prints all the information and asks about if it should be removed or not
     def get_medicine_CN(self, update, context):
+        print(str(update.message.text))
         try:
             if self.valid_input(update.message.text):
                 medicine_CN = update.message.text
-                print(str(medicine_CN))
             else:
+                print("entro aqui")
                 update.message.reply_text(
                     st.STR_GETMEDICINECN_METACHARACTERS[self.get_language(user_id)])
                 return GET_CN
