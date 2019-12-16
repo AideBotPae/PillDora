@@ -959,16 +959,16 @@ class PillDora:
         response = self.send_query(user_id, query)
         return json.loads(response)["parameters"]
 
-def makeKeyboard(self, arg, user_id):
-        lista = []
-        for key in arg:
-            print("esto es arg[key]"+str(arg[key])+ "esto es key"+ str(key))
-            lista.append([InlineKeyboardButton(text=arg[key], callback_data=key)])
-        if self.get_states(user_id)[0] == SHOW_INFORMATION:
-            lista.append([InlineKeyboardButton(text=st.STR_MAKEKEYBOARD, callback_data='Others')])
-        print("esta es la lista" + str(lista))
-        dyn_markup = InlineKeyboardMarkup(lista)
-        return dyn_markup
+    def makeKeyboard(self, arg, user_id):
+            lista = []
+            for key in arg:
+                print("esto es arg[key]"+str(arg[key])+ "esto es key"+ str(key))
+                lista.append([InlineKeyboardButton(text=arg[key], callback_data=key)])
+            if self.get_states(user_id)[0] == SHOW_INFORMATION:
+                lista.append([InlineKeyboardButton(text=st.STR_MAKEKEYBOARD, callback_data='Others')])
+            print("esta es la lista" + str(lista))
+            dyn_markup = InlineKeyboardMarkup(lista)
+            return dyn_markup
 
     @run_async
     def show_information(self, update, context):
