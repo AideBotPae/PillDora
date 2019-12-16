@@ -1213,7 +1213,7 @@ class PillDora:
     @run_async
     def create_journey(self, update, context):
 	user_id = update.message.from_user.id
-        boolean = self.get_states(update.message.from_user.id)[0] == CHOOSING
+	boolean = self.get_states(update.message.from_user.id)[0] == CHOOSING
         self.set_state(update.message.from_user.id, CHOOSING)
         logger.info('User ' + self.get_name(update.message.from_user) + ' creating journey')
         self.set_state(update.message.from_user.id, JOURNEY)
