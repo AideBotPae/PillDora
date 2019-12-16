@@ -298,7 +298,7 @@ STR_SHOW_INFORMATION_CHOOSEMED = {
 
 STR_SHOW_INFORMATION_CNINFO = {
     'eng' : "Choose medicine you want information about from the ones on your Current Treatment:",
-    'esp' : "Elige el medicamento del cuál qioeres más infromacion de los que tienes en Tratamientos Actuales"
+    'esp' : "Elige el medicamento del cuál quieres más información de los que tienes en Tratamientos Actuales"
 }
 
 STR_SHOW_INFOABOUT_ERROR = STR_SEND_NEW_MEDICINE_ERROR
