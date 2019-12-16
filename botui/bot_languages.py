@@ -960,10 +960,11 @@ class PillDora:
         return json.loads(response)["parameters"]
 
     def makeKeyboard(self, arg, user_id):
-        lista = []
+        #lista = []
+        lista=InlineKeyboardMarkup()
         for key in arg:
             print("esto es arg[key]"+str(arg[key])+ "esto es key"+ str(key))
-            lista.append([InlineKeyboardButton(text=arg[key], callback_data=key)])
+            lista.add(InlineKeyboardButton(text=arg[key], callback_data=key))
         if self.get_states(user_id)[0] == SHOW_INFORMATION:
             lista.append([InlineKeyboardButton(text=st.STR_MAKEKEYBOARD, callback_data='Others')])
         dyn_markup = InlineKeyboardMarkup(lista)
