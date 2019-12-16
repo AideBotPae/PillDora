@@ -1087,7 +1087,7 @@ class PillDora:
     def get_calendar_tasks(self, update, context, date, user_id):
         date_str = date
         if date_str == MAX_DATE:
-            date_str = st.GET_CALENDAR_TASKJS_CHRONIC[self.get_language(user_id)]
+            date_str = st.GET_CALENDAR_TASKS_CHRONIC[self.get_language(user_id)]
         # connects to DataBase with Date and UserId asking for all the tasks of this date
         self.set_function(user_id, "TASKS CALENDAR")
         self.set_query(user_id, ["date"], [date])
