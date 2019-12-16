@@ -962,7 +962,7 @@ class PillDora:
     def makeKeyboard(self, arg, user_id):
         lista = []
         for key in arg:
-            lista.append([InlineKeyboardButton(text=arg[key], callback_data=arg[key])])
+            lista.append([InlineKeyboardButton(text=arg[key], callback_data=key)])
         if self.get_states(user_id)[0] == SHOW_INFORMATION:
             lista.append([InlineKeyboardButton(text=st.STR_MAKEKEYBOARD, callback_data='Others')])
         dyn_markup = InlineKeyboardMarkup(lista)
@@ -1194,7 +1194,7 @@ class PillDora:
         if 'Boolean' not in dict:
             dyn_markup = self.makeKeyboard(dict, user_id)
             update.message.reply_text(st.STR_DELETE_REMINDER_CHOOSEMED[self.get_language(user_id)],
-                                      reply_markup=dyn_markup)
+                                      reply_markup=gender_markup[self.get_language(user_id)])
             return self.set_state(user_id, CHECK_REM)
         else:
             update.message.reply_text(st.STR_DELETE_REMINDER_ANYMED[self.get_language(user_id)])
