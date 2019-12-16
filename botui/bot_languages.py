@@ -50,11 +50,9 @@ QUERIES = ['CHECK USER', 'CHECK PASSWORD', 'NEW PASSWORD', 'INTRODUCE PRESCRIPTI
 
 PRESCRIPTION_TAGS = ['NAME', 'QUANTITY', 'FREQUENCY', 'END_DATE']
 
-
 MEDICINE_TAGS = ['NAME', 'QUANTITY', 'EXP_DATE']
 NLP_TAGS = ['NAME', 'QUANTITY', 'EXP_DATE', 'FREQUENCY', 'END_DATE']
-NLP_OPTION= ['INTRODUCE MEDICINE', 'INTRODUCE PRESCRIPTION']
-
+NLP_OPTION = ['INTRODUCE MEDICINE', 'INTRODUCE PRESCRIPTION']
 
 PILL_TAGS = ['NAME', 'QUANTITY']
 markup = {}
@@ -74,18 +72,25 @@ gender_markup = {}
 taken_pill_markup = {}
 loc_markup = {}
 day_markup = {}
-yes_no_markup['eng'] = ReplyKeyboardMarkup(st.yes_no_reply_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
-yes_no_markup['esp'] = ReplyKeyboardMarkup(st.yes_no_reply_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
-gender_markup['eng'] = ReplyKeyboardMarkup(st.gender_reply_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
-gender_markup['esp'] = ReplyKeyboardMarkup(st.gender_reply_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
-taken_pill_markup['eng'] = ReplyKeyboardMarkup(st.taken_pill_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
-taken_pill_markup['esp'] = ReplyKeyboardMarkup(st.taken_pill_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
+yes_no_markup['eng'] = ReplyKeyboardMarkup(st.yes_no_reply_keyboard['eng'], one_time_keyboard=True,
+                                           resize_keyboard=True)
+yes_no_markup['esp'] = ReplyKeyboardMarkup(st.yes_no_reply_keyboard['esp'], one_time_keyboard=True,
+                                           resize_keyboard=True)
+gender_markup['eng'] = ReplyKeyboardMarkup(st.gender_reply_keyboard['eng'], one_time_keyboard=True,
+                                           resize_keyboard=True)
+gender_markup['esp'] = ReplyKeyboardMarkup(st.gender_reply_keyboard['esp'], one_time_keyboard=True,
+                                           resize_keyboard=True)
+taken_pill_markup['eng'] = ReplyKeyboardMarkup(st.taken_pill_keyboard['eng'], one_time_keyboard=True,
+                                               resize_keyboard=True)
+taken_pill_markup['esp'] = ReplyKeyboardMarkup(st.taken_pill_keyboard['esp'], one_time_keyboard=True,
+                                               resize_keyboard=True)
 loc_markup['eng'] = ReplyKeyboardMarkup(location_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
 loc_markup['esp'] = ReplyKeyboardMarkup(location_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
-start_keyboard=[[InlineKeyboardButton(text="START", callback_data="/start")]]
+start_keyboard = [[InlineKeyboardButton(text="START", callback_data="/start")]]
 start_markup = InlineKeyboardMarkup(start_keyboard)
-day_markup['eng']= ReplyKeyboardMarkup(st.day_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
-day_markup['esp']= ReplyKeyboardMarkup(st.day_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
+day_markup['eng'] = ReplyKeyboardMarkup(st.day_keyboard['eng'], one_time_keyboard=True, resize_keyboard=True)
+day_markup['esp'] = ReplyKeyboardMarkup(st.day_keyboard['esp'], one_time_keyboard=True, resize_keyboard=True)
+
 
 class PillDora:
     """
@@ -177,14 +182,15 @@ class PillDora:
     # Returns the number of medicines associated to a medicine for a specific user_id
     def get_counter(self, user_id):
         return self.aide_bot[user_id]['intr_prescription_counter']
-	# Set the language associated to an specific user_id
+
+    # Set the language associated to an specific user_id
     def set_language(self, user_id, lang):
         self.aide_bot[user_id]['language'] = lang
 
     # Returns the language associated to an specific user_id
     def get_language(self, user_id):
         return self.aide_bot[user_id]['language']
-        
+
     # Insertion of the query that the Client sends to the ServerWorker for a specific user_id
     def set_query(self, user_id, keys, values):
         # We use a dictionary for the parameters of the query on the JSON string
@@ -245,13 +251,14 @@ class PillDora:
                                   'function': 'none',
                                   'query': {},
                                   'reminder': {'cn': "None", 'time': 'None'},
-                                  'new_user': {'new_password': 'None', 'new_age': "None", 'new_gender': 'None', 'new_postalcode': 'None'},
+                                  'new_user': {'new_password': 'None', 'new_age': "None", 'new_gender': 'None',
+                                               'new_postalcode': 'None'},
                                   'serverworker': ServerWorker(user_id),
                                   'language': self.define_language(update.message.from_user.language_code),
                                   'handling': 'False'}
         logger.info('User ' + name + ' has connected to AideBot: ID is ' + str(user_id))
         message = update.message.text
-        if str(message).startswith("/start") or  str(message).startswith("/START"):
+        if str(message).startswith("/start") or str(message).startswith("/START"):
             self.bot.send_message(chat_id=user_id, text=(eval(st.STR_START_WELCOME[self.get_language(user_id)])))
         elif str(message).startswith("I have had") or str(message).startswith("He tenido"):
             self.bot.send_message(chat_id=user_id, text=st.STR_WELCOME_NOT_GOOD[self.get_language(user_id)])
@@ -329,7 +336,8 @@ class PillDora:
         if self.pwd_verification(password, user_id) == "False":
             update.message.reply_text(st.STR_INTR_PWD_WRONGPASS[self.get_language(user_id)])
             return self.set_state(user_id, LOGIN)
-        update.message.reply_text(st.STR_INTR_PWD_HELPYOU[self.get_language(user_id)], reply_markup = markup[self.get_language(user_id)])
+        update.message.reply_text(st.STR_INTR_PWD_HELPYOU[self.get_language(user_id)],
+                                  reply_markup=markup[self.get_language(user_id)])
         return self.set_state(user_id, CHOOSING)
 
     @run_async
@@ -366,10 +374,10 @@ class PillDora:
             if i > 2:
                 # update.message.reply_text("Valid Password")
                 # Introduce new UserID-Password to DataBase
-                self.set_new_user(user_id,'new_password',password)
-                #query = self.create_query(user_id)
-                #self.send_query(user_id, query)
-                #update.message.reply_text(st.STR_NEW_USER_VALIDPASS[self.get_language(user_id)], reply_markup = markup[self.get_language(user_id)])
+                self.set_new_user(user_id, 'new_password', password)
+                # query = self.create_query(user_id)
+                # self.send_query(user_id, query)
+                # update.message.reply_text(st.STR_NEW_USER_VALIDPASS[self.get_language(user_id)], reply_markup = markup[self.get_language(user_id)])
                 update.message.reply_text(st.STR_NEW_USER_VALIDPASS[self.get_language(user_id)])
                 update.message.reply_text(st.STR_NEW_USER_AGE[self.get_language(user_id)])
                 self.set_counter(user_id, self.get_counter(user_id) + 1)
@@ -381,40 +389,40 @@ class PillDora:
             return self.set_state(update.message.from_user.id, NEW_USER)
 
         elif self.get_counter(user_id) == 1:
-            age=update.message.text
-            #self.set_query(user_id, [""], [age])
-            self.set_new_user(user_id,'new_age',age)
-            update.message.reply_text(st.STR_NEW_USER_GENDER[self.get_language(user_id)], reply_markup = gender_markup[self.get_language(user_id)])
+            age = update.message.text
+            # self.set_query(user_id, [""], [age])
+            self.set_new_user(user_id, 'new_age', age)
+            update.message.reply_text(st.STR_NEW_USER_GENDER[self.get_language(user_id)],
+                                      reply_markup=gender_markup[self.get_language(user_id)])
             self.set_counter(user_id, self.get_counter(user_id) + 1)
             return self.set_state(update.message.from_user.id, NEW_USER)
 
         elif self.get_counter(user_id) == 2:
-            gender=update.message.text
-            self.set_new_user(user_id,'new_gender',gender)
+            gender = update.message.text
+            self.set_new_user(user_id, 'new_gender', gender)
             update.message.reply_text(st.STR_NEW_USER_POSTAL_CODE[self.get_language(user_id)])
-            #string del postal code
+            # string del postal code
             self.set_counter(user_id, self.get_counter(user_id) + 1)
             return self.set_state(update.message.from_user.id, NEW_USER)
 
         elif self.get_counter(user_id) == 3:
-            postal_code=update.message.text
-            self.set_counter(user_id,0)
-            #add to database
-            self.set_new_user(user_id,'new_postalcode',postal_code)
+            postal_code = update.message.text
+            self.set_counter(user_id, 0)
+            # add to database
+            self.set_new_user(user_id, 'new_postalcode', postal_code)
             self.set_function(user_id, 'NEW PASSWORD')
 
             user = self.get_new_user(user_id)
             print(str(user))
-            self.set_query(user_id, ["user_id", "new_password", "new_age", "new_gender","new_postalcode"],
-                       [str(user_id), user['new_password'], user['new_age'], user['new_gender'],user['new_postalcode']])
+            self.set_query(user_id, ["user_id", "new_password", "new_age", "new_gender", "new_postalcode"],
+                           [str(user_id), user['new_password'], user['new_age'], user['new_gender'],
+                            user['new_postalcode']])
             query = self.create_query(user_id)
             response = json.loads(self.send_query(user_id, query))
 
-            update.message.reply_text(st.STR_NEW_USER_VALIDREGISTER[self.get_language(user_id)], reply_markup = markup[self.get_language(user_id)])
+            update.message.reply_text(st.STR_NEW_USER_VALIDREGISTER[self.get_language(user_id)],
+                                      reply_markup=markup[self.get_language(user_id)])
             return self.set_state(update.message.from_user.id, CHOOSING)
-
-
-
 
     def manage_response(self, update, context):
         """Sends a query and gets the response, deciding what to do depending on the response 'function' field.
@@ -468,7 +476,8 @@ class PillDora:
                 logger.info("Pills taken correctly introduced to history")
                 if response['parameters']["Code"] == "1":
                     logger.info("Pill taken correctly introduced")
-                    self.bot.send_message(chat_id=user_id, text=st.STR_MANAGE_RESPONSE_TAKEPILL1[self.get_language(user_id)])
+                    self.bot.send_message(chat_id=user_id,
+                                          text=st.STR_MANAGE_RESPONSE_TAKEPILL1[self.get_language(user_id)])
                 elif response['parameters']["Code"] == "0":
                     logger.info("Pill taken correctly introduced. However, no inventory for these pills.")
                     self.bot.send_message(chat_id=user_id,
@@ -478,7 +487,8 @@ class PillDora:
         self.set_query(user_id, ["None"], ["None"])
         self.set_function(user_id, "None")
         logger.info('User ' + self.get_name(update.message.from_user) + ' in the menu')
-        update.message.reply_text(st.STR_MANAGE_RESPONSE_END[self.get_language(user_id)], reply_markup=markup[self.get_language(user_id)])
+        update.message.reply_text(st.STR_MANAGE_RESPONSE_END[self.get_language(user_id)],
+                                  reply_markup=markup[self.get_language(user_id)])
         return self.set_state(update.message.from_user.id, CHOOSING)
 
     @run_async
@@ -491,7 +501,8 @@ class PillDora:
         """
         user_id = update.message.from_user.id
         logger.info('User introducing new prescription')
-        update.message.reply_text(st.INTR_PRESCRIPTION_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)])
+        update.message.reply_text(
+            st.INTR_PRESCRIPTION_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, INTR_PRESCRIPTION)
 
     def send_new_prescription(self, update, context):
@@ -502,7 +513,7 @@ class PillDora:
         :param context: Handler's context
         :return: state INTR_PRESCRIPTION while form not completed, state CHECK_PRE once completed
         """
-        voice=False
+        voice = False
         try:
             user_id = update.message.from_user.id
             if self.get_counter(user_id) == 0:  # If we are in the first field of the form
@@ -524,48 +535,51 @@ class PillDora:
                     self.set_prescription(user_id, self.get_counter(user_id), medicine_cn)
             else:
                 if update.message.voice:
-                    voice=True
-                    answer=self.handle_voice(update, context, user_id)
-                    answer_key= answer.parameters[PRESCRIPTION_TAGS[self.get_counter(user_id)]] #De todos los parametros que recibimos solo quiere analizar el que pertenece a esa KEYWORD
-                    if len(str(answer_key))==0 :
+                    voice = True
+                    answer = self.handle_voice(update, context, user_id)
+                    answer_key = answer.parameters[PRESCRIPTION_TAGS[self.get_counter(
+                        user_id)]]  # De todos los parametros que recibimos solo quiere analizar el que pertenece a esa KEYWORD
+                    if len(str(answer_key)) == 0:
                         update.message.reply_text("An error has occurred, please repeat the audio")
                         return INTR_PRESCRIPTION
-                    elif self.get_counter(user_id)==1: #trata la cantidad
-                        answer_key=str(answer_key)
-                        answer_key=answer_key.split('.')[0]
-                    elif self.get_counter(user_id)==2: # trata la frequencia
-                        answer_key=answer.parameters['FREQUENCY']['amount']
-                        answer_key=str(answer_key)
-                        answer_key=answer_key.split('.')[0]
-                    elif self.get_counter(user_id)==3: # trata la fecha
-                        answer_key=self.split_date(answer_key)
-                        
-                    update.message.reply_text(answer_key) #se podra borrar luego
+                    elif self.get_counter(user_id) == 1:  # trata la cantidad
+                        answer_key = str(answer_key)
+                        answer_key = answer_key.split('.')[0]
+                    elif self.get_counter(user_id) == 2:  # trata la frequencia
+                        answer_key = answer.parameters['FREQUENCY']['amount']
+                        answer_key = str(answer_key)
+                        answer_key = answer_key.split('.')[0]
+                    elif self.get_counter(user_id) == 3:  # trata la fecha
+                        answer_key = self.split_date(answer_key)
+
+                    update.message.reply_text(answer_key)  # se podra borrar luego
                     self.set_prescription(user_id, self.get_counter(user_id), str(answer_key))
 
                 elif update.message.text and self.valid_input(update.message.text):
                     self.set_prescription(user_id, self.get_counter(user_id), update.message.text)
                 else:
-                    update.message.reply_text(eval(st.STR_SEND_NEW_PRESCRIPTION_META_RESPOND[self.get_language(user_id)]))
+                    update.message.reply_text(
+                        eval(st.STR_SEND_NEW_PRESCRIPTION_META_RESPOND[self.get_language(user_id)]))
                     return INTR_PRESCRIPTION
         except Exception as e:
             print(e)
             user_id = update.callback_query.from_user.id
 
-
         self.set_counter(user_id, self.get_counter(user_id) + 1)
         logger.info(self.get_prescription(user_id))
         if self.get_counter(user_id) != len(st.INTR_PRESCRIPTION_MSSGS[self.get_language(user_id)]):
             if self.get_counter(user_id) < 3:
-                update.message.reply_text(st.INTR_PRESCRIPTION_MSSGS[self.get_language(user_id)][self.get_counter(user_id)])
+                update.message.reply_text(
+                    st.INTR_PRESCRIPTION_MSSGS[self.get_language(user_id)][self.get_counter(user_id)])
                 return INTR_PRESCRIPTION
             else:
-                update.message.reply_text(st.INTR_PRESCRIPTION_MSSGS[self.get_language(user_id)][self.get_counter(user_id)])
+                update.message.reply_text(
+                    st.INTR_PRESCRIPTION_MSSGS[self.get_language(user_id)][self.get_counter(user_id)])
 
-                if voice==False:
+                if voice == False:
                     context.bot.send_message(chat_id=user_id,
-                                            text="Please select: ",
-                                            reply_markup=telegramcalendar.create_calendar())
+                                             text="Please select: ",
+                                             reply_markup=telegramcalendar.create_calendar())
                 elif self.get_counter(user_id) > 1:
                     return INTR_PRESCRIPTION
                 return CHECK_PRE
@@ -576,7 +590,8 @@ class PillDora:
             b = list(self.get_prescription(user_id).values())
             b.append(cima.get_med_name(self.get_prescription(user_id)['NAME']))
             context.bot.send_message(chat_id=user_id,
-                                     text=st.STR_SEND_NEW_PRESCRIPTION_ISCORRECT[self.get_language(user_id)], reply_markup=yes_no_markup[self.get_language(user_id)])
+                                     text=st.STR_SEND_NEW_PRESCRIPTION_ISCORRECT[self.get_language(user_id)],
+                                     reply_markup=yes_no_markup[self.get_language(user_id)])
             context.bot.send_message(chat_id=user_id,
                                      text=self.show_prescription(user_id), parse_mode=telegram.ParseMode.MARKDOWN)
 
@@ -600,9 +615,9 @@ class PillDora:
     def handle_voice(self, update, context, user_id):
         newFile = context.bot.getFile(update.message.voice.file_id)
         filename_src = f"/home/paesav/PAET2019/PillDora/Voice/{user_id}.ogg"
-        filename_out =f"/home/paesav/PAET2019/PillDora/Voice/{user_id}.wav"
+        filename_out = f"/home/paesav/PAET2019/PillDora/Voice/{user_id}.wav"
         newFile.download(filename_src)
-        text=NLP().init(filename_src,filename_out,self.get_language(user_id))
+        text = NLP().init(filename_src, filename_out, self.get_language(user_id))
         return text
 
     @staticmethod
@@ -619,17 +634,18 @@ class PillDora:
             return cn[:6], cn[6]
         else:
             return 'error', 'error'
+
     def valid_input(self, text):
         return not ("'" in text or '"' in text or '*' in text)
 
     @staticmethod
     def split_date(date):
-        return(date.split("T")[0])
+        return (date.split("T")[0])
 
     @staticmethod
     def split_value(answer_key):
-        answer_key=str(answer_key)
-        answer_key=answer_key.split('.')[0]
+        answer_key = str(answer_key)
+        answer_key = answer_key.split('.')[0]
         return str(answer_key)
 
     @staticmethod
@@ -660,7 +676,8 @@ class PillDora:
         """
         user_id = update.message.from_user.id
         logger.info('User introducing new medicine')
-        update.message.reply_text(st.INTR_MEDICINE_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)])
+        update.message.reply_text(
+            st.INTR_MEDICINE_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, INTR_MEDICINE)
 
     def send_new_medicine(self, update, context):
@@ -671,7 +688,7 @@ class PillDora:
         :param context: Handler's context
         :return: state INTR_MEDICINE while form not completed, state CHECK_MED once completed
         """
-        voice=False
+        voice = False
 
         try:
             user_id = update.message.from_user.id
@@ -689,15 +706,16 @@ class PillDora:
                     self.set_medicine(user_id, self.get_counter(user_id), medicine_cn)
             else:
                 if update.message.voice:
-                    voice=True
-                    answer=self.handle_voice(update, context, user_id)
-                    answer= answer.parameters[MEDICINE_TAGS[self.get_counter(user_id)]] #De todos los parametros que recibimos solo quiere analizar el que pertenece a esa KEYWORD
-                    if len(str(answer))==0 :
+                    voice = True
+                    answer = self.handle_voice(update, context, user_id)
+                    answer = answer.parameters[MEDICINE_TAGS[self.get_counter(
+                        user_id)]]  # De todos los parametros que recibimos solo quiere analizar el que pertenece a esa KEYWORD
+                    if len(str(answer)) == 0:
                         update.message.reply_text("An error has occurred, please repeat the audio")
                         return INTR_MEDICINE
-                    elif self.get_counter(user_id)==2:
-                        answer=self.split_date(answer)
-                    update.message.reply_text(answer) #se podra borrar luego
+                    elif self.get_counter(user_id) == 2:
+                        answer = self.split_date(answer)
+                    update.message.reply_text(answer)  # se podra borrar luego
                     self.set_medicine(user_id, self.get_counter(user_id), str(answer))
 
                 else:
@@ -715,17 +733,18 @@ class PillDora:
             else:
                 update.message.reply_text(st.INTR_MEDICINE_MSSGS[self.get_language(user_id)][self.get_counter(user_id)])
 
-                if voice==False:
+                if voice == False:
                     context.bot.send_message(chat_id=user_id,
-                                            text="Please select: ",
-                                            reply_markup=telegramcalendar.create_calendar())
+                                             text="Please select: ",
+                                             reply_markup=telegramcalendar.create_calendar())
                 elif self.get_counter(user_id) > 1:
                     return INTR_MEDICINE
                 return CHECK_MED
         else:
             self.set_counter(user_id, 0)
             context.bot.send_message(chat_id=user_id,
-                                     text=st.STR_SEND_NEW_MEDICINE_ISCORRECT[self.get_language(user_id)], reply_markup=yes_no_markup[self.get_language(user_id)])
+                                     text=st.STR_SEND_NEW_MEDICINE_ISCORRECT[self.get_language(user_id)],
+                                     reply_markup=yes_no_markup[self.get_language(user_id)])
             context.bot.send_message(chat_id=user_id,
                                      text=self.show_medicine(user_id), parse_mode=telegram.ParseMode.MARKDOWN)
             self.set_query(user_id, list(self.get_medicine(user_id).keys()), list(self.get_medicine(user_id).values()))
@@ -742,8 +761,6 @@ class PillDora:
             med_str += eval(st.STR_SHOW_MEDICINE_ELDIA[self.get_language(user_id)])
         return med_str
 
-
-
     @run_async
     def intr_nlp(self, update, context):
         """ Method that gets quantities of new medicine.
@@ -754,7 +771,8 @@ class PillDora:
         """
         user_id = update.message.from_user.id
         logger.info('User using NLP mode')
-        update.message.reply_text(st.INTR_NLP_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)])
+        update.message.reply_text(
+            st.INTR_NLP_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, NLP)
 
     def nlp_mode(self, update, context):
@@ -777,52 +795,60 @@ class PillDora:
 
             else:
                 if update.message.voice:
-                    answer=self.handle_voice(update, context, user_id)
+                    answer = self.handle_voice(update, context, user_id)
 
-                else: #text detection
-                    answer=NLP().text_input(update.message.text,self.get_language(user_id))
+                else:  # text detection
+                    answer = NLP().text_input(update.message.text, self.get_language(user_id))
 
-                intent_detected=answer.intent.display_name
+                intent_detected = answer.intent.display_name
                 print(intent_detected)
-                if intent_detected==NLP_OPTION[0]: #itnroduce medicine
-                    #self.set_medicine(user_id, 0, name)
-                    if(len(str(answer.parameters[MEDICINE_TAGS[1]]))==0 or len(answer.parameters[MEDICINE_TAGS[2]])==0):
+                if intent_detected == NLP_OPTION[0]:  # itnroduce medicine
+                    # self.set_medicine(user_id, 0, name)
+                    if (len(str(answer.parameters[MEDICINE_TAGS[1]])) == 0 or len(
+                            answer.parameters[MEDICINE_TAGS[2]]) == 0):
                         update.message.reply_text("An error has occurred, please repeat the audio")
                         return NLP
                     else:
                         self.set_medicine(user_id, 1, str(answer.parameters[MEDICINE_TAGS[1]]))
-                        self.set_medicine(user_id, 2,self.split_date(answer.parameters[MEDICINE_TAGS[2]]))                            
+                        self.set_medicine(user_id, 2, self.split_date(answer.parameters[MEDICINE_TAGS[2]]))
 
-                elif intent_detected==NLP_OPTION[1]: #itnroduce prescription
+                elif intent_detected == NLP_OPTION[1]:  # itnroduce prescription
                     print("estoy entrando aqui")
-                    if(len(str(answer.parameters[PRESCRIPTION_TAGS[1]]))==0 or len(str(answer.parameters[PRESCRIPTION_TAGS[2]]['amount']))==0 or len(answer.parameters[PRESCRIPTION_TAGS[3]])==0):
+                    if (len(str(answer.parameters[PRESCRIPTION_TAGS[1]])) == 0 or len(
+                            str(answer.parameters[PRESCRIPTION_TAGS[2]]['amount'])) == 0 or len(
+                            answer.parameters[PRESCRIPTION_TAGS[3]]) == 0):
                         update.message.reply_text("An error has occurred, please repeat the audio")
                         return NLP
 
                     else:
-                        self.set_prescription(user_id, 1, self.split_value(answer.parameters[PRESCRIPTION_TAGS[1]])) # cantidad de pastillas cada vez
+                        self.set_prescription(user_id, 1, self.split_value(
+                            answer.parameters[PRESCRIPTION_TAGS[1]]))  # cantidad de pastillas cada vez
 
-                        self.set_prescription(user_id, 2, self.split_value(answer.parameters[PRESCRIPTION_TAGS[2]]['amount']) ) # frequencia de pastillas cada vez
+                        self.set_prescription(user_id, 2, self.split_value(
+                            answer.parameters[PRESCRIPTION_TAGS[2]]['amount']))  # frequencia de pastillas cada vez
 
-                        self.set_prescription(user_id, 3, self.split_date(answer.parameters[PRESCRIPTION_TAGS[3]])) #fecha
-                    
+                        self.set_prescription(user_id, 3,
+                                              self.split_date(answer.parameters[PRESCRIPTION_TAGS[3]]))  # fecha
+
         except:
             user_id = update.callback_query.from_user.id
 
         self.set_counter(user_id, self.get_counter(user_id) + 1)
         logger.info(self.get_medicine(user_id))
-        
-        if self.get_counter(user_id)==1: #si acaba de introducir un medicamento
+
+        if self.get_counter(user_id) == 1:  # si acaba de introducir un medicamento
             update.message.reply_text(st.INTR_NLP_MSSGS[self.get_language(user_id)][self.get_counter(user_id)])
             return NLP
         else:
-            if intent_detected==NLP_OPTION[0]:
+            if intent_detected == NLP_OPTION[0]:
                 self.set_counter(user_id, 0)
                 context.bot.send_message(chat_id=user_id,
-                                     text=st.STR_SEND_NEW_MEDICINE_ISCORRECT[self.get_language(user_id)], reply_markup=yes_no_markup[self.get_language(user_id)])
+                                         text=st.STR_SEND_NEW_MEDICINE_ISCORRECT[self.get_language(user_id)],
+                                         reply_markup=yes_no_markup[self.get_language(user_id)])
                 context.bot.send_message(chat_id=user_id,
-                                        text=self.show_medicine(user_id), parse_mode=telegram.ParseMode.MARKDOWN)
-                self.set_query(user_id, list(self.get_medicine(user_id).keys()), list(self.get_medicine(user_id).values()))
+                                         text=self.show_medicine(user_id), parse_mode=telegram.ParseMode.MARKDOWN)
+                self.set_query(user_id, list(self.get_medicine(user_id).keys()),
+                               list(self.get_medicine(user_id).values()))
                 self.set_function(user_id, intent_detected)
                 return self.set_state(user_id, CHECK_MED)
 
@@ -833,15 +859,14 @@ class PillDora:
                 b = list(self.get_prescription(user_id).values())
                 b.append(cima.get_med_name(self.get_prescription(user_id)['NAME']))
                 context.bot.send_message(chat_id=user_id,
-                                        text=st.STR_SEND_NEW_PRESCRIPTION_ISCORRECT[self.get_language(user_id)], reply_markup=yes_no_markup[self.get_language(user_id)])
+                                         text=st.STR_SEND_NEW_PRESCRIPTION_ISCORRECT[self.get_language(user_id)],
+                                         reply_markup=yes_no_markup[self.get_language(user_id)])
                 context.bot.send_message(chat_id=user_id,
-                                        text=self.show_prescription(user_id), parse_mode=telegram.ParseMode.MARKDOWN)
+                                         text=self.show_prescription(user_id), parse_mode=telegram.ParseMode.MARKDOWN)
 
                 self.set_query(user_id, a, b)
                 self.set_function(user_id, intent_detected)
                 return self.set_state(user_id, CHECK_PRE)
-
-
 
     @run_async
     def take_pill(self, update, context):
@@ -856,10 +881,12 @@ class PillDora:
         dict = self.list_of_current_cn(user_id)
         if dict is not "False":
             dyn_markup = self.makeKeyboard(dict, user_id)
-            update.message.reply_text(st.INTR_PILL_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)],
-                                      reply_markup=dyn_markup)
+            update.message.reply_text(
+                st.INTR_PILL_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)],
+                reply_markup=dyn_markup)
         else:
-            update.message.reply_text(st.INTR_PILL_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)])
+            update.message.reply_text(
+                st.INTR_PILL_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, TAKE_PILL)
 
     def send_new_pill(self, update, context):
@@ -893,12 +920,14 @@ class PillDora:
         self.set_counter(user_id, self.get_counter(user_id) + 1)
         logger.info(self.get_pill(user_id))
         if self.get_counter(user_id) != len(st.INTR_PILL_MSSGS[self.get_language(user_id)]):
-            self.bot.send_message(chat_id=user_id, text=st.INTR_PILL_MSSGS[self.get_language(user_id)][self.get_counter(user_id)])
+            self.bot.send_message(chat_id=user_id,
+                                  text=st.INTR_PILL_MSSGS[self.get_language(user_id)][self.get_counter(user_id)])
             return TAKE_PILL
         else:
             self.set_counter(user_id, 0)
             context.bot.send_message(chat_id=user_id,
-                                     text=st.STR_SEND_NEW_PILL_ISTAKENCORRECTLY[self.get_language(user_id)], reply_markup=yes_no_markup[self.get_language(user_id)])
+                                     text=st.STR_SEND_NEW_PILL_ISTAKENCORRECTLY[self.get_language(user_id)],
+                                     reply_markup=yes_no_markup[self.get_language(user_id)])
             context.bot.send_message(chat_id=user_id,
                                      text=self.show_pill(user_id), parse_mode=telegram.ParseMode.MARKDOWN)
             self.set_query(user_id, list(self.get_pill(user_id).keys()), list(self.get_pill(user_id).values()))
@@ -934,7 +963,7 @@ class PillDora:
         lista = []
         for key in arg:
             lista.append([InlineKeyboardButton(text=arg[key], callback_data=key)])
-        if self.get_states(user_id)[0]==SHOW_INFORMATION:
+        if self.get_states(user_id)[0] == SHOW_INFORMATION:
             lista.append([InlineKeyboardButton(text=st.STR_MAKEKEYBOARD, callback_data='Others')])
         dyn_markup = InlineKeyboardMarkup(lista)
         return dyn_markup
@@ -1011,7 +1040,8 @@ class PillDora:
             self.event.set()
             return self.set_state(user_id, END)
         else:
-            self.bot.send_message(chat_id=user_id, text=st.STR_PRINT_LOCATION_HELPEND[self.get_language(user_id)], reply_markup=markup[self.get_language(user_id)])
+            self.bot.send_message(chat_id=user_id, text=st.STR_PRINT_LOCATION_HELPEND[self.get_language(user_id)],
+                                  reply_markup=markup[self.get_language(user_id)])
             return self.set_state(user_id, CHOOSING)
 
     @run_async
@@ -1079,15 +1109,15 @@ class PillDora:
                                              reply_markup=ReplyKeyboardRemove())
                     self.set_medicine(user_id, self.get_counter(user_id), date.strftime("%Y-%m-%d"))
                     self.send_new_medicine(update, context)
-                    #self.set_prescription(user_id, self.get_counter(user_id), date.strftime("%Y-%m-%d"))
-                    #self.send_new_prescription(update, context)
+                    # self.set_prescription(user_id, self.get_counter(user_id), date.strftime("%Y-%m-%d"))
+                    # self.send_new_prescription(update, context)
 
     @run_async
     # Returns all the reminders associated for a specific date and user_id
     def get_calendar_tasks(self, update, context, date, user_id):
         date_str = date
         if date_str == MAX_DATE:
-            date_str = st.GET_CALENDAR_TASKS_CHRONIC[self.get_language(user_id)]
+            date_str = st.GET_CALENDAR_TASKJS_CHRONIC[self.get_language(user_id)]
         # connects to DataBase with Date and UserId asking for all the tasks of this date
         self.set_function(user_id, "TASKS CALENDAR")
         self.set_query(user_id, ["date"], [date])
@@ -1099,7 +1129,6 @@ class PillDora:
                               text=eval(st.STR_GET_CALENDAR_TASKS_REMINDERS[self.get_language(user_id)]))
         self.bot.send_message(chat_id=user_id, text=st.STR_GET_CALENDAR_TASKS_HELPEND[self.get_language(user_id)],
                               reply_markup=markup[self.get_language(user_id)])
-
 
     @run_async
     # Method that prints systematically the current Treatment for a certain user_id
@@ -1114,7 +1143,9 @@ class PillDora:
         if response['parameters']['reminder_info'] == "False":
             self.bot.send_message(chat_id=user_id, text=st.STR_SEE_CURRENTTREATMENT_IF[self.get_language(user_id)])
         else:
-            self.bot.send_message(chat_id=user_id, text=eval(st.STR_SEE_CURRENTTREATMENT_ELSE[self.get_language(user_id)]), parse_mode=telegram.ParseMode.MARKDOWN)
+            self.bot.send_message(chat_id=user_id,
+                                  text=eval(st.STR_SEE_CURRENTTREATMENT_ELSE[self.get_language(user_id)]),
+                                  parse_mode=telegram.ParseMode.MARKDOWN)
         self.set_query(user_id, ["None"], ["None"])
         return self.manage_response(update, context)
 
@@ -1166,7 +1197,8 @@ class PillDora:
             return self.set_state(user_id, CHECK_REM)
         else:
             update.message.reply_text(st.STR_DELETE_REMINDER_ANYMED[self.get_language(user_id)])
-            update.message.reply_text(text=st.STR_DELETE_REMINDER_HELPEND[self.get_language(user_id)], reply_markup=markup)
+            update.message.reply_text(text=st.STR_DELETE_REMINDER_HELPEND[self.get_language(user_id)],
+                                      reply_markup=markup)
             return self.set_state(user_id, CHOOSING)
 
     # Method that asks for a CN and prints all the information and asks about if it should be removed or not
@@ -1200,9 +1232,11 @@ class PillDora:
             print("qui2")
             reminder_info = eval(st.STR_GETMEDICINECN_REMINDERINFOELSE[self.get_language(user_id)])
             print("pritn3")
-        self.bot.send_message(chat_id=user_id, text=st.STR_GETMEDICINECN_SHOULDREMOVE[self.get_language(user_id)], parse_mode=telegram.ParseMode.MARKDOWN)
+        self.bot.send_message(chat_id=user_id, text=st.STR_GETMEDICINECN_SHOULDREMOVE[self.get_language(user_id)],
+                              parse_mode=telegram.ParseMode.MARKDOWN)
         print("4")
-        self.bot.send_message(chat_id=user_id, text=st.STR_GETMEDICINECN_ISTHIS[self.get_language(user_id)], reply_markup=yes_no_markup[self.get_language(user_id)])
+        self.bot.send_message(chat_id=user_id, text=st.STR_GETMEDICINECN_ISTHIS[self.get_language(user_id)],
+                              reply_markup=yes_no_markup[self.get_language(user_id)])
         print("5")
         self.set_query(user_id, ["CN"], [response['parameters']['CN']])
         print("6")
@@ -1212,8 +1246,8 @@ class PillDora:
     # Method that creates a journey to be handled later and asks for the information
     @run_async
     def create_journey(self, update, context):
-	user_id = update.message.from_user.id
-	boolean = self.get_states(update.message.from_user.id)[0] == CHOOSING
+        user_id = update.message.from_user.id
+        boolean = self.get_states(update.message.from_user.id)[0] == CHOOSING
         self.set_state(update.message.from_user.id, CHOOSING)
         logger.info('User ' + self.get_name(update.message.from_user) + ' creating journey')
         self.set_state(update.message.from_user.id, JOURNEY)
@@ -1225,7 +1259,7 @@ class PillDora:
                                       reply_markup=telegramcalendar.create_calendar())
         return JOURNEY
 
-   # Method that asks for the dates needed for a journey and changes the state of the bot to JOURNEY
+    # Method that asks for the dates needed for a journey and changes the state of the bot to JOURNEY
     def set_journey(self, update, context, date):
         date_str = date
         if date == MAX_DATE:
@@ -1256,8 +1290,9 @@ class PillDora:
             self.set_reminder(user_id, str(cn), str(time))
             reminder = st.STR_SEND_REMINDER_REMIDNER[self.get_language(user_id)]
             self.bot.send_message(chat_id=user_id,
-                                    text="*`" + reminder + "`*\n",
-                                    parse_mode=telegram.ParseMode.MARKDOWN, reply_markup=taken_pill_markup[self.get_language(user_id)])
+                                  text="*`" + reminder + "`*\n",
+                                  parse_mode=telegram.ParseMode.MARKDOWN,
+                                  reply_markup=taken_pill_markup[self.get_language(user_id)])
             self.event.clear()
             return self.set_state(user_id, REMINDERS)
         else:
@@ -1304,7 +1339,7 @@ class PillDora:
                                   text=st.STR_INTR_HISTORY_NO_ELSE[self.get_language(user_id)])
         self.event.set()
         return self.set_state(user_id, END)
-        
+
     # Ends the communication between the user and the bot
     def exit(self, update, context):
         user_id = update.message.from_user.id
@@ -1312,7 +1347,6 @@ class PillDora:
         logger.info('User ' + self.get_name(update.message.from_user) + ' finish with AideBot')
         self.event.set()
         return self.set_state(user_id, END)
-
 
     def getToTheMenu(self, update, context):
         try:
@@ -1327,7 +1361,8 @@ class PillDora:
         self.set_dates(user_id=user_id, text="arrival", date="None")
         self.set_counter(user_id=user_id, num=0)
         logger.info('User ' + self.get_name(update.message.from_user) + ' in the menu after quitting from function')
-        update.message.reply_text("Is there any other way I can help you?", reply_markup=markup[self.get_language(user_id)])
+        update.message.reply_text("Is there any other way I can help you?",
+                                  reply_markup=markup[self.get_language(user_id)])
         return self.set_state(user_id=user_id, state=CHOOSING)
 
     # Main of the Client.py, where the bot is activated and creates the transition to the different functionalities
@@ -1343,69 +1378,70 @@ class PillDora:
             states={
                 LOGIN: [MessageHandler(Filters.text, self.intr_pwd)],
                 NEW_USER: [MessageHandler(Filters.text, self.new_user)],
-                CHOOSING: [MessageHandler(Filters.regex('^New Prescription')|Filters.regex('^Nueva Receta'),
+                CHOOSING: [MessageHandler(Filters.regex('^New Prescription') | Filters.regex('^Nueva Receta'),
                                           self.intr_prescription),
-                           MessageHandler(Filters.regex('^New Medicine')|Filters.regex('^Nuevo Medicamento'),
+                           MessageHandler(Filters.regex('^New Medicine') | Filters.regex('^Nuevo Medicamento'),
                                           self.intr_medicine),
-                           MessageHandler(Filters.regex('^Voice')|Filters.regex('^Voz'),
+                           MessageHandler(Filters.regex('^Voice') | Filters.regex('^Voz'),
                                           self.intr_nlp),
-                           MessageHandler(Filters.regex('^Take Pill')|Filters.regex('^Tomar Pastilla'),
+                           MessageHandler(Filters.regex('^Take Pill') | Filters.regex('^Tomar Pastilla'),
                                           self.take_pill),
-                           MessageHandler(Filters.regex('^Calendar')|Filters.regex('^Calendario'),
+                           MessageHandler(Filters.regex('^Calendar') | Filters.regex('^Calendario'),
                                           self.see_calendar),
-                           MessageHandler(Filters.regex('^Current Treatment')|Filters.regex('^Tratamientos Actuales'),
+                           MessageHandler(Filters.regex('^Current Treatment') | Filters.regex('^Tratamientos Actuales'),
                                           self.see_currentTreatment),
-                           MessageHandler(Filters.regex('^History')|Filters.regex('^Historial'),
+                           MessageHandler(Filters.regex('^History') | Filters.regex('^Historial'),
                                           self.see_history),
-                           MessageHandler(Filters.regex('^Inventory')|Filters.regex('^Inventorio'),
+                           MessageHandler(Filters.regex('^Inventory') | Filters.regex('^Inventorio'),
                                           self.see_inventory),
-                           MessageHandler(Filters.regex('^Information')|Filters.regex('^Información'),
+                           MessageHandler(Filters.regex('^Information') | Filters.regex('^Información'),
                                           self.show_information),
-                           MessageHandler(Filters.regex('^Delete reminder')|Filters.regex('^Eliminar Recordatorio'),
+                           MessageHandler(Filters.regex('^Delete reminder') | Filters.regex('^Eliminar Recordatorio'),
                                           self.delete_reminder),
-                           MessageHandler(Filters.regex('^Journey')|Filters.regex('^Viaje'),
+                           MessageHandler(Filters.regex('^Journey') | Filters.regex('^Viaje'),
                                           self.create_journey),
-                           MessageHandler(Filters.regex('^Exit')|Filters.regex('^Salir'), self.exit)
+                           MessageHandler(Filters.regex('^Exit') | Filters.regex('^Salir'), self.exit)
                            ],
-                INTR_PRESCRIPTION: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
-                                    MessageHandler(Filters.text | Filters.photo | Filters.voice, self.send_new_prescription)],
-                INTR_MEDICINE: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
+                INTR_PRESCRIPTION: [
+                    MessageHandler(Filters.regex('^Exit$') | Filters.regex('^Salir'), self.getToTheMenu),
+                    MessageHandler(Filters.text | Filters.photo | Filters.voice, self.send_new_prescription)],
+                INTR_MEDICINE: [MessageHandler(Filters.regex('^Exit$') | Filters.regex('^Salir'), self.getToTheMenu),
                                 MessageHandler(Filters.text | Filters.photo | Filters.voice, self.send_new_medicine)],
-                NLP: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
-                                MessageHandler(Filters.text | Filters.photo | Filters.voice, self.nlp_mode)],
-                TAKE_PILL: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
+                NLP: [MessageHandler(Filters.regex('^Exit$') | Filters.regex('^Salir'), self.getToTheMenu),
+                      MessageHandler(Filters.text | Filters.photo | Filters.voice, self.nlp_mode)],
+                TAKE_PILL: [MessageHandler(Filters.regex('^Exit$') | Filters.regex('^Salir'), self.getToTheMenu),
                             MessageHandler(Filters.text | Filters.photo, self.send_new_pill)],
-                SHOW_INFORMATION: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
+                SHOW_INFORMATION: [MessageHandler(Filters.regex('^Exit$') | Filters.regex('^Salir'), self.getToTheMenu),
                                    MessageHandler(Filters.text | Filters.photo, self.show_infoAbout)],
-                LOCATION: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
-                            MessageHandler(Filters.location, self.print_location),
+                LOCATION: [MessageHandler(Filters.regex('^Exit$') | Filters.regex('^Salir'), self.getToTheMenu),
+                           MessageHandler(Filters.location, self.print_location),
                            MessageHandler(Filters.regex("^Don't Send Location"), self.manage_response)],
-                CHECK_PRE: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
-                            MessageHandler(Filters.regex('^YES$')|Filters.regex('^SÍ'), self.manage_response),
+                CHECK_PRE: [MessageHandler(Filters.regex('^Exit$') | Filters.regex('^Salir'), self.getToTheMenu),
+                            MessageHandler(Filters.regex('^YES$') | Filters.regex('^SÍ'), self.manage_response),
                             MessageHandler(Filters.regex('^NO$'), self.intr_prescription)],
-                CHECK_MED: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
-                            MessageHandler(Filters.regex('^YES$')|Filters.regex('^SÍ'), self.manage_response),
+                CHECK_MED: [MessageHandler(Filters.regex('^Exit$') | Filters.regex('^Salir'), self.getToTheMenu),
+                            MessageHandler(Filters.regex('^YES$') | Filters.regex('^SÍ'), self.manage_response),
                             MessageHandler(Filters.regex('^NO$'), self.intr_medicine)],
-                CHECK_REM: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
-                            MessageHandler(Filters.regex('^YES$')|Filters.regex('^SÍ'), self.manage_response),
+                CHECK_REM: [MessageHandler(Filters.regex('^Exit$') | Filters.regex('^Salir'), self.getToTheMenu),
+                            MessageHandler(Filters.regex('^YES$') | Filters.regex('^SÍ'), self.manage_response),
                             MessageHandler(Filters.regex('^NO$'), self.delete_reminder)],
-                CHECK_PILL: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
-                             MessageHandler(Filters.regex('^YES$')|Filters.regex('^SÍ'), self.verificate_pill),
+                CHECK_PILL: [MessageHandler(Filters.regex('^Exit$') | Filters.regex('^Salir'), self.getToTheMenu),
+                             MessageHandler(Filters.regex('^YES$') | Filters.regex('^SÍ'), self.verificate_pill),
                              MessageHandler(Filters.regex('^NO$'), self.take_pill)],
-                CHECK_PILL_PHOTO: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
+                CHECK_PILL_PHOTO: [MessageHandler(Filters.regex('^Exit$') | Filters.regex('^Salir'), self.getToTheMenu),
                                    MessageHandler(Filters.photo, self.manage_response),
                                    MessageHandler(Filters.regex('^NO$'), self.delete_reminder)],
-                GET_CN: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
+                GET_CN: [MessageHandler(Filters.regex('^Exit$') | Filters.regex('^Salir'), self.getToTheMenu),
                          MessageHandler(Filters.text, self.get_medicine_CN)],
-                JOURNEY: [MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.getToTheMenu),
-                          MessageHandler(Filters.regex('^YES$')|Filters.regex('^SÍ'), self.manage_response),
+                JOURNEY: [MessageHandler(Filters.regex('^Exit$') | Filters.regex('^Salir'), self.getToTheMenu),
+                          MessageHandler(Filters.regex('^YES$') | Filters.regex('^SÍ'), self.manage_response),
                           MessageHandler(Filters.regex('^NO$'), self.create_journey)],
                 END: [MessageHandler(Filters.regex('^TAKEN'), self.intr_history_yes),
                       MessageHandler(Filters.regex('^POSTPONE'), self.intr_history_no),
                       MessageHandler(Filters.text, self.start)
                       ]
             },
-            fallbacks=[MessageHandler(Filters.regex('^Exit$')|Filters.regex('^Salir'), self.exit)]
+            fallbacks=[MessageHandler(Filters.regex('^Exit$') | Filters.regex('^Salir'), self.exit)]
         )
 
         dp.add_handler(conv_handler)
