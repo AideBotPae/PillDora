@@ -180,8 +180,8 @@ STR_MANAGE_RESPONSE_DELETEREMINDER = {
 }
 
 STR_MANAGE_RESPONSE_JOURNEY = {
-    'eng': "'Medicines to take during journey:\n' + response['parameters']['journey_info']",
-    'esp': "'Medicamentos a llevar durante el viaje:\n + response['parameters']['journey_info']"
+    'eng': "'Medicines to take during journey: \\n' + response['parameters']['journey_info']",
+    'esp': "'Medicamentos a llevar durante el viaje: \\n' + response['parameters']['journey_info']"
 }
 
 STR_MANAGE_RESPONSE_TAKEPILL1 = {
@@ -387,34 +387,35 @@ STR_GETMEDICINECN_REMINDERINFOELSE ={
     'esp': "'Medicamento ' + cima.get_med_name(response['parameters']['CN']) + ' tomado con una frecuencia de ' + response['parameters']['frequency'] + ' horas hasta el día ' + response['parameters']['end_date'] + '.'"
 }
 STR_GETMEDICINECN_SHOULDREMOVE = {
-    'eng' : "'Reminder asked to be removed: *' + reminder_info",
-    'esp' : "'Recordatorio solicitado para eliminar: *' + reminder_info"
+    'eng' : "Reminder asked to be removed:\n ->\t",
+    'esp' : "Recordatorio solicitado para eliminar:\n ->\t"
 }
+STR_GETMEDICINECN_HELPEND = STR_DELETE_REMINDER_HELPEND
 
 
 STR_GETMEDICINECN_ISTHIS = {
-    'eng' : "'Is this the reminder you want to remove? ', reply_markup=yes_no_markup",
-    'esp' : "'Es este el recordatorio que quieres eliminar? ', reply_markup=yes_no_markup"
+    'eng' : "Is this the reminder you want to remove? ",
+    'esp' : "Es este el recordatorio que quieres eliminar? "
 }
 
 STR_CREATE_JOURNEY_IF = {
     'eng' : "Wow fantastic! So you are going on a trip...\nWhen are you leaving?",
-    'esp' : "Uala fantśatico! Así que te vas de viaje...\n¿Cuándo te vas?"
+    'esp' : "Uala fantástico! Así que te vas de viaje...\n¿Cuándo te vas?"
 }
 
 STR_CREATE_JOURNEY_ELSE = {
-    'eng' : "'Wow fantastic! So you are going on a trip...\nWhen are you leaving?',reply_markup=telegramcalendar.create_calendar()",
-    'esp' : "'Uala fantśatico! Así que te vas de viaje...\n¿Cuándo te vas?',reply_markup=telegramcalendar.create_calendar()"
+    'eng' : "Wow fantastic! So you are going on a trip...\nWhen are you leaving?",
+    'esp' : "Uala fantástico! Así que te vas de viaje...\n¿Cuándo te vas?"
 }
 
 STR_SET_JOURNEY_DEPARTURE = {
-'eng' : "chat_id=user_id,text='Alright. I see you are leaving on ' + date_str + '.\n When will you come back?', reply_markup=telegramcalendar.create_calendar()",
-'esp' : "chat_id=user_id,text='Estupendo. Veo que te vas el ' + date_str + '.\n ¿Cuándo vas a volver?', reply_markup=telegramcalendar.create_calendar()"
+'eng' : "'Alright. I see you are leaving on ' + date_str + '. \\n When will you come back?'",
+'esp' : "'Estupendo. Veo que te vas el ' + date_str + '. \\n ¿Cuándo vas a volver?'"
 }
 
 STR_SET_JOURNEY_ARRIVAL = {
-    'eng' : "chat_id=user_id, text='The arrival Date is on '+ date_str + '\nIs this information correct?',reply_markup=yes_no_markup",
-    'esp' : "chat_id=user_id, text='TLa fecha de llegada es el  '+ date_str + '\n¿Es correcta la información?',reply_markup=yes_no_markup"
+    'eng' : "'The arrival Date is on '+ date_str + ' \\nIs this information correct?'",
+    'esp' : "'La fecha de llegada es el  '+ date_str + ' \\n¿Es correcta la información?'"
 }
 
 STR_SEND_REMINDER_REMINDER = {

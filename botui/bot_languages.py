@@ -64,7 +64,7 @@ loc_button['eng'] = KeyboardButton(text="Send Location", request_location=True)
 loc_button['esp'] = KeyboardButton(text="Enviar ubicación", request_location=True)
 location_keyboard = {}
 location_keyboard['eng'] = [[loc_button['eng'], "Don't Send Location"]]
-location_keyboard['esp'] = [[loc_button['esp'], "Don't Send Location"]]
+location_keyboard['esp'] = [[loc_button['esp'], "No enviar ubicación"]]
 
 # markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True)
 yes_no_markup = {}
@@ -986,7 +986,7 @@ class PillDora:
                 reply_markup=dyn_markup)
             return self.set_state(user_id=user_id, state=CHOOSING)
         else:
-            update.message.reply_text("Introduce CN of the Medicine you want information about:")
+            update.message.reply_text(st.STR_SHOW_INFORMATION_CHOOSEMED [self.get_language(user_id)])
             return SHOW_INFORMATION
 
     def show_infoAbout(self, update, context):
@@ -1201,17 +1201,15 @@ class PillDora:
         else:
             update.message.reply_text(st.STR_DELETE_REMINDER_ANYMED[self.get_language(user_id)])
             update.message.reply_text(text=st.STR_DELETE_REMINDER_HELPEND[self.get_language(user_id)],
-                                      reply_markup=markup)
+                                      reply_markup=markup[self.get_language(user_id)])
             return self.set_state(user_id, CHOOSING)
 
     # Method that asks for a CN and prints all the information and asks about if it should be removed or not
     def get_medicine_CN(self, update, context):
-        print(str(update.message.text))
         try:
             if self.valid_input(update.message.text):
                 medicine_CN = update.message.text
             else:
-                print("entro aqui")
                 update.message.reply_text(
                     st.STR_GETMEDICINECN_METACHARACTERS[self.get_language(user_id)])
                 return GET_CN
@@ -1219,7 +1217,7 @@ class PillDora:
         except:
             user_id = update.callback_query.from_user.id
             medicine_CN = update.callback_query.data
-        print("qui1")
+
         # connects to DataBase with UserId and get the current reminder for this medicine_CN.
         self.set_function(user_id, "GET REMINDER")
         self.set_query(user_id, ["CN"], [medicine_CN])
@@ -1227,27 +1225,21 @@ class PillDora:
         response = json.loads(self.send_query(user_id, query))
         reminder_info = response['parameters']
         if reminder_info['CN'] == "False":
-            self.bot.send_message(chat_id=user_id, text=st.STR_GETMEDICINECN_IFFALSE[self.get_language(user_id)],
-                                  reply_markup=markup[self.get_language(user_id)])
+            self.bot.send_message(chat_id=user_id, text=st.STR_GETMEDICINECN_IFFALSE[self.get_language(user_id)])
+            self.bot.send_message(chat_id=user_id, text=st.STR_GETMEDICINECN_HELPEND[self.get_language(user_id)], reply_markup=markup[self.get_language(user_id)])
             return self.set_state(user_id, CHOOSING)
         end_date = response['parameters']['end_date']
         if end_date == MAX_DATE:
             reminder_info = eval(st.STR_GETMEDICINECN_REMINDERINFOIF[self.get_language(user_id)])
         else:
-            print("qui2")
             reminder_info = eval(st.STR_GETMEDICINECN_REMINDERINFOELSE[self.get_language(user_id)])
-            print("pritn3")
-        self.bot.send_message(chat_id=user_id, text=st.STR_GETMEDICINECN_SHOULDREMOVE[self.get_language(user_id)],
-                              parse_mode=telegram.ParseMode.MARKDOWN)
-        print("4")
-        self.bot.send_message(chat_id=user_id, text=st.STR_GETMEDICINECN_ISTHIS[self.get_language(user_id)],
-                              reply_markup=yes_no_markup[self.get_language(user_id)])
-        print("5")
+        self.bot.send_message(chat_id=user_id, text=st.STR_GETMEDICINECN_SHOULDREMOVE[self.get_language(user_id)] + reminder_info, parse_mode=telegram.ParseMode.MARKDOWN)
+        self.bot.send_message(chat_id=user_id, text=st.STR_GETMEDICINECN_ISTHIS[self.get_language(user_id)], reply_markup=yes_no_markup[self.get_language(user_id)])
         self.set_query(user_id, ["CN"], [response['parameters']['CN']])
-        print("6")
         self.set_function(user_id, 'DELETE REMINDER')
-        return self.set_state(user_id, CHECK_REM)
-
+        return self.set_state(user_id, CHECK_REM)    
+        
+        
     # Method that creates a journey to be handled later and asks for the information
     @run_async
     def create_journey(self, update, context):
@@ -1259,7 +1251,7 @@ class PillDora:
         if boolean:
             update.message.reply_text(st.STR_CREATE_JOURNEY_IF[self.get_language(user_id)],
                                       reply_markup=telegramcalendar.create_calendar())
-        else:
+        else: 
             update.message.reply_text(st.STR_CREATE_JOURNEY_ELSE[self.get_language(user_id)],
                                       reply_markup=telegramcalendar.create_calendar())
         return JOURNEY
@@ -1279,7 +1271,7 @@ class PillDora:
         if self.get_states(user_id)[1] == JOURNEY:
             self.set_dates(user_id, "arrival", date)
             context.bot.send_message(chat_id=user_id,
-                                     text=st.STR_SET_JOURNEY_ARRIVAL[self.get_language(user_id)],
+                                     text=eval(st.STR_SET_JOURNEY_ARRIVAL[self.get_language(user_id)]),
                                      reply_markup=yes_no_markup[self.get_language(user_id)])
             self.set_query(user_id, ["departure_date", "arrival_date"],
                            [self.get_dates(user_id)[0], self.get_dates(user_id)[1]])
@@ -1420,7 +1412,7 @@ class PillDora:
                                    MessageHandler(Filters.text | Filters.photo, self.show_infoAbout)],
                 LOCATION: [MessageHandler(Filters.regex('^Exit$') | Filters.regex('^Salir'), self.getToTheMenu),
                            MessageHandler(Filters.location, self.print_location),
-                           MessageHandler(Filters.regex("^Don't Send Location"), self.manage_response)],
+                           MessageHandler(Filters.regex("^Don't Send Location") | Filters.regex("No enviar ubicación"), self.manage_response)],
                 CHECK_PRE: [MessageHandler(Filters.regex('^Exit$') | Filters.regex('^Salir'), self.getToTheMenu),
                             MessageHandler(Filters.regex('^YES$') | Filters.regex('^SÍ'), self.manage_response),
                             MessageHandler(Filters.regex('^NO$'), self.intr_prescription)],
