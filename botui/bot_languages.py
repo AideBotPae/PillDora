@@ -871,7 +871,6 @@ class PillDora:
     @run_async
     def take_pill(self, update, context):
         """ Method that introduce pill take.
-
         :param update: Updater for bot token
         :param context: Handler's context
         :return: new state TAKE_PILL
@@ -879,14 +878,12 @@ class PillDora:
         logger.info('User introducing new pill taken')
         user_id = update.message.from_user.id
         dict = self.list_of_current_cn(user_id)
-        if dict is not "False":
+        if 'Boolean' not in dict:
             dyn_markup = self.makeKeyboard(dict, user_id)
-            update.message.reply_text(
-                st.INTR_PILL_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)],
-                reply_markup=dyn_markup)
+            update.message.reply_text(st.INTR_PILL_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)],
+                                      reply_markup=dyn_markup)
         else:
-            update.message.reply_text(
-                st.INTR_PILL_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)])
+            update.message.reply_text(st.INTR_PILL_MSSGS[self.get_language(user_id)][self.get_counter(update.message.from_user.id)])
         return self.set_state(update.message.from_user.id, TAKE_PILL)
 
     def send_new_pill(self, update, context):
