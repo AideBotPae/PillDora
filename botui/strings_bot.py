@@ -281,6 +281,15 @@ STR_SHOW_PILL= {
     'esp': "'Estás tomando *' + self.get_pill(user_id)['QUANTITY'] + '* pastillas de *' + cima.get_med_name(self.get_pill(user_id)['NAME']).split(' ')[0] + '* !'"
 }
 
+STR_SHOWPILL_PILLOF = {
+    'eng': "* pills of medicine *",
+    'esp': "* pastillas de *"
+}    
+STR_SHOWPILL_TAKING = {
+    'eng': "You are taking *",
+    'esp': "Estás tomando *"
+}
+
 STR_CHECK_PILL = {
 'eng': "chat_id=user_id,text='Please introduce photo of the pills you proceed to take. If you can not do so, click on NO',reply_markup=yes_no_markup",
 'esp': "chat_id=user_id,text='Por favor, introduce una foto de las pastillas que te vas a tomar. Si no puedes realizarla ahora, apreta NO',reply_markup=yes_no_markup"
