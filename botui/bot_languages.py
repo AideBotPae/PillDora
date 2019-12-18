@@ -935,7 +935,8 @@ class PillDora:
             return self.set_state(user_id, CHECK_PILL)
 
     def show_pill(self, user_id):
-        med_str = eval(st.STR_SHOW_PILL[self.get_language(user_id)])
+        med_str = med_str = st.STR_SHOWPILL_TAKING[self.get_language(user_id)] + self.get_pill(user_id)['QUANTITY'] + st.STR_SHOWPILL_PILLSOF[self.get_language(user_id)] + \
+                  cima.get_med_name(self.get_pill(user_id)['NAME']).split(' ')[0] + "* !"
         return med_str
 
     def check_pill(self, update, context):
